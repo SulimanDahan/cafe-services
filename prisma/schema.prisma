@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id         String   @id @default(uuid())
+  username   String   @unique
+  password   String
+  is_admin   Boolean  @default(false)
+  is_disable Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Room {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  is_disable   Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  reservations Reservation[]
+}
+
+model ItemGroup {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  is_disable Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  items      Item[]
+}
+
+model Item {
+  id               String            @id @default(uuid())
+  name             String            @unique
+  price            Decimal           @default(0)
+  group            ItemGroup         @relation(fields: [group_id], references: [id])
+  group_id         String
+  is_disable       Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  reservationItems ReservationItem[]
+}
+
+model Reservation {
+  id               String            @id @default(uuid())
+  number           Int               @unique @default(autoincrement())
+  date_time        DateTime          @default(now())
+  client_name      String
+  phone            String
+  room_id          String
+  room             Room              @relation(fields: [room_id], references: [id])
+  accepted         Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  reservationItems ReservationItem[]
+}
+
+model ReservationItem {
+  id             String      @id @default(uuid())
+  reservation_id String
+  item_id        String
+  item_price     Decimal     @default(0)
+  quantity       Int         @default(1)
+  reservation    Reservation @relation(fields: [reservation_id], references: [id])
+  item           Item        @relation(fields: [item_id], references: [id])
+  createdAt      DateTime    @default(now())
+}

@@ -1,0 +1,23 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Install dependencies first (for caching)
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Expose port 3000 for development server
+EXPOSE 3000
+
+# Set environment variables
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# Run database synchronization on startup, then launch development server
+CMD ["sh", "-c", "npx prisma db push && npm run dev"]
