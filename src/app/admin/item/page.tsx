@@ -3,10 +3,12 @@
 import { useState } from "react";
 import AdminHeader from "@/components/AdminHeader";
 import SearchInput from "@/components/SearchInput";
+import { useLanguage } from "@/config/i18n";
 
 interface Item {
 	id: string;
-	name: string;
+	name_ar: string;
+	name_en: string;
 	price: number;
 	groupId: string; // foreign key
 	is_disable: boolean;
@@ -15,7 +17,8 @@ interface Item {
 
 interface ItemGroup {
 	id: string;
-	name: string;
+	name_ar: string;
+	name_en: string;
 }
 
 /**
@@ -24,22 +27,24 @@ interface ItemGroup {
  * adjust pricing, categorize them, query, edit details, and disable items with 0 emojis.
  */
 export default function ItemsAdmin() {
+	const { t, isRtl } = useLanguage();
+
 	// Pre-seeded database matching Item schema and relations
 	const [items, setItems] = useState<Item[]>([
-		{ id: "i1", name: "إسبريسو مزدوج", price: 14.0, groupId: "g5", is_disable: false, createdAt: "12 مايو 2026" },
-		{ id: "i2", name: "كابتشينو كلاسيك", price: 18.0, groupId: "g1", is_disable: false, createdAt: "12 مايو 2026" },
-		{ id: "i3", name: "سبانش لاتيه بارد", price: 22.0, groupId: "g2", is_disable: false, createdAt: "12 مايو 2026" },
-		{ id: "i4", name: "كرواسون الزبدة المقرمش", price: 16.0, groupId: "g3", is_disable: false, createdAt: "11 مايو 2026" },
-		{ id: "i5", name: "كيكة العسل والزعفران", price: 28.0, groupId: "g4", is_disable: false, createdAt: "10 مايو 2026" },
-		{ id: "i6", name: "سويت كولد برو", price: 24.0, groupId: "g2", is_disable: true, createdAt: "05 مايو 2026" },
+		{ id: "i1", name_ar: "إسبريسو مزدوج", name_en: "Double Espresso", price: 14000, groupId: "g5", is_disable: false, createdAt: "12 مايو 2026" },
+		{ id: "i2", name_ar: "كابتشينو كلاسيك", name_en: "Classic Cappuccino", price: 18000, groupId: "g1", is_disable: false, createdAt: "12 مايو 2026" },
+		{ id: "i3", name_ar: "سبانش لاتيه بارد", name_en: "Cold Spanish Latte", price: 22000, groupId: "g2", is_disable: false, createdAt: "12 مايو 2026" },
+		{ id: "i4", name_ar: "كرواسون الزبدة المقرمش", name_en: "Crispy Butter Croissant", price: 16000, groupId: "g3", is_disable: false, createdAt: "11 مايو 2026" },
+		{ id: "i5", name_ar: "كيكة العسل والزعفران", name_en: "Honey Saffron Cake", price: 28000, groupId: "g4", is_disable: false, createdAt: "10 مايو 2026" },
+		{ id: "i6", name_ar: "سويت كولد برو", name_en: "Sweet Cold Brew", price: 24000, groupId: "g2", is_disable: true, createdAt: "05 مايو 2026" },
 	]);
 
 	const [groups] = useState<ItemGroup[]>([
-		{ id: "g1", name: "المشروبات الساخنة" },
-		{ id: "g2", name: "المشروبات الباردة" },
-		{ id: "g3", name: "المعجنات والمخبوزات" },
-		{ id: "g4", name: "الحلويات الفاخرة" },
-		{ id: "g5", name: "ركن القهوة المختصة" },
+		{ id: "g1", name_ar: "المشروبات الساخنة", name_en: "Hot Beverages" },
+		{ id: "g2", name_ar: "المشروبات الباردة", name_en: "Cold Beverages" },
+		{ id: "g3", name_ar: "المعجنات والمخبوزات", name_en: "Pastries & Bakery" },
+		{ id: "g4", name_ar: "الحلويات الفاخرة", name_en: "Premium Desserts" },
+		{ id: "g5", name_ar: "ركن القهوة المختصة", name_en: "Specialty Coffee Bar" },
 	]);
 
 	const [searchQuery, setSearchQuery] = useState("");
@@ -48,20 +53,23 @@ export default function ItemsAdmin() {
 	const [editingItem, setEditingItem] = useState<Item | null>(null);
 
 	// Form states
-	const [itemName, setItemName] = useState("");
+	const [itemNameAr, setItemNameAr] = useState("");
+	const [itemNameEn, setItemNameEn] = useState("");
 	const [itemPrice, setItemPrice] = useState("");
 	const [itemGroupId, setItemGroupId] = useState("g1");
 
 	// Filters execution
 	const filteredItems = items.filter((item) => {
-		const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+		const targetName = isRtl ? item.name_ar : item.name_en;
+		const matchesSearch = targetName.toLowerCase().includes(searchQuery.toLowerCase());
 		const matchesGroup = selectedGroupFilter === "all" || item.groupId === selectedGroupFilter;
 		return matchesSearch && matchesGroup;
 	});
 
 	const handleOpenAdd = () => {
 		setEditingItem(null);
-		setItemName("");
+		setItemNameAr("");
+		setItemNameEn("");
 		setItemPrice("");
 		setItemGroupId("g1");
 		setIsOpen(true);
@@ -69,7 +77,8 @@ export default function ItemsAdmin() {
 
 	const handleOpenEdit = (item: Item) => {
 		setEditingItem(item);
-		setItemName(item.name);
+		setItemNameAr(item.name_ar);
+		setItemNameEn(item.name_en);
 		setItemPrice(item.price.toString());
 		setItemGroupId(item.groupId);
 		setIsOpen(true);
@@ -77,14 +86,14 @@ export default function ItemsAdmin() {
 
 	const handleSave = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!itemName.trim() || !itemPrice) return;
+		if (!itemNameAr.trim() || !itemNameEn.trim() || !itemPrice) return;
 
 		if (editingItem) {
 			// Edit existing item
 			setItems((prev) =>
 				prev.map((i) =>
 					i.id === editingItem.id
-						? { ...i, name: itemName, price: parseFloat(itemPrice), groupId: itemGroupId }
+						? { ...i, name_ar: itemNameAr, name_en: itemNameEn, price: parseFloat(itemPrice), groupId: itemGroupId }
 						: i
 				)
 			);
@@ -92,11 +101,12 @@ export default function ItemsAdmin() {
 			// Add new item
 			const newItem: Item = {
 				id: `i-${Date.now()}`,
-				name: itemName,
+				name_ar: itemNameAr,
+				name_en: itemNameEn,
 				price: parseFloat(itemPrice),
 				groupId: itemGroupId,
 				is_disable: false,
-				createdAt: new Date().toLocaleDateString("ar-SA", { day: "numeric", month: "long", year: "numeric" }),
+				createdAt: new Date().toLocaleDateString(isRtl ? "ar-SA" : "en-US", { day: "numeric", month: "long", year: "numeric" }),
 			};
 			setItems((prev) => [newItem, ...prev]);
 		}
@@ -117,8 +127,8 @@ export default function ItemsAdmin() {
 		<div className="space-y-6">
 			{/* Header */}
 			<AdminHeader
-				title="المواد والأصناف"
-				subtitle="إدارة قائمة المأكولات والمشروبات المتاحة وأسعارها والتحكم بظهورها."
+				title={t("item.title")}
+				subtitle={t("item.subtitle")}
 			>
 				<button
 					onClick={handleOpenAdd}
@@ -127,7 +137,7 @@ export default function ItemsAdmin() {
 					<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
 					</svg>
-					<span>إضافة صنف جديد</span>
+					<span>{t("item.addItem")}</span>
 				</button>
 			</AdminHeader>
 
@@ -140,7 +150,7 @@ export default function ItemsAdmin() {
 						<SearchInput
 							value={searchQuery}
 							onChange={setSearchQuery}
-							placeholder="البحث باسم الصنف..."
+							placeholder={isRtl ? "البحث باسم الصنف..." : "Search menu item name..."}
 						/>
 
 						{/* Filter Group Dropdown */}
@@ -149,47 +159,52 @@ export default function ItemsAdmin() {
 							onChange={(e) => setSelectedGroupFilter(e.target.value)}
 							className="bg-[#07080a] border border-white/10 text-zinc-300 rounded-full px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
 						>
-							<option value="all">جميع المجموعات</option>
+							<option value="all">{isRtl ? "جميع المجموعات" : "All Categories"}</option>
 							{groups.map((g) => (
-								<option key={g.id} value={g.id}>{g.name}</option>
+								<option key={g.id} value={g.id}>{isRtl ? g.name_ar : g.name_en}</option>
 							))}
 						</select>
 					</div>
 
 					<span className="text-xs text-zinc-400 font-bold shrink-0">
-						إجمالي الأصناف المعروضة: {filteredItems.length}
+						{isRtl ? "إجمالي الأصناف المعروضة:" : "Total Displayed Items:"} {filteredItems.length}
 					</span>
 				</div>
 
 				{/* Table with proper row widths (min-w-212.5) */}
 				<div className="overflow-x-auto overflow-y-auto max-h-100 lg:max-h-[calc(100vh-340px)]">
-					<table className="min-w-212.5 w-full border-collapse text-right text-sm">
+					<table className="min-w-212.5 w-full border-collapse text-sm">
 						<thead>
-							<tr className="border-b border-white/10 text-zinc-400 text-xs font-black">
-								<th className="pb-3 px-4 text-right whitespace-nowrap">اسم الصنف</th>
-								<th className="pb-3 px-4 text-right whitespace-nowrap">المجموعة</th>
-								<th className="pb-3 px-4 text-right whitespace-nowrap">السعر الفردي</th>
-								<th className="pb-3 px-4 text-right whitespace-nowrap">تاريخ الإضافة</th>
-								<th className="pb-3 px-4 text-center whitespace-nowrap">الحالة</th>
-								<th className="pb-3 px-4 text-center whitespace-nowrap">الإجراءات</th>
+							<tr className={`border-b border-white/10 text-zinc-400 text-xs font-black ${isRtl ? "text-right" : "text-left"}`}>
+								<th className="pb-3 px-4 whitespace-nowrap">{isRtl ? "اسم الصنف (عربي)" : "Item Name (AR)"}</th>
+								<th className="pb-3 px-4 whitespace-nowrap">{isRtl ? "اسم الصنف (إنجليزي)" : "Item Name (EN)"}</th>
+								<th className="pb-3 px-4 whitespace-nowrap">{isRtl ? "المجموعة" : "Category"}</th>
+								<th className="pb-3 px-4 whitespace-nowrap">{t("item.columnPrice")}</th>
+								<th className="pb-3 px-4 whitespace-nowrap">{t("item.columnCreated")}</th>
+								<th className="pb-3 px-4 text-center whitespace-nowrap">{t("common.status")}</th>
+								<th className="pb-3 px-4 text-center whitespace-nowrap">{t("common.actions")}</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-white/5">
 							{filteredItems.length > 0 ? (
 								filteredItems.map((item) => {
-									const groupName = groups.find((g) => g.id === item.groupId)?.name || "غير مصنف";
+									const group = groups.find((g) => g.id === item.groupId);
+									const groupName = group ? (isRtl ? group.name_ar : group.name_en) : (isRtl ? "غير مصنف" : "Uncategorized");
 									return (
 										<tr key={item.id} className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200">
-											<td className="py-4 px-4 font-bold text-white group-hover:text-amber-300 transition-colors whitespace-nowrap">
-												{item.name}
+											<td className={`py-4 px-4 font-bold text-white group-hover:text-amber-300 transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
+												{item.name_ar}
 											</td>
-											<td className="py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap">
+											<td className={`py-4 px-4 font-semibold text-zinc-300 whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
+												{item.name_en}
+											</td>
+											<td className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{groupName}
 											</td>
-											<td className="py-4 px-4 text-amber-400 font-black text-xs whitespace-nowrap">
-												{item.price.toFixed(2)} ر.س
+											<td className={`py-4 px-4 text-amber-400 font-black text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
+												{item.price.toLocaleString()} {isRtl ? "د.ع" : "IQD"}
 											</td>
-											<td className="py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap">
+											<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{item.createdAt}
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
@@ -199,12 +214,11 @@ export default function ItemsAdmin() {
 														: "bg-red-500/10 text-red-400 border-red-500/20"
 												}`}>
 													<span className={`w-1.5 h-1.5 rounded-full ${!item.is_disable ? "bg-green-400" : "bg-red-400"}`} />
-													{!item.is_disable ? "متوفر حالياً" : "غير متوفر"}
+													{!item.is_disable ? (isRtl ? "متوفر حالياً" : "In Stock") : (isRtl ? "غير متوفر" : "Out of Stock")}
 												</span>
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
 												<div className="flex items-center justify-center gap-2">
-													
 													{/* Toggle Available state */}
 													<button
 														onClick={() => handleToggleDisable(item.id)}
@@ -213,7 +227,7 @@ export default function ItemsAdmin() {
 																? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400" 
 																: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-[#07080a]"
 														}`}
-														title={!item.is_disable ? "تعيين كغير متوفر" : "تعيين كمتوفر"}
+														title={!item.is_disable ? (isRtl ? "تعيين كغير متوفر" : "Set Out of Stock") : (isRtl ? "تعيين كمتوفر" : "Set In Stock")}
 													>
 														{!item.is_disable ? (
 															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -230,7 +244,7 @@ export default function ItemsAdmin() {
 													<button
 														onClick={() => handleOpenEdit(item)}
 														className="p-1.5 rounded-lg bg-zinc-800 border border-white/10 text-zinc-400 hover:bg-amber-500/10 hover:border-amber-500/30 hover:text-amber-300 transition-all duration-200"
-														title="تعديل تفاصيل الصنف"
+														title={t("common.edit")}
 													>
 														<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -241,7 +255,7 @@ export default function ItemsAdmin() {
 													<button
 														onClick={() => handleDelete(item.id)}
 														className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
-														title="حذف الصنف نهائياً"
+														title={t("common.delete")}
 													>
 														<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -254,8 +268,8 @@ export default function ItemsAdmin() {
 								})
 							) : (
 								<tr>
-									<td colSpan={6} className="py-10 text-center text-zinc-500 font-medium text-xs">
-										لا توجد أصناف أو مأكولات مطابقة لمعايير تصفيتك الحالية.
+									<td colSpan={7} className="py-10 text-center text-zinc-500 font-medium text-xs">
+										{t("common.noData")}
 									</td>
 								</tr>
 							)}
@@ -266,11 +280,11 @@ export default function ItemsAdmin() {
 
 			{/* Modal: ADD/EDIT MENU ITEM */}
 			{isOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir={isRtl ? "rtl" : "ltr"}>
 					<div className="max-w-md w-full rounded-3xl border border-white/15 bg-[#131522]/95 backdrop-blur-xl p-6 shadow-2xl relative">
 						<button
 							onClick={() => setIsOpen(false)}
-							className="absolute top-4 left-4 text-zinc-400 hover:text-white transition-colors"
+							className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} text-zinc-400 hover:text-white transition-colors`}
 						>
 							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -278,40 +292,56 @@ export default function ItemsAdmin() {
 						</button>
 
 						<h2 className="text-lg font-black text-white mb-4">
-							{editingItem ? "تعديل تفاصيل الصنف" : "إضافة صنف جديد لقائمة المنيو"}
+							{editingItem ? (isRtl ? "تعديل تفاصيل الصنف" : "Edit Menu Item Details") : t("item.addItem")}
 						</h2>
 
 						<form onSubmit={handleSave} className="space-y-4">
-							{/* Item Name */}
+							{/* Item Name AR */}
 							<div className="space-y-1.5">
-								<label htmlFor="itemName" className="text-xs font-bold text-zinc-400">
-									اسم الصنف التجاري
+								<label htmlFor="itemNameAr" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? "اسم الصنف التجاري (عربي)" : "Item Commercial Name (AR)"}
 								</label>
 								<input
-									id="itemName"
+									id="itemNameAr"
 									type="text"
-									value={itemName}
-									onChange={(e) => setItemName(e.target.value)}
-									placeholder="مثال: فلات وايت، كرواسون بالزعتر..."
+									value={itemNameAr}
+									onChange={(e) => setItemNameAr(e.target.value)}
+									placeholder={isRtl ? "مثال: فلات وايت، كرواسون..." : "e.g., Flat White..."}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 									required
 									autoFocus
 								/>
 							</div>
 
+							{/* Item Name EN */}
+							<div className="space-y-1.5">
+								<label htmlFor="itemNameEn" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? "اسم الصنف التجاري (إنجليزي)" : "Item Commercial Name (EN)"}
+								</label>
+								<input
+									id="itemNameEn"
+									type="text"
+									value={itemNameEn}
+									onChange={(e) => setItemNameEn(e.target.value)}
+									placeholder="e.g. Flat White, Butter Croissant..."
+									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
+									required
+								/>
+							</div>
+
 							{/* Item Price */}
 							<div className="space-y-1.5">
-								<label htmlFor="itemPrice" className="text-xs font-bold text-zinc-400">
-									السعر الفردي بالريال (ر.س)
+								<label htmlFor="itemPrice" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? `السعر الفردي (${isRtl ? "د.ع" : "IQD"})` : "Unit Price (IQD)"}
 								</label>
 								<input
 									id="itemPrice"
 									type="number"
-									step="0.5"
-									min="1"
+									step="500"
+									min="250"
 									value={itemPrice}
 									onChange={(e) => setItemPrice(e.target.value)}
-									placeholder="مثال: 18.00"
+									placeholder="3500"
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 									required
 								/>
@@ -319,8 +349,8 @@ export default function ItemsAdmin() {
 
 							{/* Item Category Selection */}
 							<div className="space-y-1.5">
-								<label htmlFor="itemGroup" className="text-xs font-bold text-zinc-400">
-									المجموعة التصنيفية المندرجة
+								<label htmlFor="itemGroup" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? "المجموعة التصنيفية المندرجة" : "Assigned Category"}
 								</label>
 								<select
 									id="itemGroup"
@@ -329,7 +359,7 @@ export default function ItemsAdmin() {
 									className="w-full bg-[#07080a] border border-white/10 text-zinc-300 rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 								>
 									{groups.map((g) => (
-										<option key={g.id} value={g.id}>{g.name}</option>
+										<option key={g.id} value={g.id}>{isRtl ? g.name_ar : g.name_en}</option>
 									))}
 								</select>
 							</div>
@@ -340,13 +370,13 @@ export default function ItemsAdmin() {
 									onClick={() => setIsOpen(false)}
 									className="px-4 py-2.5 rounded-full border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
 								>
-									إلغاء
+									{t("common.cancel")}
 								</button>
 								<button
 									type="submit"
 									className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] text-xs font-extrabold transition-all"
 								>
-									{editingItem ? "حفظ التحديثات" : "إدراج صنف جديد"}
+									{editingItem ? t("common.save") : t("common.add")}
 								</button>
 							</div>
 						</form>

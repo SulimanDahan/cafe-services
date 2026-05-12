@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ADMIN_ROUTES } from "@/config/routes";
+import { useLanguage } from "@/config/i18n";
 
 /**
  * Premium Admin Login Page Component.
@@ -12,6 +13,7 @@ import { ADMIN_ROUTES } from "@/config/routes";
  */
 export default function LoginPage() {
 	const router = useRouter();
+	const { t, isRtl } = useLanguage();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
@@ -22,7 +24,7 @@ export default function LoginPage() {
 		setError("");
 
 		if (!username || !password) {
-			setError("يرجى إدخال اسم المستخدم وكلمة المرور.");
+			setError(t("login.errorRequired"));
 			return;
 		}
 
@@ -36,13 +38,13 @@ export default function LoginPage() {
 				window.dispatchEvent(new CustomEvent("navigation-start"));
 				router.push(ADMIN_ROUTES.dashboard);
 			} else {
-				setError("اسم المستخدم أو كلمة المرور غير صحيحة!");
+				setError(t("login.errorInvalid"));
 			}
 		}, 1500);
 	};
 
 	return (
-		<div className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden">
+		<div className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden" dir={isRtl ? "rtl" : "ltr"}>
 			{/* Ambient Amber Glow Background */}
 			<div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-amber-500/5 blur-[120px] pointer-events-none" />
 
@@ -62,10 +64,10 @@ export default function LoginPage() {
 							</svg>
 						</div>
 						<h1 className="text-2xl font-black text-white tracking-wide">
-							بوابة الإدارة
+							{t("login.title")}
 						</h1>
 						<p className="text-zinc-400 text-xs mt-2 text-center font-medium">
-							الرجاء تسجيل الدخول للوصول إلى لوحة تحكم الخدمات
+							{t("login.subtitle")}
 						</p>
 					</div>
 
@@ -82,8 +84,8 @@ export default function LoginPage() {
 
 						{/* Username Input */}
 						<div className="space-y-2">
-							<label className="text-xs font-bold text-zinc-300 block mr-1">
-								اسم المستخدم
+							<label className={`text-xs font-bold text-zinc-300 block ${isRtl ? "mr-1" : "ml-1"}`}>
+								{t("login.usernameLabel")}
 							</label>
 							<div className="relative">
 								<input
@@ -92,7 +94,7 @@ export default function LoginPage() {
 									onChange={(e) =>
 										setUsername(e.target.value)
 									}
-									placeholder="أدخل اسم المستخدم"
+									placeholder={t("login.usernamePlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-amber-500/70 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
 									disabled={isLoading}
 								/>
@@ -101,8 +103,8 @@ export default function LoginPage() {
 
 						{/* Password Input */}
 						<div className="space-y-2">
-							<label className="text-xs font-bold text-zinc-300 block mr-1">
-								كلمة المرور
+							<label className={`text-xs font-bold text-zinc-300 block ${isRtl ? "mr-1" : "ml-1"}`}>
+								{t("login.passwordLabel")}
 							</label>
 							<div className="relative">
 								<input
@@ -111,7 +113,7 @@ export default function LoginPage() {
 									onChange={(e) =>
 										setPassword(e.target.value)
 									}
-									placeholder="••••••••"
+									placeholder={t("login.passwordPlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-amber-500/70 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
 									disabled={isLoading}
 								/>
@@ -146,10 +148,10 @@ export default function LoginPage() {
 											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 										></path>
 									</svg>
-									<span>جاري التحقق من البيانات...</span>
+									<span>{t("login.verifying")}</span>
 								</>
 							) : (
-								<span>دخول</span>
+								<span>{t("login.submitButton")}</span>
 							)}
 						</button>
 					</form>
@@ -160,17 +162,17 @@ export default function LoginPage() {
 							href="/"
 							className="inline-flex items-center gap-2 text-xs text-zinc-400 hover:text-amber-300 transition-colors duration-200"
 						>
-							<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<svg className={`w-3.5 h-3.5 transform ${isRtl ? "" : "rotate-180"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
 							</svg>
-							<span>العودة إلى الصفحة الرئيسية</span>
+							<span>{t("login.backHome")}</span>
 						</Link>
 					</div>
 				</div>
 
 				{/* Footer Info */}
 				<div className="mt-6 text-center text-[10px] text-zinc-500 font-medium">
-					<span>نظام خدمات المقهى المتكامل • النسخة 1.0.0</span>
+					<span>{t("login.footerInfo")}</span>
 				</div>
 			</div>
 		</div>

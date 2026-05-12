@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, {
 	createContext,
 	useContext,
@@ -39,6 +41,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 	useEffect(() => {
 		const storedLocale = localStorage.getItem("cafe_locale") as Locale;
 		if (storedLocale === "ar" || storedLocale === "en") {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setLocaleState(storedLocale);
 		} else {
 			// Arabic is the primary default

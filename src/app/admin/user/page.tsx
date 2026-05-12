@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import AdminHeader from "@/components/AdminHeader";
+import SearchInput from "@/components/SearchInput";
+import { useLanguage } from "@/config/i18n";
 
 interface User {
 	id: string;
@@ -16,6 +19,8 @@ interface User {
  * Supports search, creating users, editing, enabling/disabling, and safe removals with 0 emojis.
  */
 export default function UsersAdmin() {
+	const { t, isRtl } = useLanguage();
+
 	// Pre-seeded database matching User schema
 	const [users, setUsers] = useState<User[]>([
 		{
@@ -109,7 +114,7 @@ export default function UsersAdmin() {
 				username: usernameInput,
 				is_admin: isAdminInput,
 				is_disable: false,
-				createdAt: new Date().toLocaleDateString("ar-SA", {
+				createdAt: new Date().toLocaleDateString(isRtl ? "ar-SA" : "en-US", {
 					day: "numeric",
 					month: "long",
 					year: "numeric",
@@ -132,9 +137,10 @@ export default function UsersAdmin() {
 		// Prevent deleting 'admin' default account
 		const target = users.find((u) => u.id === id);
 		if (target?.username === "admin") {
-			alert(
-				"لا يمكن حذف حساب المسؤول الافتراضي (admin) لسلامة دخول النظام!",
-			);
+			const alertMsg = isRtl
+				? "لا يمكن حذف حساب المسؤول الافتراضي (admin) لسلامة دخول النظام!"
+				: "Cannot delete default admin account to prevent absolute lockouts!";
+			alert(alertMsg);
 			return;
 		}
 		setUsers((prev) => prev.filter((u) => u.id !== id));
@@ -143,19 +149,13 @@ export default function UsersAdmin() {
 	return (
 		<div className="space-y-6">
 			{/* Top header */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-				<div>
-					<h1 className="text-2xl font-black text-white tracking-wide">
-						إدارة الحسابات والمستخدمين
-					</h1>
-					<p className="text-xs text-zinc-400 mt-1">
-						إضافة وتعديل حسابات الموظفين والمسؤولين المخولين بإدارة
-						المقهى ولائحة المواد.
-					</p>
-				</div>
+			<AdminHeader
+				title={t("users.title")}
+				subtitle={t("users.subtitle")}
+			>
 				<button
 					onClick={handleOpenAdd}
-					className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] font-extrabold text-xs transition-all duration-200 active:scale-95 shadow-lg shadow-amber-500/10 flex items-center gap-2"
+					className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] font-extrabold text-xs transition-all duration-200 active:scale-95 shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2 w-full sm:w-auto"
 				>
 					<svg
 						className="w-4 h-4"
@@ -171,65 +171,35 @@ export default function UsersAdmin() {
 							d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
 						/>
 					</svg>
-					<span>إضافة مستخدم جديد</span>
+					<span>{t("users.addUser")}</span>
 				</button>
-			</div>
+			</AdminHeader>
 
 			{/* Filters Panel (High-contrast glassmorphism) */}
 			<div className="rounded-[28px] border border-white/10 bg-[#131522] p-6 shadow-md space-y-6">
 				<div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
 					{/* Search field */}
-					<div className="relative w-full sm:max-w-xs">
-						<input
-							type="text"
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							placeholder="البحث باسم المستخدم..."
-							className="w-full bg-[#07080a] border border-white/10 text-white rounded-full pl-4 pr-10 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
-						/>
-						<div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500">
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2.5"
-									d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-								/>
-							</svg>
-						</div>
-					</div>
+					<SearchInput
+						value={searchQuery}
+						onChange={setSearchQuery}
+						placeholder={isRtl ? "البحث باسم المستخدم..." : "Search username..."}
+					/>
 
-					<span className="text-xs text-zinc-400 font-bold">
-						إجمالي الحسابات: {users.length}
+					<span className="text-xs text-zinc-400 font-bold shrink-0">
+						{isRtl ? "إجمالي الحسابات:" : "Total Accounts:"} {users.length}
 					</span>
 				</div>
 
 				{/* Table area (min-w-212.5 safety width) */}
 				<div className="overflow-x-auto overflow-y-auto max-h-100 lg:max-h-[calc(100vh-340px)]">
-					<table className="min-w-212.5 w-full border-collapse text-right text-sm">
+					<table className="min-w-212.5 w-full border-collapse text-sm">
 						<thead>
-							<tr className="border-b border-white/10 text-zinc-400 text-xs font-black">
-								<th className="pb-3 px-4 text-right">
-									اسم مستخدم الحساب
-								</th>
-								<th className="pb-3 px-4 text-right">
-									مستوى الصلاحية
-								</th>
-								<th className="pb-3 px-4 text-right">
-									تاريخ إنشاء الحساب
-								</th>
-								<th className="pb-3 px-4 text-center">
-									حالة الحساب
-								</th>
-								<th className="pb-3 px-4 text-center">
-									التحكم
-								</th>
+							<tr className={`border-b border-white/10 text-zinc-400 text-xs font-black ${isRtl ? "text-right" : "text-left"}`}>
+								<th className="pb-3 px-4">{t("users.columnUsername")}</th>
+								<th className="pb-3 px-4">{t("users.columnRole")}</th>
+								<th className="pb-3 px-4">{t("users.columnCreated")}</th>
+								<th className="pb-3 px-4 text-center">{t("common.status")}</th>
+								<th className="pb-3 px-4 text-center">{t("common.actions")}</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-white/5">
@@ -239,21 +209,21 @@ export default function UsersAdmin() {
 										key={user.id}
 										className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200"
 									>
-										<td className="py-4 px-4 font-bold text-white group-hover:text-amber-300 transition-colors whitespace-nowrap">
+										<td className={`py-4 px-4 font-bold text-white group-hover:text-amber-300 transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 											{user.username}
 										</td>
-										<td className="py-4 px-4 whitespace-nowrap">
+										<td className={`py-4 px-4 whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 											{user.is_admin ? (
 												<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border bg-amber-500/10 text-amber-300 border-amber-500/25">
-													مدير النظام (Admin)
+													{isRtl ? "مدير النظام (Admin)" : "Administrator (Admin)"}
 												</span>
 											) : (
 												<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border bg-blue-500/10 text-blue-400 border-blue-500/20">
-													كاشير / باريستا (Staff)
+													{isRtl ? "كاشير / باريستا (Staff)" : "Cashier / Barista (Staff)"}
 												</span>
 											)}
 										</td>
-										<td className="py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap">
+										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 											{user.createdAt}
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
@@ -267,30 +237,20 @@ export default function UsersAdmin() {
 												<span
 													className={`w-1.5 h-1.5 rounded-full ${!user.is_disable ? "bg-green-400" : "bg-red-400"}`}
 												/>
-												{!user.is_disable
-													? "نشط ومفعل"
-													: "معطل مؤقتاً"}
+												{!user.is_disable ? (isRtl ? "نشط ومفعل" : "Active") : (isRtl ? "معطل مؤقتاً" : "Disabled")}
 											</span>
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
 											<div className="flex items-center justify-center gap-2">
 												{/* Toggle active state */}
 												<button
-													onClick={() =>
-														handleToggleDisable(
-															user.id,
-														)
-													}
+													onClick={() => handleToggleDisable(user.id)}
 													className={`p-1.5 rounded-lg border transition-all duration-200 ${
 														!user.is_disable
 															? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
 															: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-[#07080a]"
 													}`}
-													title={
-														!user.is_disable
-															? "تعطيل الحساب"
-															: "تفعيل الحساب"
-													}
+													title={!user.is_disable ? (isRtl ? "تعطيل الحساب" : "Disable User") : (isRtl ? "تفعيل الحساب" : "Enable User")}
 												>
 													{!user.is_disable ? (
 														<svg
@@ -327,11 +287,9 @@ export default function UsersAdmin() {
 
 												{/* Edit User details */}
 												<button
-													onClick={() =>
-														handleOpenEdit(user)
-													}
+													onClick={() => handleOpenEdit(user)}
 													className="p-1.5 rounded-lg bg-zinc-800 border border-white/10 text-zinc-400 hover:bg-amber-500/10 hover:border-amber-500/30 hover:text-amber-300 transition-all duration-200"
-													title="تعديل الحساب"
+													title={t("common.edit")}
 												>
 													<svg
 														className="w-4 h-4"
@@ -351,11 +309,9 @@ export default function UsersAdmin() {
 
 												{/* Delete User */}
 												<button
-													onClick={() =>
-														handleDelete(user.id)
-													}
+													onClick={() => handleDelete(user.id)}
 													className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
-													title="حذف الحساب نهائياً"
+													title={t("common.delete")}
 												>
 													<svg
 														className="w-4 h-4"
@@ -382,8 +338,7 @@ export default function UsersAdmin() {
 										colSpan={5}
 										className="py-10 text-center text-zinc-500 font-medium text-xs"
 									>
-										لا توجد حسابات مستخدمين مطابقة للبحث
-										حالياً.
+										{t("common.noData")}
 									</td>
 								</tr>
 							)}
@@ -394,11 +349,11 @@ export default function UsersAdmin() {
 
 			{/* Modal add / edit user (Glassmorphic Container) */}
 			{isOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir={isRtl ? "rtl" : "ltr"}>
 					<div className="max-w-md w-full rounded-3xl border border-white/15 bg-[#131522]/95 backdrop-blur-xl p-6 shadow-2xl relative">
 						<button
 							onClick={() => setIsOpen(false)}
-							className="absolute top-4 left-4 text-zinc-400 hover:text-white transition-colors"
+							className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} text-zinc-400 hover:text-white transition-colors`}
 						>
 							<svg
 								className="w-5 h-5"
@@ -418,8 +373,8 @@ export default function UsersAdmin() {
 
 						<h2 className="text-lg font-black text-white mb-4">
 							{editingUser
-								? "تعديل صلاحيات حساب مستخدم"
-								: "إنشاء حساب مستخدم جديد"}
+								? (isRtl ? "تعديل صلاحيات حساب مستخدم" : "Edit User Credentials")
+								: (isRtl ? "إنشاء حساب مستخدم جديد" : "Create New User Account")}
 						</h2>
 
 						<form onSubmit={handleSave} className="space-y-4">
@@ -427,19 +382,17 @@ export default function UsersAdmin() {
 							<div className="space-y-1.5">
 								<label
 									htmlFor="usernameIn"
-									className="text-xs font-bold text-zinc-400"
+									className="text-xs font-bold text-zinc-400 block"
 								>
-									اسم المستخدم (الدخول)
+									{isRtl ? "اسم المستخدم (الدخول)" : "Username (Login)"}
 								</label>
 								<input
 									id="usernameIn"
 									type="text"
 									value={usernameInput}
-									onChange={(e) =>
-										setUsernameInput(e.target.value)
-									}
-									placeholder="مثال: ahmad_barista..."
-									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
+									onChange={(e) => setUsernameInput(e.target.value)}
+									placeholder={isRtl ? "مثال: ahmad_barista..." : "e.g. ahmad_barista..."}
+									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200 block"
 									required
 									autoFocus
 								/>
@@ -449,23 +402,21 @@ export default function UsersAdmin() {
 							<div className="space-y-1.5">
 								<label
 									htmlFor="passwordIn"
-									className="text-xs font-bold text-zinc-400"
+									className="text-xs font-bold text-zinc-400 block"
 								>
-									كلمة المرور السريـة
+									{isRtl ? "كلمة المرور السريـة" : "Secret Password"}
 								</label>
 								<input
 									id="passwordIn"
 									type="password"
 									value={passwordInput}
-									onChange={(e) =>
-										setPasswordInput(e.target.value)
-									}
+									onChange={(e) => setPasswordInput(e.target.value)}
 									placeholder={
 										editingUser
-											? "اتركه فارغاً للإبقاء على الحالية"
-											: "مثال: ••••••••"
+											? (isRtl ? "اتركه فارغاً للإبقاء على الحالية" : "Leave blank to keep unchanged")
+											: "••••••••"
 									}
-									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
+									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200 block"
 									required={!editingUser}
 								/>
 							</div>
@@ -474,19 +425,17 @@ export default function UsersAdmin() {
 							<div className="flex items-center justify-between p-3.5 rounded-2xl border border-white/10 bg-[#07080a]/40">
 								<div className="flex flex-col">
 									<span className="text-xs font-black text-white">
-										ترقية لحساب مدير نظام
+										{isRtl ? "ترقية لحساب مدير نظام" : "Promote to Administrator"}
 									</span>
 									<span className="text-[10px] text-zinc-500 font-bold mt-0.5">
-										يمنح الحساب كامل صلاحيات التعديل والحذف.
+										{isRtl ? "يمنح الحساب كامل صلاحيات التعديل والحذف." : "Grants full administrative capabilities over resources."}
 									</span>
 								</div>
-								<label className="relative inline-flex items-center cursor-pointer">
+								<label className="relative inline-flex items-center cursor-pointer shrink-0">
 									<input
 										type="checkbox"
 										checked={isAdminInput}
-										onChange={(e) =>
-											setIsAdminInput(e.target.checked)
-										}
+										onChange={(e) => setIsAdminInput(e.target.checked)}
 										className="sr-only peer"
 									/>
 									<div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:content-[''] after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500 peer-checked:after:bg-black peer-checked:after:border-transparent"></div>
@@ -499,13 +448,13 @@ export default function UsersAdmin() {
 									onClick={() => setIsOpen(false)}
 									className="px-4 py-2.5 rounded-full border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200"
 								>
-									إلغاء
+									{t("common.cancel")}
 								</button>
 								<button
 									type="submit"
 									className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] text-xs font-extrabold transition-all duration-200"
 								>
-									حفظ الحساب
+									{t("common.save")}
 								</button>
 							</div>
 						</form>

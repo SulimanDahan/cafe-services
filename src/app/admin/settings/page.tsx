@@ -3,18 +3,21 @@
 import { useState } from "react";
 import AdminHeader from "@/components/AdminHeader";
 import FormToggle from "@/components/FormToggle";
+import { useLanguage } from "@/config/i18n";
 
 /**
  * Admin Settings Page.
  * Manages configuration variables such as store settings, currency representation,
  * operating hours, real-time alert toggles, and system-wide parameter configurations.
- * Formatted in high-contrast Material You dark-mode, completely in Arabic with 0 emojis.
+ * Formatted in high-contrast Material You dark-mode, completely bilingual.
  */
 export default function SettingsAdmin() {
+	const { t, isRtl } = useLanguage();
+
 	// Store configurations state
 	const [cafeName, setCafeName] = useState("مقهى الخدمات الفاخر");
 	const [contactPhone, setContactPhone] = useState("0554321098");
-	const [currency, setCurrency] = useState("ريال سعودي (SAR)");
+	const [currency, setCurrency] = useState(isRtl ? "دينار عراقي (IQD)" : "Iraqi Dinar (IQD)");
 
 	// Operational parameters
 	const [openHour, setOpenHour] = useState("07:00");
@@ -34,11 +37,11 @@ export default function SettingsAdmin() {
 	};
 
 	return (
-		<div className="space-y-6 max-w-4xl">
+		<div className="space-y-6 max-w-4xl" dir={isRtl ? "rtl" : "ltr"}>
 			{/* Top Header */}
 			<AdminHeader
-				title="إعدادات المنصة والنظام"
-				subtitle="تعديل بارامترات المقهى التشغيلية، ساعات العمل، وإعدادات البث الفوري للأحداث."
+				title={t("settings.title")}
+				subtitle={t("settings.subtitle")}
 			/>
 
 			{/* Form Container */}
@@ -63,7 +66,7 @@ export default function SettingsAdmin() {
 							</svg>
 						</div>
 						<h2 className="text-sm font-black text-white">
-							إعدادات الهوية والعلامة التجارية
+							{isRtl ? "إعدادات الهوية والعلامة التجارية" : "Identity & Branding Settings"}
 						</h2>
 					</div>
 
@@ -72,16 +75,16 @@ export default function SettingsAdmin() {
 						<div className="space-y-1.5">
 							<label
 								htmlFor="cName"
-								className="text-xs font-bold text-zinc-400"
+								className="text-xs font-bold text-zinc-400 block"
 							>
-								اسم المقهى التجاري
+								{isRtl ? "اسم المقهى التجاري" : "Cafe Name"}
 							</label>
 							<input
 								id="cName"
 								type="text"
 								value={cafeName}
 								onChange={(e) => setCafeName(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all"
+								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
 								required
 							/>
 						</div>
@@ -90,18 +93,16 @@ export default function SettingsAdmin() {
 						<div className="space-y-1.5">
 							<label
 								htmlFor="cPhone"
-								className="text-xs font-bold text-zinc-400"
+								className="text-xs font-bold text-zinc-400 block"
 							>
-								رقم الهاتف والتواصل
+								{isRtl ? "رقم الهاتف والتواصل" : "Contact Phone Number"}
 							</label>
 							<input
 								id="cPhone"
 								type="text"
 								value={contactPhone}
-								onChange={(e) =>
-									setContactPhone(e.target.value)
-								}
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all"
+								onChange={(e) => setContactPhone(e.target.value)}
+								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
 								required
 							/>
 						</div>
@@ -110,16 +111,16 @@ export default function SettingsAdmin() {
 						<div className="space-y-1.5">
 							<label
 								htmlFor="cCurrency"
-								className="text-xs font-bold text-zinc-400"
+								className="text-xs font-bold text-zinc-400 block"
 							>
-								العملة الافتراضية المعتمدة
+								{isRtl ? "العملة الافتراضية المعتمدة" : "Default Certified Currency"}
 							</label>
 							<input
 								id="cCurrency"
 								type="text"
 								value={currency}
 								onChange={(e) => setCurrency(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all"
+								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
 								required
 							/>
 						</div>
@@ -146,7 +147,7 @@ export default function SettingsAdmin() {
 							</svg>
 						</div>
 						<h2 className="text-sm font-black text-white">
-							إعدادات العمل والتشغيل
+							{isRtl ? "إعدادات العمل والتشغيل" : "Operational Settings"}
 						</h2>
 					</div>
 
@@ -155,16 +156,16 @@ export default function SettingsAdmin() {
 						<div className="space-y-1.5">
 							<label
 								htmlFor="oHour"
-								className="text-xs font-bold text-zinc-400"
+								className="text-xs font-bold text-zinc-400 block"
 							>
-								ساعة بدء الاستقبال والعمل
+								{isRtl ? "ساعة بدء الاستقبال والعمل" : "Opening Hours"}
 							</label>
 							<input
 								id="oHour"
 								type="time"
 								value={openHour}
 								onChange={(e) => setOpenHour(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-zinc-300 rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all"
+								className="w-full bg-[#07080a] border border-white/10 text-zinc-300 rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
 								required
 							/>
 						</div>
@@ -173,16 +174,16 @@ export default function SettingsAdmin() {
 						<div className="space-y-1.5">
 							<label
 								htmlFor="cHour"
-								className="text-xs font-bold text-zinc-400"
+								className="text-xs font-bold text-zinc-400 block"
 							>
-								ساعة إغلاق الصالة والمنصة
+								{isRtl ? "ساعة إغلاق الصالة والمنصة" : "Closing Hours"}
 							</label>
 							<input
 								id="cHour"
 								type="time"
 								value={closeHour}
 								onChange={(e) => setCloseHour(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-zinc-300 rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all"
+								className="w-full bg-[#07080a] border border-white/10 text-zinc-300 rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
 								required
 							/>
 						</div>
@@ -192,8 +193,8 @@ export default function SettingsAdmin() {
 					<FormToggle
 						checked={enableReservations}
 						onChange={setEnableReservations}
-						label="تفعيل نظام حجز الطاولات المباشر"
-						description="يسمح لعملاء الموقع المفتوح برؤية الطاولات الشاغرة وحجزها حياً."
+						label={isRtl ? "تفعيل نظام حجز الطاولات المباشر" : "Enable Live Table Booking"}
+						description={isRtl ? "يسمح لعملاء الموقع المفتوح برؤية الطاولات الشاغرة وحجزها حياً." : "Enables customers to view and dynamically book empty tables."}
 					/>
 				</div>
 
@@ -217,7 +218,7 @@ export default function SettingsAdmin() {
 							</svg>
 						</div>
 						<h2 className="text-sm font-black text-white">
-							إعدادات الإشعارات وبث الأحداث الفورية (SSE)
+							{isRtl ? "إعدادات الإشعارات وبث الأحداث الفورية (SSE)" : "Live Events & Notifications Settings (SSE)"}
 						</h2>
 					</div>
 
@@ -225,8 +226,8 @@ export default function SettingsAdmin() {
 					<FormToggle
 						checked={enableAudioChime}
 						onChange={setEnableAudioChime}
-						label="تفعيل النغمات والمنبهات الصوتية للحساب الإداري"
-						description="توليد نغمات موسيقية متناسقة برمجياً عبر الـ Web Audio API فور وصول طلب أو إشعار جديد."
+						label={isRtl ? "تفعيل النغمات والمنبهات الصوتية للحساب الإداري" : "Enable Sound Signals for Admin Console"}
+						description={isRtl ? "توليد نغمات موسيقية متناسقة برمجياً عبر الـ Web Audio API فور وصول طلب أو إشعار جديد." : "Synthesize premium alerts natively using the Web Audio API."}
 					/>
 
 					{/* SSE Stream Ping Interval */}
@@ -236,10 +237,10 @@ export default function SettingsAdmin() {
 								htmlFor="pingInt"
 								className="text-xs font-bold text-zinc-400"
 							>
-								الفاصل الزمني لإرسال نبضات الاتصال (SSE Ping Interval)
+								{isRtl ? "الفاصل الزمني لإرسال نبضات الاتصال (SSE Ping Interval)" : "SSE Keep-Alive Ping Interval"}
 							</label>
 							<span className="text-xs text-amber-400 font-black">
-								{ssePingInterval} ثانية
+								{ssePingInterval} {isRtl ? "ثانية" : "seconds"}
 							</span>
 						</div>
 						<input
@@ -253,7 +254,7 @@ export default function SettingsAdmin() {
 							className="w-full accent-amber-500 bg-[#07080a] h-1.5 rounded-lg appearance-none cursor-pointer"
 						/>
 						<span className="text-[10px] text-zinc-500 font-bold block mt-0.5">
-							عدد الثواني الفاصلة لحماية البث من الانقطاع المفاجئ من قِبل جدران الحماية وخوادم AWS/Cloudflare.
+							{isRtl ? "عدد الثواني الفاصلة لحماية البث من الانقطاع المفاجئ من قِبل جدران الحماية وخوادم AWS/Cloudflare." : "Seconds between background pings to prevent system-wide SSE connection dropouts."}
 						</span>
 					</div>
 				</div>
@@ -276,7 +277,7 @@ export default function SettingsAdmin() {
 									d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
 								/>
 							</svg>
-							<span>تم حفظ وتحديث الإعدادات بنجاح تـام!</span>
+							<span>{isRtl ? "تم حفظ وتحديث الإعدادات بنجاح تـام!" : "All platform settings successfully saved!"}</span>
 						</div>
 					) : (
 						<div />
@@ -285,7 +286,7 @@ export default function SettingsAdmin() {
 						type="submit"
 						className="px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] font-extrabold text-xs transition-all duration-200 active:scale-95 shadow-lg shadow-amber-500/10"
 					>
-						حفظ كافة الإعدادات
+						{isRtl ? "حفظ كافة الإعدادات" : "Save All Configuration"}
 					</button>
 				</div>
 			</form>

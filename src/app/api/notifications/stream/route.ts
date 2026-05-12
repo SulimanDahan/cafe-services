@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from "next/server";
 import { notificationEmitter } from "@/lib/emitter";
 import { prisma } from "@/lib/prisma";

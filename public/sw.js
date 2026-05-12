@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 const CACHE_NAME = "cafe-services-cache-v1";
 
 // Core static assets to cache on installation

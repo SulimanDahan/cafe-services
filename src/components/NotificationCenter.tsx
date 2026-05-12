@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useState, useRef } from "react";
 import { BellIcon } from "./icons";
 

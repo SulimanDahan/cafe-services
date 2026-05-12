@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AdminHeader from "@/components/AdminHeader";
 import SearchInput from "@/components/SearchInput";
+import { useLanguage } from "@/config/i18n";
 
 interface Reservation {
 	id: string;
@@ -27,6 +28,8 @@ interface Room {
  * Features tabs to toggle sections, accept/reject bookings, configure tables, and query.
  */
 export default function ReservationsAdmin() {
+	const { t, isRtl } = useLanguage();
+
 	// Pre-seeded reservations database matching schema
 	const [reservations, setReservations] = useState<Reservation[]>([
 		{
@@ -109,7 +112,7 @@ export default function ReservationsAdmin() {
 			number: `R-${Math.floor(1000 + Math.random() * 9000)}`,
 			client_name: resClientName,
 			phone: resPhone,
-			datetime: new Date(resDateTime).toLocaleString("ar-SA", {
+			datetime: new Date(resDateTime).toLocaleString(isRtl ? "ar-SA" : "en-US", {
 				day: "numeric",
 				month: "long",
 				year: "numeric",
@@ -184,8 +187,8 @@ export default function ReservationsAdmin() {
 		<div className="space-y-6">
 			{/* Top Header */}
 			<AdminHeader
-				title="الحجوزات وقاعات المقهى"
-				subtitle="تنظيم ومتابعة حجوزات الطاولات لعملاء المقهى وإدارة الطاولات الشاغرة."
+				title={t("reservations.title")}
+				subtitle={t("reservations.subtitle")}
 			>
 				{activeSection === "reservations" ? (
 					<button
@@ -201,7 +204,7 @@ export default function ReservationsAdmin() {
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
 						</svg>
-						<span>إضافة حجز جديد</span>
+						<span>{t("reservations.addReservation")}</span>
 					</button>
 				) : (
 					<button
@@ -211,7 +214,7 @@ export default function ReservationsAdmin() {
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
 						</svg>
-						<span>طاولة / قاعة جديدة</span>
+						<span>{isRtl ? "طاولة / قاعة جديدة" : "New Table / Room"}</span>
 					</button>
 				)}
 			</AdminHeader>
@@ -229,7 +232,7 @@ export default function ReservationsAdmin() {
 							: "text-zinc-400 hover:text-white"
 					}`}
 				>
-					الحجوزات النشطة
+					{isRtl ? "الحجوزات النشطة" : "Active Reservations"}
 				</button>
 				<button
 					onClick={() => {
@@ -242,7 +245,7 @@ export default function ReservationsAdmin() {
 							: "text-zinc-400 hover:text-white"
 					}`}
 				>
-					إدارة الطاولات والقاعات
+					{isRtl ? "إدارة الطاولات والقاعات" : "Tables & Rooms"}
 				</button>
 			</div>
 
@@ -252,7 +255,6 @@ export default function ReservationsAdmin() {
 					
 					{/* Status Sub-Tabs and search bar */}
 					<div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
-						
 						{/* Subtabs */}
 						<div className="flex flex-wrap gap-2">
 							<button
@@ -263,7 +265,7 @@ export default function ReservationsAdmin() {
 										: "text-zinc-400 hover:text-zinc-200"
 								}`}
 							>
-								الكل ({reservations.length})
+								{t("reservations.filterAll")} ({reservations.length})
 							</button>
 							<button
 								onClick={() => setActiveTab("pending")}
@@ -273,17 +275,17 @@ export default function ReservationsAdmin() {
 										: "text-zinc-400 hover:text-zinc-200"
 								}`}
 							>
-								بانتظار التأكيد ({reservations.filter((r) => !r.accepted).length})
+								{t("reservations.filterPending")} ({reservations.filter((r) => !r.accepted).length})
 							</button>
 							<button
 								onClick={() => setActiveTab("confirmed")}
 								className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
 									activeTab === "confirmed"
-										? "bg-green-500/10 text-green-400 border border-green-500/25 font-extrabold"
+										? "bg-green-500/10 text-green-400 border-green-500/25 font-extrabold"
 										: "text-zinc-400 hover:text-zinc-200"
 								}`}
 							>
-								مؤكدة ({reservations.filter((r) => r.accepted).length})
+								{t("reservations.filterAccepted")} ({reservations.filter((r) => r.accepted).length})
 							</button>
 						</div>
 
@@ -291,41 +293,41 @@ export default function ReservationsAdmin() {
 						<SearchInput
 							value={searchQuery}
 							onChange={setSearchQuery}
-							placeholder="بحث باسم العميل، رقم الحجز..."
+							placeholder={isRtl ? "بحث باسم العميل، رقم الحجز..." : "Search client, booking #..."}
 						/>
 					</div>
 
 					{/* Reservations Table (min-w-212.5 width safety) */}
 					<div className="overflow-x-auto overflow-y-auto max-h-100 lg:max-h-[calc(100vh-340px)]">
-						<table className="min-w-212.5 w-full border-collapse text-right text-sm">
+						<table className="min-w-212.5 w-full border-collapse text-sm">
 							<thead>
-								<tr className="border-b border-white/10 text-zinc-400 text-xs font-black">
-									<th className="pb-3 px-4 text-right">رقم الحجز</th>
-									<th className="pb-3 px-4 text-right">اسم العميل</th>
-									<th className="pb-3 px-4 text-right">رقم الجوال</th>
-									<th className="pb-3 px-4 text-right">تاريخ الحجز والوقت</th>
-									<th className="pb-3 px-4 text-right">الطاولة المعينة</th>
-									<th className="pb-3 px-4 text-center">حالة التأكيد</th>
-									<th className="pb-3 px-4 text-center">التحكم</th>
+								<tr className={`border-b border-white/10 text-zinc-400 text-xs font-black ${isRtl ? "text-right" : "text-left"}`}>
+									<th className="pb-3 px-4">{t("reservations.columnId")}</th>
+									<th className="pb-3 px-4">{t("reservations.columnClient")}</th>
+									<th className="pb-3 px-4">{t("reservations.columnPhone")}</th>
+									<th className="pb-3 px-4">{t("reservations.columnDateTime")}</th>
+									<th className="pb-3 px-4">{t("reservations.columnRoom")}</th>
+									<th className="pb-3 px-4 text-center">{t("reservations.columnStatus")}</th>
+									<th className="pb-3 px-4 text-center">{t("common.actions")}</th>
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-white/5">
 								{filteredReservations.length > 0 ? (
 									filteredReservations.map((res) => (
 										<tr key={res.id} className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200">
-											<td className="py-4 px-4 font-black text-xs text-zinc-500 whitespace-nowrap">
+											<td className={`py-4 px-4 font-black text-xs text-zinc-500 whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{res.number}
 											</td>
-											<td className="py-4 px-4 font-bold text-white group-hover:text-amber-300 transition-colors whitespace-nowrap">
+											<td className={`py-4 px-4 font-bold text-white group-hover:text-amber-300 transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{res.client_name}
 											</td>
-											<td className="py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap">
+											<td className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{res.phone}
 											</td>
-											<td className="py-4 px-4 text-zinc-400 text-xs font-semibold whitespace-nowrap">
+											<td className={`py-4 px-4 text-zinc-400 text-xs font-semibold whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{res.datetime}
 											</td>
-											<td className="py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap">
+											<td className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{res.room_name}
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
@@ -335,18 +337,16 @@ export default function ReservationsAdmin() {
 														: "bg-amber-500/10 text-amber-300 border-amber-500/25"
 												}`}>
 													<span className={`w-1.5 h-1.5 rounded-full ${res.accepted ? "bg-green-400" : "bg-amber-400 animate-pulse"}`} />
-													{res.accepted ? "مؤكد ومثبت" : "بانتظار التأكيد"}
+													{res.accepted ? t("reservations.statusAccepted") : t("reservations.statusPending")}
 												</span>
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
 												<div className="flex items-center justify-center gap-2">
-													
-													{/* Accept Reservation (Show only if pending) */}
 													{!res.accepted && (
 														<button
 															onClick={() => handleAcceptReservation(res.id)}
 															className="p-1.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-white transition-all duration-200"
-															title="تأكيد وقبول الحجز"
+															title={isRtl ? "تأكيد وقبول الحجز" : "Confirm reservation"}
 														>
 															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
@@ -354,11 +354,10 @@ export default function ReservationsAdmin() {
 														</button>
 													)}
 
-													{/* Delete/Cancel Booking */}
 													<button
 														onClick={() => handleDeleteReservation(res.id)}
 														className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
-														title="إلغاء وحذف الحجز"
+														title={t("common.delete")}
 													>
 														<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -371,7 +370,7 @@ export default function ReservationsAdmin() {
 								) : (
 									<tr>
 										<td colSpan={7} className="py-10 text-center text-zinc-500 font-medium text-xs">
-											لا توجد حجوزات نشطة تطابق معايير الاختيار حالياً.
+											{t("common.noData")}
 										</td>
 									</tr>
 								)}
@@ -390,32 +389,32 @@ export default function ReservationsAdmin() {
 						<SearchInput
 							value={searchQuery}
 							onChange={setSearchQuery}
-							placeholder="البحث باسم القاعة/الطاولة..."
+							placeholder={isRtl ? "البحث باسم القاعة/الطاولة..." : "Search table/room name..."}
 						/>
 						<span className="text-xs text-zinc-400 font-bold shrink-0">
-							إجمالي القاعات والطاولات: {rooms.length}
+							{isRtl ? "إجمالي القاعات والطاولات:" : "Total Tables & Rooms:"} {rooms.length}
 						</span>
 					</div>
 
 					{/* Rooms Table */}
 					<div className="overflow-x-auto overflow-y-auto max-h-100 lg:max-h-[calc(100vh-340px)]">
-						<table className="min-w-212.5 w-full border-collapse text-right text-sm">
+						<table className="min-w-212.5 w-full border-collapse text-sm">
 							<thead>
-								<tr className="border-b border-white/10 text-zinc-400 text-xs font-black">
-									<th className="pb-3 px-4 text-right">رقم المعرف</th>
-									<th className="pb-3 px-4 text-right">اسم القاعة / رقم الطاولة</th>
-									<th className="pb-3 px-4 text-center">الحالة التشغيلية</th>
-									<th className="pb-3 px-4 text-center">الإجراءات والتحكم</th>
+								<tr className={`border-b border-white/10 text-zinc-400 text-xs font-black ${isRtl ? "text-right" : "text-left"}`}>
+									<th className="pb-3 px-4">{isRtl ? "رقم المعرف" : "ID"}</th>
+									<th className="pb-3 px-4">{isRtl ? "اسم القاعة / رقم الطاولة" : "Table / Room Name"}</th>
+									<th className="pb-3 px-4 text-center">{isRtl ? "الحالة التشغيلية" : "Operating Status"}</th>
+									<th className="pb-3 px-4 text-center">{t("common.actions")}</th>
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-white/5">
 								{filteredRooms.length > 0 ? (
 									filteredRooms.map((room) => (
 										<tr key={room.id} className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200">
-											<td className="py-4 px-4 font-black text-xs text-zinc-500 whitespace-nowrap">
+											<td className={`py-4 px-4 font-black text-xs text-zinc-500 whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{room.id}
 											</td>
-											<td className="py-4 px-4 font-bold text-white group-hover:text-amber-300 transition-colors whitespace-nowrap">
+											<td className={`py-4 px-4 font-bold text-white group-hover:text-amber-300 transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{room.name}
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
@@ -427,12 +426,11 @@ export default function ReservationsAdmin() {
 													}`}
 												>
 													<span className={`w-1.5 h-1.5 rounded-full ${!room.is_disable ? "bg-amber-400" : "bg-red-400"}`} />
-													{!room.is_disable ? "شاغرة ومتاحة للحجز" : "خارج الخدمة مؤقتاً"}
+													{!room.is_disable ? (isRtl ? "شاغرة ومتاحة للحجز" : "Available") : (isRtl ? "خارج الخدمة مؤقتاً" : "Out of Service")}
 												</span>
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
 												<div className="flex items-center justify-center gap-2">
-													
 													{/* Toggle Room available */}
 													<button
 														onClick={() => handleToggleDisableRoom(room.id)}
@@ -441,7 +439,7 @@ export default function ReservationsAdmin() {
 																? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
 																: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-[#07080a]"
 														}`}
-														title={!room.is_disable ? "إلغاء الإتاحة" : "إعادة الإتاحة للحجز"}
+														title={!room.is_disable ? (isRtl ? "إلغاء الإتاحة" : "Disable Table") : (isRtl ? "إعادة الإتاحة للحجز" : "Enable Table")}
 													>
 														{!room.is_disable ? (
 															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -458,7 +456,7 @@ export default function ReservationsAdmin() {
 													<button
 														onClick={() => handleDeleteRoom(room.id)}
 														className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
-														title="مسح الغرفة/الطاولة"
+														title={isRtl ? "مسح الغرفة/الطاولة" : "Delete table"}
 													>
 														<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -471,7 +469,7 @@ export default function ReservationsAdmin() {
 								) : (
 									<tr>
 										<td colSpan={4} className="py-10 text-center text-zinc-500 font-medium text-xs">
-											لا توجد طاولات تطابق بحثك حالياً.
+											{t("common.noData")}
 										</td>
 									</tr>
 								)}
@@ -483,31 +481,31 @@ export default function ReservationsAdmin() {
 
 			{/* Modal: ADD RESERVATION */}
 			{isResOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir={isRtl ? "rtl" : "ltr"}>
 					<div className="max-w-md w-full rounded-3xl border border-white/15 bg-[#131522]/95 backdrop-blur-xl p-6 shadow-2xl relative">
 						<button
 							onClick={() => setIsResOpen(false)}
-							className="absolute top-4 left-4 text-zinc-400 hover:text-white transition-colors"
+							className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} text-zinc-400 hover:text-white transition-colors`}
 						>
 							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
 							</svg>
 						</button>
 
-						<h2 className="text-lg font-black text-white mb-4">إضافة حجز طاولة جديد</h2>
+						<h2 className="text-lg font-black text-white mb-4">{isRtl ? "إضافة حجز طاولة جديد" : "Add New Booking"}</h2>
 
 						<form onSubmit={handleAddReservation} className="space-y-4">
 							{/* Client Name */}
 							<div className="space-y-1.5">
-								<label htmlFor="resClient" className="text-xs font-bold text-zinc-400">
-									اسم العميل الثلاثي
+								<label htmlFor="resClient" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? "اسم العميل الثلاثي" : "Full Client Name"}
 								</label>
 								<input
 									id="resClient"
 									type="text"
 									value={resClientName}
 									onChange={(e) => setResClientName(e.target.value)}
-									placeholder="مثال: محمد أحمد العتيبي..."
+									placeholder={isRtl ? "مثال: محمد أحمد العتيبي..." : "e.g., John Doe..."}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 									required
 									autoFocus
@@ -516,15 +514,15 @@ export default function ReservationsAdmin() {
 
 							{/* Client Phone */}
 							<div className="space-y-1.5">
-								<label htmlFor="resPhone" className="text-xs font-bold text-zinc-400">
-									رقم جوال التواصل
+								<label htmlFor="resPhone" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? "رقم جوال التواصل" : "Contact Phone Number"}
 								</label>
 								<input
 									id="resPhone"
 									type="tel"
 									value={resPhone}
 									onChange={(e) => setResPhone(e.target.value)}
-									placeholder="مثال: 0554321098"
+									placeholder="05xxxxxxxx"
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 									required
 								/>
@@ -532,8 +530,8 @@ export default function ReservationsAdmin() {
 
 							{/* Date and Time */}
 							<div className="space-y-1.5">
-								<label htmlFor="resDate" className="text-xs font-bold text-zinc-400">
-									تاريخ الحجز والوقت المطلوب
+								<label htmlFor="resDate" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? "تاريخ الحجز والوقت المطلوب" : "Requested Date & Time"}
 								</label>
 								<input
 									id="resDate"
@@ -547,8 +545,8 @@ export default function ReservationsAdmin() {
 
 							{/* Room / Table selector */}
 							<div className="space-y-1.5">
-								<label htmlFor="resRoom" className="text-xs font-bold text-zinc-400">
-									الطاولة أو القاعة المعينة
+								<label htmlFor="resRoom" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? "الطاولة أو القاعة المعينة" : "Assigned Table or Room"}
 								</label>
 								<select
 									id="resRoom"
@@ -572,13 +570,13 @@ export default function ReservationsAdmin() {
 									onClick={() => setIsResOpen(false)}
 									className="px-4 py-2.5 rounded-full border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
 								>
-									إلغاء
+									{t("common.cancel")}
 								</button>
 								<button
 									type="submit"
 									className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] text-xs font-extrabold transition-all"
 								>
-									حفظ وإدراج الحجز
+									{t("common.save")}
 								</button>
 							</div>
 						</form>
@@ -588,30 +586,30 @@ export default function ReservationsAdmin() {
 
 			{/* Modal: ADD DINING ROOM / TABLE */}
 			{isRoomOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir={isRtl ? "rtl" : "ltr"}>
 					<div className="max-w-md w-full rounded-3xl border border-white/15 bg-[#131522]/95 backdrop-blur-xl p-6 shadow-2xl relative">
 						<button
 							onClick={() => setIsRoomOpen(false)}
-							className="absolute top-4 left-4 text-zinc-400 hover:text-white transition-colors"
+							className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} text-zinc-400 hover:text-white transition-colors`}
 						>
 							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
 							</svg>
 						</button>
 
-						<h2 className="text-lg font-black text-white mb-4">إضافة طاولة أو قاعة جديدة</h2>
+						<h2 className="text-lg font-black text-white mb-4">{isRtl ? "إضافة طاولة أو قاعة جديدة" : "Add Table or Room"}</h2>
 
 						<form onSubmit={handleAddRoom} className="space-y-4">
 							<div className="space-y-1.5">
-								<label htmlFor="roomNameIn" className="text-xs font-bold text-zinc-400">
-									اسم القاعة أو رقم الطاولة بالتفصيل
+								<label htmlFor="roomNameIn" className="text-xs font-bold text-zinc-400 block">
+									{isRtl ? "اسم القاعة أو رقم الطاولة بالتفصيل" : "Detailed Room or Table Name"}
 								</label>
 								<input
 									id="roomNameIn"
 									type="text"
 									value={roomName}
 									onChange={(e) => setRoomName(e.target.value)}
-									placeholder="مثال: طاولة VIP 2 (بجوار البيانو)..."
+									placeholder={isRtl ? "مثال: طاولة VIP 2 (بجوار البيانو)..." : "e.g., Table 5 VIP..."}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 									required
 									autoFocus
@@ -624,13 +622,13 @@ export default function ReservationsAdmin() {
 									onClick={() => setIsRoomOpen(false)}
 									className="px-4 py-2.5 rounded-full border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
 								>
-									إلغاء
+									{t("common.cancel")}
 								</button>
 								<button
 									type="submit"
 									className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] text-xs font-extrabold transition-all"
 								>
-									إضافة وتفعيل
+									{t("common.add")}
 								</button>
 							</div>
 						</form>
