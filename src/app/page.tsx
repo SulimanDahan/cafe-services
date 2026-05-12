@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useLanguage } from "@/config/i18n";
 
 /**
@@ -132,7 +133,7 @@ export default function Home() {
 			{/* High-Contrast Glassmorphic AppBar */}
 			<header className="sticky top-4 z-40 max-w-7xl w-[calc(100%-2rem)] mx-auto rounded-3xl border border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl shadow-2xl transition-all duration-300">
 				<div className="px-6 h-16 flex items-center justify-between">
-					<div className="flex items-center gap-3">
+					<div className="flex items-center gap-6">
 						{/* High-contrast amber logo container (Geometric - NO emoji) */}
 						<div className="h-9.5 w-9.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-lg shadow-lg">
 							<svg
@@ -150,9 +151,25 @@ export default function Home() {
 								/>
 							</svg>
 						</div>
-						<span className="text-sm sm:text-base md:text-lg font-black tracking-wide text-white whitespace-nowrap">
+						<span className="text-sm sm:text-base md:text-lg font-black tracking-wide text-white whitespace-nowrap hidden sm:inline">
 							{t("home.title")}
 						</span>
+
+						{/* Customer Navigation menu */}
+						<nav className="flex items-center gap-1 sm:gap-2">
+							<Link
+								href="/"
+								className="px-4 py-1.5 rounded-full text-xs font-black bg-amber-500/10 text-amber-300 border border-amber-500/30 shadow-md active:scale-95"
+							>
+								{isRtl ? "الرئيسية" : "Home"}
+							</Link>
+							<Link
+								href="/order"
+								className="px-3 py-1.5 rounded-full text-xs font-bold text-zinc-400 hover:text-white transition-all active:scale-95"
+							>
+								{isRtl ? "طلب أصناف" : "Order Items"}
+							</Link>
+						</nav>
 					</div>
 
 					{/* Language Switch */}
