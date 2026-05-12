@@ -89,6 +89,37 @@ export default function AdminLayout({ children }: LayoutProps) {
 	const [isMobileOpen, setIsMobileOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [prevPathname, setPrevPathname] = useState(pathname);
+	const [isCustomerAppBlock, setIsCustomerAppBlock] = useState(false);
+
+	// Multi-PWA scope sandboxing and manifest swap
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		// Check if PWA standalone mode
+		const standaloneCheck = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+
+		// Dynamic manifest swap to Admin configuration
+		let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+		if (link) {
+			link.href = "/admin-manifest.json";
+		} else {
+			link = document.createElement("link");
+			link.rel = "manifest";
+			link.href = "/admin-manifest.json";
+			document.head.appendChild(link);
+		}
+
+		if (standaloneCheck) {
+			const pwaType = sessionStorage.getItem("pwa_type");
+			if (pwaType === "customer") {
+				setTimeout(() => {
+					setIsCustomerAppBlock(true);
+				}, 0);
+			} else {
+				sessionStorage.setItem("pwa_type", "admin");
+			}
+		}
+	}, []);
 
 	// Synchronize loading state immediately in render when pathname changes (Official React Pattern)
 	if (pathname !== prevPathname) {
@@ -149,6 +180,37 @@ export default function AdminLayout({ children }: LayoutProps) {
 		};
 	}, [pathname]);
 
+	if (isCustomerAppBlock) {
+		return (
+			<div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-[#07080a] p-6 text-center select-none animate-fade-in" dir={isRtl ? "rtl" : "ltr"}>
+				<div className="absolute w-72 h-72 rounded-full bg-red-500/10 blur-[100px] pointer-events-none" />
+				<div className="max-w-md w-full rounded-3xl border border-red-500/20 bg-[#131522] p-8 space-y-6 shadow-2xl relative overflow-hidden">
+					<div className="h-16 w-16 mx-auto rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 font-black text-2xl">
+						⚠️
+					</div>
+					<div className="space-y-2">
+						<h2 className="text-lg font-black text-white">
+							{isRtl ? "نطاق وصول غير مسموح به" : "Unauthorized Access Scope"}
+						</h2>
+						<p className="text-xs text-zinc-400 leading-relaxed">
+							{isRtl
+								? "عذراً، لا يمكن فتح لوحة التحكم الإدارية من داخل تطبيق الزبائن الذاتي. يرجى استخدام متصفح عادي أو تثبيت تطبيق الإدارة المخصص."
+								: "Sorry! You cannot access the admin control panel from within the Customer standalone app. Please use a regular browser or install the dedicated Admin application."}
+						</p>
+					</div>
+					<button
+						onClick={() => {
+							window.location.href = "/order";
+						}}
+						className="w-full py-3 rounded-full bg-red-500 text-white font-bold text-xs hover:bg-red-600 transition-colors cursor-pointer active:scale-95"
+					>
+						{isRtl ? "العودة لتطبيق الطلبات" : "Return to Ordering App"}
+					</button>
+				</div>
+			</div>
+		);
+	}
+
 	// Exclude layout wrapper on the login page but mount the page transition loader
 	if (pathname === ADMIN_ROUTES.login || pathname === `${ADMIN_ROUTES.login}/`) {
 		return (
@@ -200,6 +262,15 @@ export default function AdminLayout({ children }: LayoutProps) {
 			name: t("sidebar.settings"),
 			path: ADMIN_ROUTES.settings,
 			icon: <SettingsIcon size={20} className="shrink-0" />,
+		},
+		{
+			name: t("sidebar.rooms"),
+			path: ADMIN_ROUTES.room,
+			icon: (
+				<svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+				</svg>
+			),
 		},
 	];
 

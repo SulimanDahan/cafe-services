@@ -13,6 +13,7 @@ export const ADMIN_ROUTES = {
 	notifications: "/admin/notifications",
 	user: "/admin/user",
 	settings: "/admin/settings",
+	room: "/admin/room",
 } as const;
 
 export type AdminRouteType = typeof ADMIN_ROUTES[keyof typeof ADMIN_ROUTES];

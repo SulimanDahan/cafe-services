@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminHeader from "@/components/AdminHeader";
 import SearchInput from "@/components/SearchInput";
 import { useLanguage } from "@/config/i18n";
@@ -20,7 +20,59 @@ interface Room {
 	id: string;
 	name: string;
 	is_disable: boolean;
+	qr_code?: string;
 }
+
+const DEFAULT_RESERVATIONS: Reservation[] = [
+	{
+		id: "res1",
+		number: "R-9043",
+		client_name: "سليمان دهان",
+		phone: "0554321098",
+		datetime: "12 مايو 2026 21:00",
+		room_id: "rm1",
+		room_name: "طاولة VIP 1 (المنطقة الزجاجية)",
+		accepted: true,
+	},
+	{
+		id: "res2",
+		number: "R-5412",
+		client_name: "أحمد العتيبي",
+		phone: "0561234567",
+		datetime: "13 مايو 2026 19:30",
+		room_id: "rm2",
+		room_name: "طاولة عائلية 4 (الدور الثاني)",
+		accepted: false,
+	},
+	{
+		id: "res3",
+		number: "R-3329",
+		client_name: "سارة الأحمد",
+		phone: "0549876543",
+		datetime: "14 مايو 2026 18:00",
+		room_id: "rm3",
+		room_name: "طاولة ثنائية 2 (شرفة المقهى)",
+		accepted: true,
+	},
+	{
+		id: "res4",
+		number: "R-1120",
+		client_name: "خالد الحربي",
+		phone: "0501122334",
+		datetime: "15 مايو 2026 20:30",
+		room_id: "rm1",
+		room_name: "طاولة VIP 1 (المنطقة الزجاجية)",
+		accepted: false,
+	},
+];
+
+const DEFAULT_ROOMS: Room[] = [
+	{ id: "rm1", name: "طاولة VIP 1 (المنطقة الزجاجية)", is_disable: false, qr_code: "vip1" },
+	{ id: "rm2", name: "طاولة عائلية 4 (الدور الثاني)", is_disable: false, qr_code: "table4" },
+	{ id: "rm3", name: "طاولة ثنائية 2 (شرفة المقهى)", is_disable: false, qr_code: "table2" },
+	{ id: "rm4", name: "طاولة بار 5 (ركن الباريستا)", is_disable: false, qr_code: "bar5" },
+	{ id: "rm5", name: "قاعة الاجتماعات الفاخرة", is_disable: true, qr_code: "meeting5" },
+];
 
 /**
  * Admin Reservations and Dining Rooms Control Panel.
@@ -31,57 +83,64 @@ export default function ReservationsAdmin() {
 	const { t, isRtl } = useLanguage();
 
 	// Pre-seeded reservations database matching schema
-	const [reservations, setReservations] = useState<Reservation[]>([
-		{
-			id: "res1",
-			number: "R-9043",
-			client_name: "سليمان دهان",
-			phone: "0554321098",
-			datetime: "12 مايو 2026 21:00",
-			room_id: "rm1",
-			room_name: "طاولة VIP 1 (المنطقة الزجاجية)",
-			accepted: true,
-		},
-		{
-			id: "res2",
-			number: "R-5412",
-			client_name: "أحمد العتيبي",
-			phone: "0561234567",
-			datetime: "13 مايو 2026 19:30",
-			room_id: "rm2",
-			room_name: "طاولة عائلية 4 (الدور الثاني)",
-			accepted: false,
-		},
-		{
-			id: "res3",
-			number: "R-3329",
-			client_name: "سارة الأحمد",
-			phone: "0549876543",
-			datetime: "14 مايو 2026 18:00",
-			room_id: "rm3",
-			room_name: "طاولة ثنائية 2 (شرفة المقهى)",
-			accepted: true,
-		},
-		{
-			id: "res4",
-			number: "R-1120",
-			client_name: "خالد الحربي",
-			phone: "0501122334",
-			datetime: "15 مايو 2026 20:30",
-			room_id: "rm1",
-			room_name: "طاولة VIP 1 (المنطقة الزجاجية)",
-			accepted: false,
-		},
-	]);
+	const [reservations, setReservations] = useState<Reservation[]>(() => {
+		if (typeof window === "undefined") return DEFAULT_RESERVATIONS;
+		const storedRes = localStorage.getItem("cafe_reservations");
+		if (storedRes) {
+			try {
+				return JSON.parse(storedRes);
+			} catch {
+				return DEFAULT_RESERVATIONS;
+			}
+		} else {
+			localStorage.setItem("cafe_reservations", JSON.stringify(DEFAULT_RESERVATIONS));
+			return DEFAULT_RESERVATIONS;
+		}
+	});
 
 	// Pre-seeded dining tables and rooms database
-	const [rooms, setRooms] = useState<Room[]>([
-		{ id: "rm1", name: "طاولة VIP 1 (المنطقة الزجاجية)", is_disable: false },
-		{ id: "rm2", name: "طاولة عائلية 4 (الدور الثاني)", is_disable: false },
-		{ id: "rm3", name: "طاولة ثنائية 2 (شرفة المقهى)", is_disable: false },
-		{ id: "rm4", name: "طاولة بار 5 (ركن الباريستا)", is_disable: false },
-		{ id: "rm5", name: "قاعة الاجتماعات الفاخرة", is_disable: true },
-	]);
+	const [rooms, setRooms] = useState<Room[]>(() => {
+		if (typeof window === "undefined") return DEFAULT_ROOMS;
+		const storedRooms = localStorage.getItem("cafe_rooms");
+		if (storedRooms) {
+			try {
+				return JSON.parse(storedRooms);
+			} catch {
+				return DEFAULT_ROOMS;
+			}
+		} else {
+			localStorage.setItem("cafe_rooms", JSON.stringify(DEFAULT_ROOMS));
+			return DEFAULT_ROOMS;
+		}
+	});
+
+	// Sync local storage on updates from other tabs/modals
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		// Set up event listeners for updates from other pages
+		const syncOnUpdate = () => {
+			const res = localStorage.getItem("cafe_reservations");
+			if (res) {
+				try {
+					setReservations(JSON.parse(res));
+				} catch {}
+			}
+			const rms = localStorage.getItem("cafe_rooms");
+			if (rms) {
+				try {
+					setRooms(JSON.parse(rms));
+				} catch {}
+			}
+		};
+
+		window.addEventListener("rooms-updated", syncOnUpdate);
+		window.addEventListener("reservations-updated", syncOnUpdate);
+		return () => {
+			window.removeEventListener("rooms-updated", syncOnUpdate);
+			window.removeEventListener("reservations-updated", syncOnUpdate);
+		};
+	}, []);
 
 	const [activeSection, setActiveSection] = useState<"reservations" | "rooms">("reservations");
 	const [searchQuery, setSearchQuery] = useState("");
@@ -124,18 +183,25 @@ export default function ReservationsAdmin() {
 			accepted: false, // Starts as pending confirmation
 		};
 
-		setReservations((prev) => [newRes, ...prev]);
+		const updated = [newRes, ...reservations];
+		setReservations(updated);
+		localStorage.setItem("cafe_reservations", JSON.stringify(updated));
+		window.dispatchEvent(new CustomEvent("reservations-updated"));
 		setIsResOpen(false);
 	};
 
 	const handleAcceptReservation = (id: string) => {
-		setReservations((prev) =>
-			prev.map((res) => (res.id === id ? { ...res, accepted: true } : res))
-		);
+		const updated = reservations.map((res) => (res.id === id ? { ...res, accepted: true } : res));
+		setReservations(updated);
+		localStorage.setItem("cafe_reservations", JSON.stringify(updated));
+		window.dispatchEvent(new CustomEvent("reservations-updated"));
 	};
 
 	const handleDeleteReservation = (id: string) => {
-		setReservations((prev) => prev.filter((res) => res.id !== id));
+		const updated = reservations.filter((res) => res.id !== id);
+		setReservations(updated);
+		localStorage.setItem("cafe_reservations", JSON.stringify(updated));
+		window.dispatchEvent(new CustomEvent("reservations-updated"));
 	};
 
 	const handleAddRoom = (e: React.FormEvent) => {
@@ -146,21 +212,29 @@ export default function ReservationsAdmin() {
 			id: `rm-${Date.now()}`,
 			name: roomName,
 			is_disable: false,
+			qr_code: `room-${Math.floor(100 + Math.random() * 900)}`,
 		};
 
-		setRooms((prev) => [...prev, newRoom]);
+		const updated = [...rooms, newRoom];
+		setRooms(updated);
+		localStorage.setItem("cafe_rooms", JSON.stringify(updated));
+		window.dispatchEvent(new CustomEvent("rooms-updated"));
 		setRoomName("");
 		setIsRoomOpen(false);
 	};
 
 	const handleToggleDisableRoom = (id: string) => {
-		setRooms((prev) =>
-			prev.map((r) => (r.id === id ? { ...r, is_disable: !r.is_disable } : r))
-		);
+		const updated = rooms.map((r) => (r.id === id ? { ...r, is_disable: !r.is_disable } : r));
+		setRooms(updated);
+		localStorage.setItem("cafe_rooms", JSON.stringify(updated));
+		window.dispatchEvent(new CustomEvent("rooms-updated"));
 	};
 
 	const handleDeleteRoom = (id: string) => {
-		setRooms((prev) => prev.filter((r) => r.id !== id));
+		const updated = rooms.filter((r) => r.id !== id);
+		setRooms(updated);
+		localStorage.setItem("cafe_rooms", JSON.stringify(updated));
+		window.dispatchEvent(new CustomEvent("rooms-updated"));
 	};
 
 	// Filters based on search query and status tabs

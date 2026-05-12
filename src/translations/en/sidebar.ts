@@ -7,4 +7,5 @@ export const sidebar = {
 	notifications: "Notifications center",
 	users: "Staff Users",
 	settings: "Global Settings",
+	rooms: "Rooms & Tables",
 };

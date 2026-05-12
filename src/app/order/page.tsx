@@ -202,6 +202,27 @@ const MENU_ITEMS: MenuItem[] = [
 export default function CustomerOrderPage() {
 	const { t, isRtl, locale, setLocale } = useLanguage();
 
+	const [isAdminAppBlock, setIsAdminAppBlock] = useState(false);
+
+	// Multi-PWA scope sandboxing and dynamic state configuration
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		// Check if PWA standalone mode
+		const standaloneCheck = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+
+		if (standaloneCheck) {
+			const pwaType = sessionStorage.getItem("pwa_type");
+			if (pwaType === "admin") {
+				setTimeout(() => {
+					setIsAdminAppBlock(true);
+				}, 0);
+			} else {
+				sessionStorage.setItem("pwa_type", "customer");
+			}
+		}
+	}, []);
+
 	// Unified localStorage databases
 	const [reservations, setReservations] = useState<Reservation[]>(() => {
 		if (typeof window === "undefined") return [];
@@ -810,6 +831,37 @@ export default function CustomerOrderPage() {
 		if (activeCategory === "halw") return item.category_en === "Desserts";
 		return true;
 	});
+
+	if (isAdminAppBlock) {
+		return (
+			<div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-[#07080a] p-6 text-center select-none" dir={isRtl ? "rtl" : "ltr"}>
+				<div className="absolute w-72 h-72 rounded-full bg-amber-500/10 blur-[100px] pointer-events-none" />
+				<div className="max-w-md w-full rounded-3xl border border-amber-500/20 bg-[#131522] p-8 space-y-6 shadow-2xl relative overflow-hidden">
+					<div className="h-16 w-16 mx-auto rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-2xl">
+						☕
+					</div>
+					<div className="space-y-2">
+						<h2 className="text-lg font-black text-white">
+							{isRtl ? "تطبيق مخصص للإدارة الفنية" : "Application Dedicated to Admin"}
+						</h2>
+						<p className="text-xs text-zinc-400 leading-relaxed">
+							{isRtl
+								? "عذراً، هذا التطبيق المثبت مخصص لإدارة العمليات التشغيلية للمقهى والـ Admin فقط. لطلب الخدمات، يرجى تصفح الموقع أو مسح رمز الـ QR الخاص بطاولتك."
+								: "Sorry! This installed application is dedicated exclusively to technical cafe operations and admin control. To order services, please use a browser or scan your table's QR sticker."}
+						</p>
+					</div>
+					<button
+						onClick={() => {
+							window.location.href = "/admin/room";
+						}}
+						className="w-full py-3 rounded-full bg-amber-500 text-[#07080a] font-black text-xs hover:bg-amber-600 transition-colors cursor-pointer active:scale-95"
+					>
+						{isRtl ? "العودة للوحة الإدارة" : "Return to Admin Console"}
+					</button>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div
