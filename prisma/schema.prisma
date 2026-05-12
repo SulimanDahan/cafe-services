@@ -62,6 +62,7 @@ model Reservation {
   room_id     String
   room        Room     @relation(fields: [room_id], references: [id])
   accepted    Boolean  @default(false)
+  completed   Boolean  @default(false)
   createdAt   DateTime @default(now())
   orders      Order[]
 }
