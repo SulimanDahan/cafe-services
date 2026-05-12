@@ -1,0 +1,18 @@
+export const item = {
+	title: "المواد والأصناف",
+	subtitle: "إدارة قائمة الأطباق، المأكولات، المشروبات، تحديد الأسعار وربطها بالمجموعات",
+	addItem: "إضافة صنف جديد",
+	columnNameAr: "الاسم بالعربية",
+	columnNameEn: "الاسم بالإنجليزية",
+	columnPrice: "السعر الإفرادي",
+	columnGroup: "المجموعة التابعة",
+	columnCreated: "تاريخ الإضافة",
+	formNameAr: "اسم الصنف بالعربية",
+	formNameEn: "اسم الصنف بالإنجليزية",
+	formPrice: "السعر الإفرادي (IQD)",
+	formGroup: "المجموعة التصنيفية",
+	placeholderNameAr: "مثال: قهوة كابتشينو",
+	placeholderNameEn: "مثال: Cappuccino Coffee",
+	placeholderPrice: "أدخل السعر الإفرادي بالدينار العراقي",
+	selectGroupPlaceholder: "اختر المجموعة المناسبة لها",
+};

@@ -1,0 +1,11 @@
+export { default as DashboardIcon } from "./DashboardIcon";
+export { default as CalendarIcon } from "./CalendarIcon";
+export { default as OrderIcon } from "./OrderIcon";
+export { default as ItemGroupIcon } from "./ItemGroupIcon";
+export { default as ItemIcon } from "./ItemIcon";
+export { default as BellIcon } from "./BellIcon";
+export { default as UsersIcon } from "./UsersIcon";
+export { default as SettingsIcon } from "./SettingsIcon";
+export { default as LogoutIcon } from "./LogoutIcon";
+export { default as SearchIcon } from "./SearchIcon";
+export * from "./types";

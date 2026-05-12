@@ -8,9 +8,9 @@ import { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
 	return {
-		name: "Cafe Services Dashboard",
-		short_name: "Cafe Services",
-		description: "Premium Cafe Services Dashboard with Real-time Live Notifications.",
+		name: "لوحة خدمات المقهى الفاخرة",
+		short_name: "خدمات المقهى",
+		description: "لوحة تحكم خدمات المقهى الفاخرة المزودة بنظام بث الإشعارات والطلبات الفوري المباشر.",
 		start_url: "/",
 		display: "standalone",
 		background_color: "#07080a",

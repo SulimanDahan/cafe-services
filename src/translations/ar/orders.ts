@@ -1,0 +1,16 @@
+export const orders = {
+	title: "لوحة الطلبات والأطباق",
+	subtitle: "متابعة وإعداد طلبات الزبائن مباشرة من الطاولات وتحديث حالات التحضير",
+	addOrder: "إنشاء طلب جديد",
+	columnId: "رقم الطلب",
+	columnClient: "العميل",
+	columnItems: "المواد المطلوبة",
+	columnPrice: "الإجمالي",
+	columnStatus: "حالة التحضير",
+	statusPending: "بانتظار التحضير",
+	statusPreparing: "جاري التحضير الآن",
+	statusCompleted: "جاهز للتسليم",
+	statusCancelled: "ملغي",
+	actionPrepare: "بدء التحضير",
+	actionComplete: "اعتماده كجاهز",
+};

@@ -43,30 +43,30 @@ model ItemGroup {
 }
 
 model Item {
-  id               String            @id @default(uuid())
-  name             String            @unique
-  price            Decimal           @default(0)
-  group            ItemGroup         @relation(fields: [group_id], references: [id])
-  group_id         String
-  is_disable       Boolean           @default(false)
-  createdAt        DateTime          @default(now())
-  reservationItems ReservationItem[]
+  id         String    @id @default(uuid())
+  name       String    @unique
+  price      Decimal   @default(0)
+  group      ItemGroup @relation(fields: [group_id], references: [id])
+  group_id   String
+  is_disable Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  orders     Order[]
 }
 
 model Reservation {
-  id               String            @id @default(uuid())
-  number           Int               @unique @default(autoincrement())
-  date_time        DateTime          @default(now())
-  client_name      String
-  phone            String
-  room_id          String
-  room             Room              @relation(fields: [room_id], references: [id])
-  accepted         Boolean           @default(false)
-  createdAt        DateTime          @default(now())
-  reservationItems ReservationItem[]
+  id          String   @id @default(uuid())
+  number      Int      @unique @default(autoincrement())
+  date_time   DateTime @default(now())
+  client_name String
+  phone       String
+  room_id     String
+  room        Room     @relation(fields: [room_id], references: [id])
+  accepted    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  orders      Order[]
 }
 
-model ReservationItem {
+model Order {
   id             String      @id @default(uuid())
   reservation_id String
   item_id        String
@@ -75,4 +75,15 @@ model ReservationItem {
   reservation    Reservation @relation(fields: [reservation_id], references: [id])
   item           Item        @relation(fields: [item_id], references: [id])
   createdAt      DateTime    @default(now())
+}
+
+model Settings {
+  id                     String   @id @default(uuid())
+  currency_name          String   @default("IQD")
+  tax_rate               Decimal  @default(10) // in percent
+  allow_notifications    Boolean  @default(true)
+  notification_threshold Int      @default(100)
+  app_lang               String   @default("ar")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 }

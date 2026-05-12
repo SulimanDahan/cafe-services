@@ -1,0 +1,16 @@
+export const orders = {
+	title: "Orders Panel",
+	subtitle: "Track client orders directly from tables and manage preparations",
+	addOrder: "Create New Order",
+	columnId: "Order ID",
+	columnClient: "Client",
+	columnItems: "Ordered Items",
+	columnPrice: "Total",
+	columnStatus: "Preparation Status",
+	statusPending: "Pending Prep",
+	statusPreparing: "Preparing Now",
+	statusCompleted: "Ready for Pickup",
+	statusCancelled: "Cancelled",
+	actionPrepare: "Start Preparing",
+	actionComplete: "Mark as Ready",
+};

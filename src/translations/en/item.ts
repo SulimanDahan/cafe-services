@@ -1,0 +1,18 @@
+export const item = {
+	title: "Menu Items & Products",
+	subtitle: "Manage dishes, beverages, set unit prices, and link to categories",
+	addItem: "Add Menu Item",
+	columnNameAr: "Name (Arabic)",
+	columnNameEn: "Name (English)",
+	columnPrice: "Unit Price",
+	columnGroup: "Category Group",
+	columnCreated: "Created Date",
+	formNameAr: "Item Name (Arabic)",
+	formNameEn: "Item Name (English)",
+	formPrice: "Unit Price (IQD)",
+	formGroup: "Item Category",
+	placeholderNameAr: "e.g., قهوة كابتشينو",
+	placeholderNameEn: "e.g., Cappuccino Coffee",
+	placeholderPrice: "Enter unit price in IQD",
+	selectGroupPlaceholder: "Select its menu category",
+};
