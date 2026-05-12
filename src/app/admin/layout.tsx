@@ -18,6 +18,8 @@ import {
 	LogoutIcon,
 } from "@/components/icons";
 
+import NotificationCenter from "@/components/NotificationCenter";
+
 interface LayoutProps {
 	children: ReactNode;
 }
@@ -292,39 +294,14 @@ export default function AdminLayout({ children }: LayoutProps) {
 				{sidebarContent}
 			</aside>
 
-			{/* Mobile Header with Top Nav and Hamburger Trigger */}
+			{/* Unified Top Header for Mobile & Desktop */}
 			<div className="flex-1 flex flex-col h-full max-h-full overflow-hidden min-w-0">
-				<header className="lg:hidden h-16 border-b border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl px-4 flex items-center justify-between shrink-0 sticky top-0 z-20">
+				<header className="h-16 border-b border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-20">
 					<div className="flex items-center gap-3">
-						<div className="h-8 w-8 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-base shadow-md">
-							<svg
-								className="w-4 h-4"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2.5"
-									d="M12 3v1m0 16v1m9-9h-1M4 12H3"
-								/>
-							</svg>
-						</div>
-						<span className="text-sm font-black text-white">
-							{t("common.logoTitle")}
-						</span>
-					</div>
-
-					<div className="flex items-center gap-3">
-						{/* Language Switcher in Mobile Header */}
-						<LanguageSwitcher />
-
-						{/* Menu toggle button */}
+						{/* Hamburger toggle button - Mobile Only */}
 						<button
 							onClick={() => setIsMobileOpen(!isMobileOpen)}
-							className="p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 active:scale-95 transition-all duration-150 focus:outline-none"
+							className="lg:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 active:scale-95 transition-all duration-150 focus:outline-none cursor-pointer"
 							aria-label="Toggle menu"
 						>
 							<svg
@@ -334,23 +311,50 @@ export default function AdminLayout({ children }: LayoutProps) {
 								viewBox="0 0 24 24"
 								xmlns="http://www.w3.org/2000/svg"
 							>
-								{isMobileOpen ? (
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth="2.5"
-										d="M6 18L18 6M6 6l12 12"
-									/>
-								) : (
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth="2.5"
-										d="M4 6h16M4 12h16M4 18h16"
-									/>
-								)}
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2.5"
+									d="M4 6h16M4 12h16M4 18h16"
+								/>
 							</svg>
 						</button>
+
+						{/* Brand Logo - Mobile Only */}
+						<div className="lg:hidden flex items-center gap-2">
+							<div className="h-8 w-8 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-base shadow-md">
+								<svg
+									className="w-4 h-4"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth="2.5"
+										d="M12 3v1m0 16v1m9-9h-1M4 12H3"
+									/>
+								</svg>
+							</div>
+							<span className="text-sm font-black text-white">
+								{t("common.logoTitle")}
+							</span>
+						</div>
+
+						{/* Desktop Admin Status - Desktop Only */}
+						<div className="hidden lg:flex items-center gap-2.5">
+							<span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+							<span className="text-xs font-black text-zinc-300 tracking-wider uppercase">
+								{t("common.adminStatus")}
+							</span>
+						</div>
+					</div>
+
+					{/* Notification Center Integration on top right/left */}
+					<div className="flex items-center gap-3.5">
+						<NotificationCenter />
 					</div>
 				</header>
 

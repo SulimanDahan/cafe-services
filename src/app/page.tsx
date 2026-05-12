@@ -1,4 +1,7 @@
-import NotificationCenter from "@/components/NotificationCenter";
+"use client";
+
+import { useState } from "react";
+import { useLanguage } from "@/config/i18n";
 
 /**
  * Redesigned Premium Cafe Services Landing Page Component.
@@ -6,18 +9,21 @@ import NotificationCenter from "@/components/NotificationCenter";
  * Supports native RTL layouts, glassmorphism elements, and uses clean SVGs with zero emojis.
  */
 export default function Home() {
+	const { t, isRtl, locale, setLocale } = useLanguage();
+	const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
 	// Arabic-localized unified service cards themed around the Amber key color
 	const services = [
 		{
 			id: "s1",
-			name: "ركن الإسبريسو المختص",
-			desc: "أجود أنواع البن أحادي المصدر المحضر بدقة وعناية على أيدي باريستا محترفين.",
-			price: "15.00 - 25.00 ريال",
-			status: "نشط",
-			// Beautiful Coffee Cup SVG
+			name: t("home.service1Name"),
+			desc: t("home.service1Desc"),
+			price: t("home.service1Price"),
+			status: t("home.statusActive"),
+			rating: "4.9",
 			iconSvg: (
 				<svg
-					className="w-6 h-6 text-amber-400"
+					className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform duration-300"
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
@@ -46,14 +52,14 @@ export default function Home() {
 		},
 		{
 			id: "s2",
-			name: "المخبوزات والحلويات الطازجة",
-			desc: "كرواسون فرنسي هش، كعك، وحلويات فاخرة مخبوزة يومياً لتقدم دافئة على طاولتك.",
-			price: "10.00 - 35.00 ريال",
-			status: "نشط",
-			// Beautiful Bakery/Cake SVG
+			name: t("home.service2Name"),
+			desc: t("home.service2Desc"),
+			price: t("home.service2Price"),
+			status: t("home.statusActive"),
+			rating: "5.0",
 			iconSvg: (
 				<svg
-					className="w-6 h-6 text-amber-400"
+					className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform duration-300"
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
@@ -70,14 +76,14 @@ export default function Home() {
 		},
 		{
 			id: "s3",
-			name: "الضيافة الخارجية الفاخرة",
-			desc: "تنسيق متكامل وأطباق مبتكرة للميتينغز والاجتماعات الرسمية وحفلات الشركات والمؤسسات.",
-			price: "حسب الطلب",
-			status: "نشط",
-			// Beautiful Food/Plate Serving Tray SVG
+			name: t("home.service3Name"),
+			desc: t("home.service3Desc"),
+			price: t("home.service3Price"),
+			status: t("home.statusActive"),
+			rating: "4.8",
 			iconSvg: (
 				<svg
-					className="w-6 h-6 text-amber-400"
+					className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform duration-300"
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
@@ -94,14 +100,14 @@ export default function Home() {
 		},
 		{
 			id: "s4",
-			name: "جلسات التذوق الخاصة",
-			desc: "رحلة معرفية تفاعلية لتذوق محاصيل القهوة النادرة واستكشاف النكهات مع خبير التحميص.",
-			price: "150.00 ريال / للشخص",
-			status: "مجدول",
-			// Beautiful Certificate/Award Badge SVG
+			name: t("home.service4Name"),
+			desc: t("home.service4Desc"),
+			price: t("home.service4Price"),
+			status: t("home.statusScheduled"),
+			rating: "5.0",
 			iconSvg: (
 				<svg
-					className="w-6 h-6 text-amber-400"
+					className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform duration-300"
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
@@ -119,15 +125,18 @@ export default function Home() {
 	];
 
 	return (
-		<div className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex flex-col selection:bg-amber-500 selection:text-black">
+		<div
+			className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex flex-col selection:bg-amber-500 selection:text-black overflow-x-hidden"
+			dir={isRtl ? "rtl" : "ltr"}
+		>
 			{/* High-Contrast Glassmorphic AppBar */}
 			<header className="sticky top-4 z-40 max-w-7xl w-[calc(100%-2rem)] mx-auto rounded-3xl border border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl shadow-2xl transition-all duration-300">
 				<div className="px-6 h-16 flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						{/* High-contrast amber logo container (Geometric - NO emoji) */}
-						<div className="h-9 w-9 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-lg shadow-md">
+						<div className="h-9.5 w-9.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-lg shadow-lg">
 							<svg
-								className="w-5 h-5"
+								className="w-5.5 h-5.5"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -141,62 +150,162 @@ export default function Home() {
 								/>
 							</svg>
 						</div>
-						<span className="text-lg font-black tracking-wide text-white">
-							خدمات المقهى الفاخرة
+						<span className="text-sm sm:text-base md:text-lg font-black tracking-wide text-white whitespace-nowrap">
+							{t("home.title")}
 						</span>
 					</div>
 
-					{/* Notification Center Trigger */}
-					<div className="flex items-center gap-2">
-						<NotificationCenter />
+					{/* Language Switch */}
+					<div className="flex items-center gap-3">
+						{/* Modern Language Toggler */}
+						<button
+							onClick={() =>
+								setLocale(locale === "ar" ? "en" : "ar")
+							}
+							className="px-4 py-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 hover:border-amber-500/30 text-xs font-black text-zinc-200 transition-all duration-200 flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+						>
+							<svg
+								className="w-4 h-4 text-amber-400"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2.2"
+									d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a3 3 0 013 3V16.5m-1.5-12.1a9 9 0 012.3 12.3"
+								/>
+							</svg>
+							<span className="hidden sm:inline">
+								{locale === "ar" ? "English" : "العربية"}
+							</span>
+							<span className="sm:hidden font-extrabold uppercase">
+								{locale === "ar" ? "EN" : "AR"}
+							</span>
+						</button>
 					</div>
 				</div>
 			</header>
 
 			{/* Main Content Layout */}
-			<main className="flex-1 max-w-7xl w-full mx-auto px-6 py-10 flex flex-col gap-8">
-				{/* High-Contrast Large Card Hero Panel */}
-				<div className="relative rounded-[28px] overflow-hidden border border-white/10 bg-linear-to-br from-amber-500/10 via-[#0d0f17]/40 to-transparent p-8 sm:p-12 shadow-xl">
-					{/* Ambient Smooth Color Glow */}
-					<div className="absolute top-0 right-1/4 w-125 h-125 rounded-full bg-amber-500/10 blur-[120px] pointer-events-none" />
+			<main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 py-10 flex flex-col gap-10">
+				{/* High-Contrast Hero Panel (Grid style to adjust proportions beautifully) */}
+				<div className="relative rounded-[28px] overflow-hidden border border-white/10 bg-[#131522]/40 p-6 sm:p-10 md:p-14 shadow-2xl">
+					{/* Ambient Color Glows */}
+					<div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-amber-500/10 blur-[130px] pointer-events-none" />
+					<div className="absolute bottom-0 left-1/4 w-96 h-96 rounded-full bg-amber-600/5 blur-[130px] pointer-events-none" />
 
-					<div className="max-w-xl relative z-10 space-y-6">
-						{/* Vibrant High-contrast Pill Badge */}
-						<span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300">
-							<span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-							نمط الماتيريال الموحد والراقي
-						</span>
+					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+						{/* Left Text Block */}
+						<div className="lg:col-span-7 space-y-6">
+							{/* Vibrant High-contrast Pill Badge */}
+							<span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black bg-amber-500/10 border border-amber-500/30 text-amber-300 shadow-md">
+								<span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+								{t("home.heroBadge")}
+							</span>
 
-						<h1 className="text-3xl sm:text-5xl font-black leading-tight tracking-tight text-white drop-shadow-md">
-							استمتع بتجربة ضيافة استثنائية
-						</h1>
-						<p className="text-zinc-300 text-base sm:text-lg leading-relaxed font-medium">
-							اكتشف قائمتنا المختصة من المشروبات الفاخرة وطلب
-							المعجنات الدافئة لفعالياتك. بيئة مجهزة بالكامل لدعم
-							البث الفوري وتحديث الحالات لحظياً عبر لوحة الإشراف
-							المتكاملة.
-						</p>
+							<h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight tracking-tight text-white drop-shadow-lg">
+								{t("home.heroTitle")}
+							</h1>
+							<p className="text-zinc-300 text-sm sm:text-base md:text-lg leading-relaxed font-medium">
+								{t("home.heroDesc")}
+							</p>
 
-						{/* Stack Tags */}
-						<div className="pt-2 flex flex-wrap gap-3">
-							<div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#131522] border border-white/10 text-xs font-semibold text-zinc-200">
-								<span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-								بيئة تشغيل Docker متكاملة
+							{/* Stack Tags */}
+							<div className="pt-2 flex flex-wrap gap-3">
+								<div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#0d0f17] border border-white/10 text-xs font-bold text-zinc-300 shadow-lg">
+									<span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+									{t("home.tagDocker")}
+								</div>
+								<div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#0d0f17] border border-white/10 text-xs font-bold text-zinc-300 shadow-lg">
+									<span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+									{t("home.tagSse")}
+								</div>
 							</div>
-							<div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#131522] border border-white/10 text-xs font-semibold text-zinc-200">
-								<span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-								بث أحداث فوري SSE مباشر
+						</div>
+
+						{/* Right Visual Dashboard Panel */}
+						<div className="lg:col-span-5 w-full">
+							<div className="rounded-3xl border border-white/15 bg-[#0d0f17]/90 backdrop-blur-xl p-6 shadow-2xl relative overflow-hidden group">
+								<div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 blur-[50px] pointer-events-none" />
+
+								<div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+									<div className="flex items-center gap-2">
+										<div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+										<div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+										<div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+									</div>
+									<span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+										{locale === "ar"
+											? "قناة البيانات الفورية"
+											: "Live SSE Channels"}
+									</span>
+								</div>
+
+								<div className="space-y-3">
+									<div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+										<div className="flex items-center gap-3">
+											<span className="flex h-7 w-7 rounded-lg bg-green-500/10 text-green-400 border border-green-500/25 items-center justify-center font-extrabold text-xs">
+												✓
+											</span>
+											<div>
+												<p className="text-xs font-bold text-white">
+													{locale === "ar"
+														? "تم تحضير الطلب #129"
+														: "Order Prepared #129"}
+												</p>
+												<p className="text-[10px] text-zinc-400 font-medium">
+													{locale === "ar"
+														? "جاهز للاستلام"
+														: "Ready for collection"}
+												</p>
+											</div>
+										</div>
+										<span className="text-[9px] text-zinc-500 font-bold">
+											{locale === "ar"
+												? "قبل قليل"
+												: "Just now"}
+										</span>
+									</div>
+
+									<div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+										<div className="flex items-center gap-3">
+											<span className="flex h-7 w-7 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/25 items-center justify-center font-extrabold text-xs">
+												!
+											</span>
+											<div>
+												<p className="text-xs font-bold text-white">
+													{locale === "ar"
+														? "تنبيه انخفاض مخزون البن"
+														: "Coffee Stock Depleting"}
+												</p>
+												<p className="text-[10px] text-zinc-400 font-medium">
+													{locale === "ar"
+														? "يرجى مراجعة الإعدادات"
+														: "Please check inventory"}
+												</p>
+											</div>
+										</div>
+										<span className="text-[9px] text-zinc-500 font-bold">
+											{locale === "ar"
+												? "ذ دقيقة"
+												: "1 min ago"}
+										</span>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				{/* High-Contrast Outlined Guide Banner for SSE alerts (NO emoji, using pure SVG) */}
-				<div className="p-5 rounded-2xl bg-[#131522] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+				{/* SSE Alert Guidelines Banner */}
+				<div className="p-6 rounded-3xl bg-[#131522] border border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl transition-all duration-300 hover:border-amber-500/30">
 					<div className="flex items-start gap-4">
-						<div className="h-10 w-10 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 flex items-center justify-center font-bold text-sm shrink-0">
+						<div className="h-11 w-11 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 flex items-center justify-center font-bold text-sm shrink-0 shadow-md">
 							<svg
-								className="w-5 h-5"
+								className="w-6 h-6 text-amber-400"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -210,63 +319,97 @@ export default function Home() {
 								/>
 							</svg>
 						</div>
-						<div>
-							<h4 className="font-bold text-sm text-white">
-								تعليمات تجربة البث الفوري
+						<div className="space-y-1">
+							<h4 className="font-extrabold text-sm text-white tracking-wide">
+								{t("home.guideTitle")}
 							</h4>
-							<p className="text-xs text-zinc-300 mt-1 font-medium">
-								انقر على أيقونة الجرس في الأعلى لفتح مركز
-								الإشعارات التفاعلي. استخدم ميزة{" "}
-								<strong>«محاكاة الحدث»</strong> لتجربة نغمات
-								التنبيه الموسيقية المصنعة برمجياً والنوافذ
-								المنبثقة اللحظية.
+							<p className="text-xs text-zinc-300 font-medium leading-relaxed">
+								{t("home.guideDesc")}
 							</p>
 						</div>
 					</div>
 				</div>
 
-				{/* Services Grid (High-Contrast M3 Slate-Grey Cards) */}
+				{/* Services Grid (Beautiful high-contrast card system with rich padding) */}
 				<div className="flex flex-col gap-6">
-					<h2 className="text-xl font-black text-white tracking-wide px-1">
-						خدماتنا المتميزة
-					</h2>
+					<div className="flex items-center justify-between px-1">
+						<h2 className="text-xl sm:text-2xl font-black text-white tracking-wide">
+							{t("home.sectionTitle")}
+						</h2>
+						<span className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider hidden sm:inline">
+							{locale === "ar"
+								? "مجموعة الضيافة المعتمدة"
+								: "Certified Catering Suite"}
+						</span>
+					</div>
+
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 						{services.map((service) => (
 							<div
 								key={service.id}
-								className="group relative rounded-[28px] border border-white/10 bg-[#131522] p-6 hover:bg-[#1a1c2c] hover:border-amber-400/50 hover:shadow-2xl hover:shadow-amber-500/5 transition-all duration-300 active:scale-[0.98] cursor-pointer"
+								onMouseEnter={() => setHoveredCard(service.id)}
+								onMouseLeave={() => setHoveredCard(null)}
+								className={`group relative rounded-[28px] border bg-[#131522] p-6.5 transition-all duration-300 active:scale-[0.98] cursor-pointer shadow-lg hover:shadow-2xl flex flex-col justify-between ${
+									hoveredCard === service.id
+										? "border-amber-400/50 bg-[#1a1c2c] -translate-y-1 shadow-amber-500/5"
+										: "border-white/10"
+								}`}
 							>
-								<div className="flex items-start justify-between">
-									<div className="flex items-center gap-4">
-										{/* High-Contrast SVG Icon Avatar */}
-										<div className="h-12 w-12 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center border border-amber-500/30 group-hover:bg-amber-500/30 group-hover:border-amber-500/50 transition-all duration-300 shadow-sm">
-											{service.iconSvg}
+								<div>
+									<div className="flex items-start justify-between gap-4">
+										<div className="flex items-center gap-4">
+											{/* High-Contrast Dynamic Icon Avatar */}
+											<div
+												className={`h-12 w-12 rounded-2xl flex items-center justify-center border transition-all duration-300 shadow-md shrink-0 ${
+													hoveredCard === service.id
+														? "bg-amber-500/30 border-amber-500/50"
+														: "bg-amber-500/20 border-amber-500/30"
+												}`}
+											>
+												{service.iconSvg}
+											</div>
+											<div>
+												<h3 className="font-black text-sm sm:text-base text-white group-hover:text-amber-300 transition-colors duration-200 leading-tight">
+													{service.name}
+												</h3>
+												<div className="flex items-center gap-2 mt-1.5">
+													<span className="text-xs font-bold text-amber-400">
+														{service.price}
+													</span>
+													<span className="text-zinc-600 text-xs">
+														•
+													</span>
+													<span className="text-[10px] text-zinc-400 font-extrabold flex items-center gap-0.5">
+														<svg
+															className="w-3 h-3 text-amber-400"
+															fill="currentColor"
+															viewBox="0 0 20 20"
+														>
+															<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+														</svg>
+														{service.rating}
+													</span>
+												</div>
+											</div>
 										</div>
-										<div>
-											<h3 className="font-black text-base text-white group-hover:text-amber-300 transition-colors duration-200">
-												{service.name}
-											</h3>
-											<span className="text-xs font-bold text-amber-400 mt-1 block">
-												{service.price}
-											</span>
-										</div>
+
+										{/* High-contrast Status Chip */}
+										<span
+											className={`px-3 py-1 rounded-full text-[10px] font-extrabold border shadow-sm transition-colors duration-200 whitespace-nowrap shrink-0 ${
+												service.status ===
+												t("home.statusActive")
+													? "bg-amber-500/20 text-amber-300 border-amber-500/40 group-hover:bg-amber-500/30 group-hover:border-amber-500/60"
+													: "bg-zinc-800 text-zinc-400 border-white/10"
+											}`}
+										>
+											{service.status}
+										</span>
 									</div>
 
-									{/* High-contrast Status Chip */}
-									<span
-										className={`px-3 py-1 rounded-full text-xs font-extrabold border ${
-											service.status === "نشط"
-												? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-												: "bg-zinc-800 text-zinc-400 border-white/10"
-										}`}
-									>
-										{service.status}
-									</span>
+									<p className="text-xs text-zinc-300 mt-4 leading-relaxed font-medium">
+										{service.desc}
+									</p>
 								</div>
-
-								<p className="text-xs text-zinc-300 mt-4 leading-relaxed font-medium pl-1">
-									{service.desc}
-								</p>
 							</div>
 						))}
 					</div>
@@ -275,10 +418,7 @@ export default function Home() {
 
 			{/* Footer */}
 			<footer className="py-8 border-t border-white/10 text-center text-xs text-zinc-500 bg-[#07080a]">
-				<p>
-					© 2026 خدمات المقهى المتكاملة. مصمم بمعايير الفخامة والتباين
-					العالي.
-				</p>
+				<p className="max-w-7xl mx-auto px-6">{t("home.footer")}</p>
 			</footer>
 		</div>
 	);

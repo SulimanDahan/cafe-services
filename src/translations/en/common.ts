@@ -21,4 +21,11 @@ export const common = {
 	confirmDelete: "Are you sure you want to delete this?",
 	noData: "No data available at the moment.",
 	searchPlaceholder: "Search here...",
+	notificationCenterTitle: "Live Notifications",
+	notificationCenterUnread: "unread messages",
+	notificationCenterMarkRead: "Mark all read",
+	notificationCenterNone: "No notifications yet",
+	notificationCenterDesc: "Real-time alerts will appear here as they are broadcasted.",
+	notificationCenterSimulate: "Simulate Live Event",
+	notificationCenterClear: "Clear All",
 };

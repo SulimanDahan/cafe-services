@@ -21,4 +21,11 @@ export const common = {
 	confirmDelete: "هل أنت متأكد من عملية الحذف؟",
 	noData: "لا توجد بيانات لعرضها حالياً.",
 	searchPlaceholder: "ابحث هنا...",
+	notificationCenterTitle: "الإشعارات التنبيهية",
+	notificationCenterUnread: "رسائل غير مقروءة",
+	notificationCenterMarkRead: "تحديد الكل كمقروء",
+	notificationCenterNone: "لا توجد إشعارات حالياً",
+	notificationCenterDesc: "ستظهر الإشعارات الحية والمباشرة هنا فور بثها.",
+	notificationCenterSimulate: "محاكاة حدث فوري",
+	notificationCenterClear: "مسح السجل",
 };

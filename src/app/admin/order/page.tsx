@@ -180,7 +180,7 @@ export default function OrdersAdmin() {
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 				<MetricCard
 					title={isRtl ? "إجمالي الإيرادات المصفاة" : "Total Filtered Income"}
-					value={`${totalRevenue.toLocaleString()} ${isRtl ? "د.ع" : "IQD"}`}
+					value={`${totalRevenue.toLocaleString("en-US")} ${isRtl ? "د.ع" : "IQD"}`}
 					highlight
 					icon={
 						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -255,13 +255,13 @@ export default function OrdersAdmin() {
 											{o.item_name}
 										</td>
 										<td className={`py-4 px-4 text-zinc-300 text-xs font-semibold whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{o.item_price.toLocaleString()} {isRtl ? "د.ع" : "IQD"}
+											{o.item_price.toLocaleString("en-US")} {isRtl ? "د.ع" : "IQD"}
 										</td>
 										<td className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 											{o.quantity} {isRtl ? "وحدات" : "Units"}
 										</td>
 										<td className={`py-4 px-4 text-amber-400 font-black text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{(o.item_price * o.quantity).toLocaleString()} {isRtl ? "د.ع" : "IQD"}
+											{(o.item_price * o.quantity).toLocaleString("en-US")} {isRtl ? "د.ع" : "IQD"}
 										</td>
 										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 											{o.createdAt}
@@ -341,7 +341,7 @@ export default function OrdersAdmin() {
 								>
 									{menuItems.map((i) => (
 										<option key={i.id} value={i.id}>
-											{isRtl ? i.name_ar : i.name_en} ({i.price.toLocaleString()} {isRtl ? "د.ع" : "IQD"})
+											{isRtl ? i.name_ar : i.name_en} ({i.price.toLocaleString("en-US")} {isRtl ? "د.ع" : "IQD"})
 										</option>
 									))}
 								</select>

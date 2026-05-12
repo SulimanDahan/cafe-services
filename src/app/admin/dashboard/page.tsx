@@ -277,7 +277,7 @@ export default function AdminDashboard() {
 				/>
 				<MetricCard
 					title={t("dashboard.statTotalIncome")}
-					value={`${totalRevenue.toLocaleString()} ${isRtl ? "د.ع" : "IQD"}`}
+					value={`${totalRevenue.toLocaleString("en-US")} ${isRtl ? "د.ع" : "IQD"}`}
 					highlight
 					icon={
 						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -363,7 +363,7 @@ export default function AdminDashboard() {
 											{res.dateTime}
 										</td>
 										<td className={`py-4 px-4 font-black text-amber-400 text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{res.totalPrice.toLocaleString()} {isRtl ? "د.ع" : "IQD"}
+											{res.totalPrice.toLocaleString("en-US")} {isRtl ? "د.ع" : "IQD"}
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
 											<span

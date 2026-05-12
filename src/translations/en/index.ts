@@ -9,6 +9,7 @@ import { item } from "./item";
 import { notifications } from "./notifications";
 import { users } from "./users";
 import { settings } from "./settings";
+import { home } from "./home";
 
 const en = {
 	common,
@@ -22,6 +23,7 @@ const en = {
 	notifications,
 	users,
 	settings,
+	home,
 };
 
 export default en;

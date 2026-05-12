@@ -4,6 +4,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { BellIcon } from "./icons";
+import { useLanguage } from "@/config/i18n";
 
 interface Notification {
 	id: string;
@@ -20,6 +21,7 @@ interface Notification {
  * Designed in accordance with high-contrast Material You (Material 3) dark theme specs.
  */
 export default function NotificationCenter() {
+	const { t, isRtl } = useLanguage();
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const [isOpen, setIsOpen] = useState(false);
 	const [toasts, setToasts] = useState<Notification[]>([]);
@@ -200,9 +202,9 @@ export default function NotificationCenter() {
 	};
 
 	return (
-		<div className="relative z-50 font-sans">
-			{/* High-Contrast Real-time Toast Notifications (Sturdy boundaries for low-brightness safety) */}
-			<div className="fixed top-5 right-5 flex flex-col gap-3 max-w-sm w-[calc(100vw-2.5rem)] z-50">
+		<div className="relative z-50 font-sans" dir={isRtl ? "rtl" : "ltr"}>
+			{/* High-Contrast Real-time Toast Notifications */}
+			<div className={`fixed top-5 flex flex-col gap-3 max-w-sm w-[calc(100vw-2.5rem)] z-50 ${isRtl ? "left-5" : "right-5"}`}>
 				{toasts.map((toast) => (
 					<div
 						key={toast.id}
@@ -245,7 +247,7 @@ export default function NotificationCenter() {
 			<div ref={dropdownRef} className="relative">
 				<button
 					onClick={() => setIsOpen(!isOpen)}
-					className="relative p-2.5 rounded-full bg-white/5 hover:bg-white/10 active:scale-95 transition-all duration-200 border border-white/15 focus:outline-none focus:ring-2 focus:ring-amber-500/50 shadow-md"
+					className="relative p-2.5 rounded-full bg-white/5 hover:bg-white/10 active:scale-95 transition-all duration-200 border border-white/15 focus:outline-none focus:ring-2 focus:ring-amber-500/50 shadow-md cursor-pointer"
 					aria-label="Toggle notifications"
 				>
 					{/* Bell Icon */}
@@ -264,23 +266,27 @@ export default function NotificationCenter() {
 
 				{/* High-Contrast Dropdown Menu (M3 Card layout) */}
 				{isOpen && (
-					<div className="absolute right-0 mt-3 w-[calc(100vw-2rem)] sm:w-96 max-w-sm rounded-3xl border border-white/15 shadow-2xl bg-[#131522]/95 backdrop-blur-2xl text-white overflow-hidden transition-all duration-300 transform scale-100 origin-top-right shadow-black">
+					<div className={`absolute mt-3 w-[calc(100vw-2rem)] sm:w-96 max-w-sm rounded-3xl border border-white/15 shadow-2xl bg-[#131522]/95 backdrop-blur-2xl text-white overflow-hidden transition-all duration-300 transform scale-100 shadow-black ${
+						isRtl 
+							? "left-0 origin-top-left" 
+							: "right-0 origin-top-right"
+					}`}>
 						{/* Header */}
 						<div className="p-4 border-b border-white/10 bg-white/2 flex items-center justify-between">
 							<div>
-								<h3 className="font-extrabold text-base tracking-wide text-white">
-									Notifications
+								<h3 className="font-extrabold text-sm sm:text-base tracking-wide text-white">
+									{t("common.notificationCenterTitle")}
 								</h3>
 								<p className="text-xs text-zinc-300 mt-0.5 font-bold">
-									{unreadCount} unread messages
+									{unreadCount} {t("common.notificationCenterUnread")}
 								</p>
 							</div>
 							{unreadCount > 0 && (
 								<button
 									onClick={markAllAsRead}
-									className="text-xs font-black text-amber-300 hover:text-amber-100 transition-colors duration-150"
+									className="text-xs font-black text-amber-300 hover:text-amber-100 transition-colors duration-150 cursor-pointer"
 								>
-									Mark all read
+									{t("common.notificationCenterMarkRead")}
 								</button>
 							)}
 						</div>
@@ -290,10 +296,10 @@ export default function NotificationCenter() {
 							{notifications.length === 0 ? (
 								<div className="p-8 text-center text-zinc-400">
 									<p className="text-sm font-bold">
-										No notifications yet
+										{t("common.notificationCenterNone")}
 									</p>
 									<p className="text-xs mt-1 text-zinc-500 font-semibold">
-										Real-time alerts will appear here
+										{t("common.notificationCenterDesc")}
 									</p>
 								</div>
 							) : (
@@ -350,14 +356,14 @@ export default function NotificationCenter() {
 						<div className="p-4 bg-white/2 border-t border-white/10">
 							<div className="flex items-center justify-between mb-2">
 								<span className="text-xs font-black text-zinc-400 uppercase tracking-widest">
-									Simulate Event
+									{t("common.notificationCenterSimulate")}
 								</span>
 								{notifications.length > 0 && (
 									<button
 										onClick={clearNotifications}
-										className="text-[11px] font-black text-amber-300 hover:text-amber-100 transition-colors"
+										className="text-[11px] font-black text-amber-300 hover:text-amber-100 transition-colors cursor-pointer"
 									>
-										Clear All
+										{t("common.notificationCenterClear")}
 									</button>
 								)}
 							</div>
@@ -366,7 +372,7 @@ export default function NotificationCenter() {
 									onClick={() =>
 										triggerTestNotification("success")
 									}
-									className="py-1.5 px-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold hover:bg-amber-500/30 active:scale-95 transition-all text-center"
+									className="py-1.5 px-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold hover:bg-amber-500/30 active:scale-95 transition-all text-center cursor-pointer"
 								>
 									Success
 								</button>
@@ -374,7 +380,7 @@ export default function NotificationCenter() {
 									onClick={() =>
 										triggerTestNotification("info")
 									}
-									className="py-1.5 px-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold hover:bg-amber-500/30 active:scale-95 transition-all text-center"
+									className="py-1.5 px-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold hover:bg-amber-500/30 active:scale-95 transition-all text-center cursor-pointer"
 								>
 									Info
 								</button>
@@ -382,7 +388,7 @@ export default function NotificationCenter() {
 									onClick={() =>
 										triggerTestNotification("warning")
 									}
-									className="py-1.5 px-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold hover:bg-amber-500/30 active:scale-95 transition-all text-center"
+									className="py-1.5 px-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold hover:bg-amber-500/30 active:scale-95 transition-all text-center cursor-pointer"
 								>
 									Warn
 								</button>
@@ -390,7 +396,7 @@ export default function NotificationCenter() {
 									onClick={() =>
 										triggerTestNotification("error")
 									}
-									className="py-1.5 px-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold hover:bg-amber-500/30 active:scale-95 transition-all text-center"
+									className="py-1.5 px-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold hover:bg-amber-500/30 active:scale-95 transition-all text-center cursor-pointer"
 								>
 									Error
 								</button>

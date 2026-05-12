@@ -202,7 +202,7 @@ export default function ItemsAdmin() {
 												{groupName}
 											</td>
 											<td className={`py-4 px-4 text-amber-400 font-black text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-												{item.price.toLocaleString()} {isRtl ? "د.ع" : "IQD"}
+												{item.price.toLocaleString("en-US")} {isRtl ? "د.ع" : "IQD"}
 											</td>
 											<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 												{item.createdAt}
