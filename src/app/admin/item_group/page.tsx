@@ -119,10 +119,10 @@ export default function ItemGroupsAdmin() {
 					<SearchInput
 						value={searchQuery}
 						onChange={setSearchQuery}
-						placeholder={isRtl ? "البحث باسم المجموعة..." : "Search category name..."}
+						placeholder={t("itemGroup.searchPlaceholder")}
 					/>
 					<span className="text-xs text-zinc-400 font-bold">
-						{isRtl ? "إجمالي المجموعات:" : "Total Categories:"} {groups.length}
+						{t("itemGroup.totalCategories")} {groups.length}
 					</span>
 				</div>
 
@@ -131,8 +131,8 @@ export default function ItemGroupsAdmin() {
 					<table className="min-w-212.5 w-full border-collapse text-sm">
 						<thead>
 							<tr className={`border-b border-white/10 text-zinc-400 text-xs font-black ${isRtl ? "text-right" : "text-left"}`}>
-								<th className="pb-3 px-4 whitespace-nowrap">{isRtl ? "اسم المجموعة (عربي)" : "Category Name (AR)"}</th>
-								<th className="pb-3 px-4 whitespace-nowrap">{isRtl ? "اسم المجموعة (إنجليزي)" : "Category Name (EN)"}</th>
+								<th className="pb-3 px-4 whitespace-nowrap">{t("itemGroup.colNameAr")}</th>
+								<th className="pb-3 px-4 whitespace-nowrap">{t("itemGroup.colNameEn")}</th>
 								<th className="pb-3 px-4 whitespace-nowrap">{t("itemGroup.columnItemsCount")}</th>
 								<th className="pb-3 px-4 whitespace-nowrap">{t("itemGroup.columnCreated")}</th>
 								<th className="pb-3 px-4 text-center whitespace-nowrap">{t("common.status")}</th>
@@ -150,7 +150,7 @@ export default function ItemGroupsAdmin() {
 											{group.name_en}
 										</td>
 										<td className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{group.itemCount} {isRtl ? "مواد مضافة" : "Items linked"}
+											{group.itemCount} {t("itemGroup.itemsLinked")}
 										</td>
 										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 											{group.createdAt}
@@ -162,7 +162,7 @@ export default function ItemGroupsAdmin() {
 													: "bg-red-500/10 text-red-400 border-red-500/20"
 											}`}>
 												<span className={`w-1.5 h-1.5 rounded-full ${!group.is_disable ? "bg-green-400" : "bg-red-400"}`} />
-												{!group.is_disable ? (isRtl ? "نشطة وقابلة للطلب" : "Active") : (isRtl ? "معطلة مؤقتاً" : "Disabled")}
+												{!group.is_disable ? t("itemGroup.statusActive") : t("itemGroup.statusDisabled")}
 											</span>
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
@@ -175,7 +175,7 @@ export default function ItemGroupsAdmin() {
 															? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400" 
 															: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-[#07080a]"
 													}`}
-													title={!group.is_disable ? (isRtl ? "تعطيل القسم" : "Disable Category") : (isRtl ? "تفعيل القسم" : "Enable Category")}
+													title={!group.is_disable ? t("itemGroup.actionDisable") : t("itemGroup.actionEnable")}
 												>
 													{!group.is_disable ? (
 														<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -239,7 +239,7 @@ export default function ItemGroupsAdmin() {
 						</button>
 
 						<h2 className="text-lg font-black text-white mb-4">
-							{editingGroup ? (isRtl ? "تعديل اسم مجموعة المواد" : "Edit Item Group Category") : t("itemGroup.addGroup")}
+							{editingGroup ? t("itemGroup.modalEditTitle") : t("itemGroup.addGroup")}
 						</h2>
 
 						<form onSubmit={handleSave} className="space-y-4">

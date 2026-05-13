@@ -104,7 +104,7 @@ export default function AdminDashboard() {
 			clientName: newClientName,
 			phone: newPhone,
 			roomName: newRoom,
-			dateTime: isRtl ? "الآن (محاكاة)" : "Now (Simulated)",
+			dateTime: t("dashboard.nowSimulated"),
 			accepted: false,
 			itemsCount: 1,
 			totalPrice: parseFloat(newPrice) || 30000,
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
 							{t("dashboard.title")}
 						</span>
 						<h1 className="text-2xl sm:text-3xl font-black mt-4 tracking-tight text-white">
-							{isRtl ? "مرحباً بك مجدداً في لوحة التحكم" : "Welcome Back to your Dashboard"}
+							{t("dashboard.welcomeTitle")}
 						</h1>
 						<p className="text-zinc-400 text-xs sm:text-sm mt-1 font-medium">
 							{t("dashboard.subtitle")}
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
 								required
 								value={newClientName}
 								onChange={e => setNewClientName(e.target.value)}
-								placeholder={isRtl ? "اسم العميل الكامل" : "Client full name"}
+								placeholder={t("dashboard.clientNamePlaceholder")}
 								className="w-full bg-[#07080a] border border-white/10 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
 							/>
 						</div>
@@ -216,15 +216,15 @@ export default function AdminDashboard() {
 								onChange={e => setNewRoom(e.target.value)}
 								className="w-full bg-[#07080a] border border-white/10 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
 							>
-								<option value="القاعة الرئيسية - طاولة 1">{isRtl ? "القاعة الرئيسية - طاولة 1" : "Main Hall - Table 1"}</option>
-								<option value="القاعة الرئيسية - طاولة 5">{isRtl ? "القاعة الرئيسية - طاولة 5" : "Main Hall - Table 5"}</option>
-								<option value="قاعة VIP المغلقة">{isRtl ? "قاعة VIP المغلقة" : "VIP Closed Room"}</option>
-								<option value="الشرفة الخارجية - طاولة 12">{isRtl ? "الشرفة الخارجية - طاولة 12" : "Outdoor Terrace - Table 12"}</option>
+								<option value="القاعة الرئيسية - طاولة 1">{t("dashboard.roomMain1")}</option>
+								<option value="القاعة الرئيسية - طاولة 5">{t("dashboard.roomMain5")}</option>
+								<option value="قاعة VIP المغلقة">{t("dashboard.roomVip")}</option>
+								<option value="الشرفة الخارجية - طاولة 12">{t("dashboard.roomTerrace")}</option>
 							</select>
 						</div>
 
 						<div className="space-y-1.5">
-							<label className="text-[10px] font-bold text-zinc-400 mr-1">{t("dashboard.columnPrice")} ({isRtl ? "د.ع" : "IQD"})</label>
+							<label className="text-[10px] font-bold text-zinc-400 mr-1">{t("dashboard.columnPrice")} ({t("common.currencySymbol")})</label>
 							<div className="flex gap-2">
 								<input
 									type="number"
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
 			{/* 4 Premium High-Contrast Metrics Cards (Material 3 Spec) */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 				<MetricCard
-					title={isRtl ? "إجمالي الحجوزات" : "Total Bookings"}
+					title={t("dashboard.statTotalBookings")}
 					value={reservations.length}
 					icon={
 						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -277,7 +277,7 @@ export default function AdminDashboard() {
 				/>
 				<MetricCard
 					title={t("dashboard.statTotalIncome")}
-					value={`${totalRevenue.toLocaleString("en-US")} ${isRtl ? "د.ع" : "IQD"}`}
+					value={`${totalRevenue.toLocaleString("en-US")} ${t("common.currencySymbol")}`}
 					highlight
 					icon={
 						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -317,7 +317,7 @@ export default function AdminDashboard() {
 					<SearchInput
 						value={searchQuery}
 						onChange={setSearchQuery}
-						placeholder={isRtl ? "البحث باسم العميل أو رقم الهاتف..." : "Search client or phone..."}
+						placeholder={t("dashboard.searchPlaceholder")}
 						className="max-w-sm w-full"
 					/>
 				</div>
@@ -363,7 +363,7 @@ export default function AdminDashboard() {
 											{res.dateTime}
 										</td>
 										<td className={`py-4 px-4 font-black text-amber-400 text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{res.totalPrice.toLocaleString("en-US")} {isRtl ? "د.ع" : "IQD"}
+											{res.totalPrice.toLocaleString("en-US")} {t("common.currencySymbol")}
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
 											<span

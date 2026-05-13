@@ -31,7 +31,7 @@ interface Order {
 }
 
 export default function AdminOrdersOperations() {
-	const { isRtl } = useLanguage();
+	const { t, isRtl } = useLanguage();
 
 	const [reservations, setReservations] = useState<Reservation[]>(() => {
 		if (typeof window === "undefined") return [];
@@ -125,8 +125,8 @@ export default function AdminOrdersOperations() {
 
 		setToast({
 			text: isRtl
-				? `تم تصفية حساب العميل (${res.client_name}) بقيمة ${totalBill.toLocaleString("en-US")} د.ع وإنهاء حجز الغرفة بنجاح!`
-				: `Successfully settled client (${res.client_name})'s bill of ${totalBill.toLocaleString("en-US")} IQD and checked out room!`,
+				? `${t("orders.msgCheckoutSuccessPrefix")}${res.client_name}${t("orders.msgCheckoutSuccessMiddle")}${totalBill.toLocaleString("en-US")}${t("orders.msgCheckoutSuccessSuffix")}`
+				: `${t("orders.msgCheckoutSuccessPrefix")}${res.client_name}${t("orders.msgCheckoutSuccessMiddle")}${totalBill.toLocaleString("en-US")}${t("orders.msgCheckoutSuccessSuffix")}`,
 		});
 
 		// Trigger event to sync any active customer pages
@@ -153,27 +153,15 @@ export default function AdminOrdersOperations() {
 		<div className="space-y-6">
 			{/* Admin Header with Section Details */}
 			<AdminHeader
-				title={
-					isRtl
-						? "لوحة تصفية حسابات طاولات الزبائن"
-						: "Client Table Checkout & Bills"
-				}
-				subtitle={
-					isRtl
-						? "متابعة وتدقيق مجموع قيم طلبات الطاولات النشطة وإجراء إنهاء الحجوزات بعد تصفية الحساب"
-						: "Monitor and audit active table order aggregates and perform checkouts after settling bills"
-				}
+				title={t("orders.checkoutTitle")}
+				subtitle={t("orders.checkoutSubtitle")}
 			/>
 
 			{/* Operational Metrics */}
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 				<MetricCard
-					title={
-						isRtl
-							? "إجمالي قيمة فواتير الزبائن الحالية"
-							: "Active Cumulative Bills Value"
-					}
-					value={`${totalRevenue.toLocaleString("en-US")} ${isRtl ? "د.ع" : "IQD"}`}
+					title={t("orders.statActiveBills")}
+					value={`${totalRevenue.toLocaleString("en-US")} ${t("common.yemeniRial")}`}
 					highlight
 					icon={
 						<svg
@@ -193,12 +181,8 @@ export default function AdminOrdersOperations() {
 					}
 				/>
 				<MetricCard
-					title={
-						isRtl
-							? "عدد الغرف والطاولات النشطة"
-							: "Active Occupied Rooms"
-					}
-					value={`${activeRoomsCount} ${isRtl ? "طاولات وغرف" : "Rooms/Tables"}`}
+					title={t("orders.statOccupiedRooms")}
+					value={`${activeRoomsCount} ${t("orders.unitRooms")}`}
 					icon={
 						<svg
 							className="w-5 h-5"
@@ -217,12 +201,8 @@ export default function AdminOrdersOperations() {
 					}
 				/>
 				<MetricCard
-					title={
-						isRtl
-							? "إجمالي مبيعات المأكولات والمشروبات"
-							: "Total Active Ordered Units"
-					}
-					value={`${totalSoldItems} ${isRtl ? "وحدات" : "Units"}`}
+					title={t("orders.statOrderedUnits")}
+					value={`${totalSoldItems} ${t("orders.unitUnits")}`}
 					icon={
 						<svg
 							className="w-5 h-5"
@@ -247,15 +227,10 @@ export default function AdminOrdersOperations() {
 				<SearchInput
 					value={searchQuery}
 					onChange={setSearchQuery}
-					placeholder={
-						isRtl
-							? "البحث باسم العميل أو الغرفة/الطاولة..."
-							: "Search customer or table..."
-					}
+					placeholder={t("orders.checkoutSearch")}
 				/>
 				<span className="text-xs text-zinc-400 font-bold hidden sm:inline">
-					{isRtl ? "النتائج المطابقة:" : "Matching Bookings:"}{" "}
-					{filteredReservations.length}
+					{t("orders.matchingBookings")} {filteredReservations.length}
 				</span>
 			</div>
 
@@ -296,13 +271,11 @@ export default function AdminOrdersOperations() {
 									{/* Total Bill Value highlight */}
 									<div className="text-right">
 										<span className="text-[10px] text-zinc-400 font-black tracking-wider block uppercase">
-											{isRtl
-												? "مجموع قيمة الفاتورة"
-												: "Accumulated Total"}
+											{t("orders.accumulatedTotal")}
 										</span>
 										<span className="text-lg font-black text-amber-400 block mt-1">
 											{totalBill.toLocaleString("en-US")}{" "}
-											{isRtl ? "د.ع" : "IQD"}
+											{t("common.yemeniRial")}
 										</span>
 									</div>
 								</div>
@@ -310,9 +283,7 @@ export default function AdminOrdersOperations() {
 								{/* Ordered list */}
 								<div className="flex-1 space-y-3">
 									<h4 className="text-xs font-black text-zinc-400 tracking-wide">
-										{isRtl
-											? "الأصناف والمشروبات المطلوبة على الطاولة:"
-											: "Ordered Items:"}
+										{t("orders.orderedItemsLabel")}
 									</h4>
 
 									<div className="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -327,9 +298,7 @@ export default function AdminOrdersOperations() {
 															{o.item_name}
 														</p>
 														<p className="text-[10px] text-zinc-400 font-medium mt-0.5">
-															{isRtl
-																? "الكمية:"
-																: "Qty:"}{" "}
+															{t("orders.qty")}{" "}
 															<span className="font-bold text-white">
 																{o.quantity}
 															</span>{" "}
@@ -337,9 +306,9 @@ export default function AdminOrdersOperations() {
 															{o.item_price.toLocaleString(
 																"en-US",
 															)}{" "}
-															{isRtl
-																? "د.ع"
-																: "IQD"}
+															{t(
+																"common.yemeniRial",
+															)}
 														</p>
 													</div>
 													<span className="font-black text-zinc-300">
@@ -349,15 +318,13 @@ export default function AdminOrdersOperations() {
 														).toLocaleString(
 															"en-US",
 														)}{" "}
-														{isRtl ? "د.ع" : "IQD"}
+														{t("common.yemeniRial")}
 													</span>
 												</div>
 											))
 										) : (
 											<div className="py-6 text-center text-zinc-600 font-bold text-xs italic">
-												{isRtl
-													? "لا توجد طلبات مسجلة على هذه الطاولة بعد"
-													: "No orders registered yet"}
+												{t("orders.noOrdersRegistered")}
 											</div>
 										)}
 									</div>
@@ -387,9 +354,7 @@ export default function AdminOrdersOperations() {
 											/>
 										</svg>
 										<span>
-											{isRtl
-												? "إنهاء حجز الغرفة وتصفية الفاتورة"
-												: "End Room Reservation & Settle"}
+											{t("orders.btnEndReservation")}
 										</span>
 									</button>
 								</div>
@@ -398,9 +363,7 @@ export default function AdminOrdersOperations() {
 					})
 				) : (
 					<div className="col-span-full py-16 text-center rounded-[28px] border border-white/5 bg-[#131522]/40 text-zinc-500 font-medium text-xs">
-						{isRtl
-							? "لا توجد حجوزات نشطة تطابق معايير البحث حالياً"
-							: "No active reservations matching search criteria"}
+						{t("orders.noReservationsMatching")}
 					</div>
 				)}
 			</div>

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ADMIN_ROUTES } from "@/config/routes";
+import { ADMIN_ROUTES } from "@/config/admin_routes";
 import { useLanguage } from "@/config/i18n";
+import { defaultLoginData, LoginModel } from "@/models/login_model";
 
 /**
  * Premium Admin Login Page Component.
@@ -14,8 +15,7 @@ import { useLanguage } from "@/config/i18n";
 export default function LoginPage() {
 	const router = useRouter();
 	const { t, isRtl } = useLanguage();
-	const [username, setUsername] = useState("");
-	const [password, setPassword] = useState("");
+	const [loginData, setLoginData] = useState<LoginModel>(defaultLoginData);
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -23,28 +23,31 @@ export default function LoginPage() {
 		e.preventDefault();
 		setError("");
 
-		if (!username || !password) {
+		if (!loginData.username || !loginData.password) {
 			setError(t("login.errorRequired"));
 			return;
 		}
 
-		setIsLoading(true);
+		fetch("/api/auth/login", {
+			method: "POST",
+			body: JSON.stringify(loginData),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 
-		// Simulate API Call for Login
-		setTimeout(() => {
-			setIsLoading(false);
-			// Simple check for demo / admin route
-			if (username === "admin" && password === "admin123") {
-				window.dispatchEvent(new CustomEvent("navigation-start"));
-				router.push(ADMIN_ROUTES.dashboard);
-			} else {
-				setError(t("login.errorInvalid"));
-			}
-		}, 1500);
+		setIsLoading(true);
 	};
 
 	return (
-		<div className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden" dir={isRtl ? "rtl" : "ltr"}>
+		<div className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden">
 			{/* Ambient Amber Glow Background */}
 			<div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-amber-500/5 blur-[120px] pointer-events-none" />
 
@@ -57,10 +60,31 @@ export default function LoginPage() {
 					{/* Header / Logo */}
 					<div className="flex flex-col items-center mb-8">
 						<div className="h-16 w-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/5 mb-4 animate-pulse">
-							<svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 8H6a2 2 0 00-2 2v6a4 4 0 004 4h8a4 4 0 004-4v-6a2 2 0 00-2-2z" />
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M22 10a2 2 0 01-2 2h-2V8h2a2 2 0 012 2z" />
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 2v2M10 2v2M14 2v2" />
+							<svg
+								className="w-7 h-7"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2"
+									d="M18 8H6a2 2 0 00-2 2v6a4 4 0 004 4h8a4 4 0 004-4v-6a2 2 0 00-2-2z"
+								/>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2"
+									d="M22 10a2 2 0 01-2 2h-2V8h2a2 2 0 012 2z"
+								/>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2"
+									d="M6 2v2M10 2v2M14 2v2"
+								/>
 							</svg>
 						</div>
 						<h1 className="text-2xl font-black text-white tracking-wide">
@@ -75,8 +99,19 @@ export default function LoginPage() {
 					<form onSubmit={handleSubmit} className="space-y-6">
 						{error && (
 							<div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold flex items-center gap-2 animate-bounce">
-								<svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+								<svg
+									className="w-4 h-4 shrink-0"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth="2"
+										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+									/>
 								</svg>
 								<span>{error}</span>
 							</div>
@@ -84,15 +119,20 @@ export default function LoginPage() {
 
 						{/* Username Input */}
 						<div className="space-y-2">
-							<label className={`text-xs font-bold text-zinc-300 block ${isRtl ? "mr-1" : "ml-1"}`}>
+							<label
+								className={`text-xs font-bold text-zinc-300 block ${isRtl ? "mr-1" : "ml-1"}`}
+							>
 								{t("login.usernameLabel")}
 							</label>
 							<div className="relative">
 								<input
 									type="text"
-									value={username}
+									value={loginData.username}
 									onChange={(e) =>
-										setUsername(e.target.value)
+										setLoginData({
+											...loginData,
+											username: e.target.value,
+										})
 									}
 									placeholder={t("login.usernamePlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-amber-500/70 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
@@ -103,15 +143,20 @@ export default function LoginPage() {
 
 						{/* Password Input */}
 						<div className="space-y-2">
-							<label className={`text-xs font-bold text-zinc-300 block ${isRtl ? "mr-1" : "ml-1"}`}>
+							<label
+								className={`text-xs font-bold text-zinc-300 block ${isRtl ? "mr-1" : "ml-1"}`}
+							>
 								{t("login.passwordLabel")}
 							</label>
 							<div className="relative">
 								<input
 									type="password"
-									value={password}
+									value={loginData.password}
 									onChange={(e) =>
-										setPassword(e.target.value)
+										setLoginData({
+											...loginData,
+											password: e.target.value,
+										})
 									}
 									placeholder={t("login.passwordPlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-amber-500/70 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
@@ -162,8 +207,19 @@ export default function LoginPage() {
 							href="/"
 							className="inline-flex items-center gap-2 text-xs text-zinc-400 hover:text-amber-300 transition-colors duration-200"
 						>
-							<svg className={`w-3.5 h-3.5 transform ${isRtl ? "" : "rotate-180"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+							<svg
+								className={`w-3.5 h-3.5 transform ${isRtl ? "" : "rotate-180"}`}
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2.5"
+									d="M14 5l7 7m0 0l-7 7m7-7H3"
+								/>
 							</svg>
 							<span>{t("login.backHome")}</span>
 						</Link>

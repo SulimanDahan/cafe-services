@@ -19,4 +19,13 @@ export const dashboard = {
 	actionAccept: "قبول الحجز",
 	actionReject: "رفض الحجز",
 	testNotification: "محاكاة الإشعارات الفورية",
+	welcomeTitle: "مرحباً بك مجدداً في لوحة التحكم",
+	nowSimulated: "الآن (محاكاة)",
+	clientNamePlaceholder: "اسم العميل الكامل",
+	roomMain1: "القاعة الرئيسية - طاولة 1",
+	roomMain5: "القاعة الرئيسية - طاولة 5",
+	roomVip: "قاعة VIP المغلقة",
+	roomTerrace: "الشرفة الخارجية - طاولة 12",
+	statTotalBookings: "إجمالي الحجوزات",
+	searchPlaceholder: "البحث باسم العميل أو رقم الهاتف...",
 };

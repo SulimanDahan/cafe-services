@@ -288,7 +288,7 @@ export default function ReservationsAdmin() {
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
 						</svg>
-						<span>{isRtl ? "طاولة / قاعة جديدة" : "New Table / Room"}</span>
+						<span>{t("reservations.btnNewRoom")}</span>
 					</button>
 				)}
 			</AdminHeader>
@@ -306,7 +306,7 @@ export default function ReservationsAdmin() {
 							: "text-zinc-400 hover:text-white"
 					}`}
 				>
-					{isRtl ? "الحجوزات النشطة" : "Active Reservations"}
+					{t("reservations.tabActiveReservations")}
 				</button>
 				<button
 					onClick={() => {
@@ -319,7 +319,7 @@ export default function ReservationsAdmin() {
 							: "text-zinc-400 hover:text-white"
 					}`}
 				>
-					{isRtl ? "إدارة الطاولات والقاعات" : "Tables & Rooms"}
+					{t("reservations.tabTablesRooms")}
 				</button>
 			</div>
 
@@ -367,7 +367,7 @@ export default function ReservationsAdmin() {
 						<SearchInput
 							value={searchQuery}
 							onChange={setSearchQuery}
-							placeholder={isRtl ? "بحث باسم العميل، رقم الحجز..." : "Search client, booking #..."}
+							placeholder={t("reservations.searchRes")}
 						/>
 					</div>
 
@@ -420,7 +420,7 @@ export default function ReservationsAdmin() {
 														<button
 															onClick={() => handleAcceptReservation(res.id)}
 															className="p-1.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-white transition-all duration-200"
-															title={isRtl ? "تأكيد وقبول الحجز" : "Confirm reservation"}
+															title={t("reservations.btnConfirmRes")}
 														>
 															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
@@ -463,10 +463,10 @@ export default function ReservationsAdmin() {
 						<SearchInput
 							value={searchQuery}
 							onChange={setSearchQuery}
-							placeholder={isRtl ? "البحث باسم القاعة/الطاولة..." : "Search table/room name..."}
+							placeholder={t("reservations.searchRoom")}
 						/>
 						<span className="text-xs text-zinc-400 font-bold shrink-0">
-							{isRtl ? "إجمالي القاعات والطاولات:" : "Total Tables & Rooms:"} {rooms.length}
+							{t("reservations.totalRooms")} {rooms.length}
 						</span>
 					</div>
 
@@ -475,9 +475,9 @@ export default function ReservationsAdmin() {
 						<table className="min-w-212.5 w-full border-collapse text-sm">
 							<thead>
 								<tr className={`border-b border-white/10 text-zinc-400 text-xs font-black ${isRtl ? "text-right" : "text-left"}`}>
-									<th className="pb-3 px-4">{isRtl ? "رقم المعرف" : "ID"}</th>
-									<th className="pb-3 px-4">{isRtl ? "اسم القاعة / رقم الطاولة" : "Table / Room Name"}</th>
-									<th className="pb-3 px-4 text-center">{isRtl ? "الحالة التشغيلية" : "Operating Status"}</th>
+									<th className="pb-3 px-4">{t("reservations.colRoomId")}</th>
+									<th className="pb-3 px-4">{t("reservations.colRoomName")}</th>
+									<th className="pb-3 px-4 text-center">{t("reservations.colOperatingStatus")}</th>
 									<th className="pb-3 px-4 text-center">{t("common.actions")}</th>
 								</tr>
 							</thead>
@@ -500,7 +500,7 @@ export default function ReservationsAdmin() {
 													}`}
 												>
 													<span className={`w-1.5 h-1.5 rounded-full ${!room.is_disable ? "bg-amber-400" : "bg-red-400"}`} />
-													{!room.is_disable ? (isRtl ? "شاغرة ومتاحة للحجز" : "Available") : (isRtl ? "خارج الخدمة مؤقتاً" : "Out of Service")}
+													{!room.is_disable ? t("reservations.statusAvailable") : t("reservations.statusOutOfService")}
 												</span>
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
@@ -513,7 +513,7 @@ export default function ReservationsAdmin() {
 																? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
 																: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-[#07080a]"
 														}`}
-														title={!room.is_disable ? (isRtl ? "إلغاء الإتاحة" : "Disable Table") : (isRtl ? "إعادة الإتاحة للحجز" : "Enable Table")}
+														title={!room.is_disable ? t("reservations.actionDisableTable") : t("reservations.actionEnableTable")}
 													>
 														{!room.is_disable ? (
 															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -530,7 +530,7 @@ export default function ReservationsAdmin() {
 													<button
 														onClick={() => handleDeleteRoom(room.id)}
 														className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
-														title={isRtl ? "مسح الغرفة/الطاولة" : "Delete table"}
+														title={t("reservations.actionDeleteTable")}
 													>
 														<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -566,20 +566,20 @@ export default function ReservationsAdmin() {
 							</svg>
 						</button>
 
-						<h2 className="text-lg font-black text-white mb-4">{isRtl ? "إضافة حجز طاولة جديد" : "Add New Booking"}</h2>
+						<h2 className="text-lg font-black text-white mb-4">{t("reservations.modalAddTitle")}</h2>
 
 						<form onSubmit={handleAddReservation} className="space-y-4">
 							{/* Client Name */}
 							<div className="space-y-1.5">
 								<label htmlFor="resClient" className="text-xs font-bold text-zinc-400 block">
-									{isRtl ? "اسم العميل الثلاثي" : "Full Client Name"}
+									{t("reservations.formClientName")}
 								</label>
 								<input
 									id="resClient"
 									type="text"
 									value={resClientName}
 									onChange={(e) => setResClientName(e.target.value)}
-									placeholder={isRtl ? "مثال: محمد أحمد العتيبي..." : "e.g., John Doe..."}
+									placeholder={t("reservations.formClientPlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 									required
 									autoFocus
@@ -589,7 +589,7 @@ export default function ReservationsAdmin() {
 							{/* Client Phone */}
 							<div className="space-y-1.5">
 								<label htmlFor="resPhone" className="text-xs font-bold text-zinc-400 block">
-									{isRtl ? "رقم جوال التواصل" : "Contact Phone Number"}
+									{t("reservations.formPhone")}
 								</label>
 								<input
 									id="resPhone"
@@ -605,7 +605,7 @@ export default function ReservationsAdmin() {
 							{/* Date and Time */}
 							<div className="space-y-1.5">
 								<label htmlFor="resDate" className="text-xs font-bold text-zinc-400 block">
-									{isRtl ? "تاريخ الحجز والوقت المطلوب" : "Requested Date & Time"}
+									{t("reservations.formDateTime")}
 								</label>
 								<input
 									id="resDate"
@@ -620,7 +620,7 @@ export default function ReservationsAdmin() {
 							{/* Room / Table selector */}
 							<div className="space-y-1.5">
 								<label htmlFor="resRoom" className="text-xs font-bold text-zinc-400 block">
-									{isRtl ? "الطاولة أو القاعة المعينة" : "Assigned Table or Room"}
+									{t("reservations.formAssignedRoom")}
 								</label>
 								<select
 									id="resRoom"
@@ -671,19 +671,19 @@ export default function ReservationsAdmin() {
 							</svg>
 						</button>
 
-						<h2 className="text-lg font-black text-white mb-4">{isRtl ? "إضافة طاولة أو قاعة جديدة" : "Add Table or Room"}</h2>
+						<h2 className="text-lg font-black text-white mb-4">{t("reservations.modalAddRoomTitle")}</h2>
 
 						<form onSubmit={handleAddRoom} className="space-y-4">
 							<div className="space-y-1.5">
 								<label htmlFor="roomNameIn" className="text-xs font-bold text-zinc-400 block">
-									{isRtl ? "اسم القاعة أو رقم الطاولة بالتفصيل" : "Detailed Room or Table Name"}
+									{t("reservations.formRoomName")}
 								</label>
 								<input
 									id="roomNameIn"
 									type="text"
 									value={roomName}
 									onChange={(e) => setRoomName(e.target.value)}
-									placeholder={isRtl ? "مثال: طاولة VIP 2 (بجوار البيانو)..." : "e.g., Table 5 VIP..."}
+									placeholder={t("reservations.formRoomPlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 									required
 									autoFocus

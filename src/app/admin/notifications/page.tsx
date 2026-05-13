@@ -131,9 +131,7 @@ export default function NotificationsAdmin() {
 	};
 
 	const handleClearAllLogs = () => {
-		const warningMsg = isRtl
-			? "هل أنت متأكد من حذف كامل سجل الإشعارات؟ لا يمكن التراجع عن هذا الإجراء."
-			: "Are you sure you want to clear all notification logs? This action cannot be undone.";
+		const warningMsg = t("notifications.confirmClearLogs");
 		if (confirm(warningMsg)) {
 			setLogs([]);
 		}
@@ -152,7 +150,7 @@ export default function NotificationsAdmin() {
 							onClick={handleClearAllLogs}
 							className="px-4 py-2.5 rounded-full border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white text-xs font-bold transition-all w-full sm:w-auto"
 						>
-							{isRtl ? "مسح كامل السجل" : "Clear All Logs"}
+							{t("notifications.btnClearLogs")}
 						</button>
 					)}
 					<button
@@ -176,7 +174,7 @@ export default function NotificationsAdmin() {
 						<SearchInput
 							value={searchQuery}
 							onChange={setSearchQuery}
-							placeholder={isRtl ? "بحث في سجل الإشعارات..." : "Search logs..."}
+							placeholder={t("notifications.searchPlaceholder")}
 						/>
 
 						{/* Filter dropdown type */}
@@ -185,16 +183,16 @@ export default function NotificationsAdmin() {
 							onChange={(e) => setSelectedTypeFilter(e.target.value)}
 							className="bg-[#07080a] border border-white/10 text-zinc-300 rounded-full px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 transition-all"
 						>
-							<option value="all">{isRtl ? "جميع أنواع الإشعارات" : "All Notification Types"}</option>
-							<option value="success">{isRtl ? "تم بنجاح (✓)" : "Success (✓)"}</option>
-							<option value="info">{isRtl ? "إشعارات تنويهية (i)" : "Info (i)"}</option>
-							<option value="warning">{isRtl ? "تنبيهات حرجة (!)" : "Warning (!)"}</option>
-							<option value="error">{isRtl ? "عمليات فاشلة (✕)" : "Error (✕)"}</option>
+							<option value="all">{t("notifications.filterAll")}</option>
+							<option value="success">{t("notifications.filterSuccess")}</option>
+							<option value="info">{t("notifications.filterInfo")}</option>
+							<option value="warning">{t("notifications.filterWarning")}</option>
+							<option value="error">{t("notifications.filterError")}</option>
 						</select>
 					</div>
 
 					<span className="text-xs text-zinc-400 font-bold">
-						{isRtl ? "الإشعارات المسجلة:" : "Recorded Logs:"} {filteredLogs.length}
+						{t("notifications.totalLogs")} {filteredLogs.length}
 					</span>
 				</div>
 
@@ -232,10 +230,10 @@ export default function NotificationsAdmin() {
 													log.type === "info" && "bg-blue-500/10 text-blue-400 border-blue-500/20"
 												}`}
 											>
-												{log.type === "success" && (isRtl ? "✓ تم بنجاح" : "✓ Success")}
-												{log.type === "warning" && (isRtl ? "! تنبيه حرج" : "! Warning")}
-												{log.type === "error" && (isRtl ? "✕ خطأ تشغيلي" : "✕ Error")}
-												{log.type === "info" && (isRtl ? "i إعلان تنويهي" : "i Info")}
+												{log.type === "success" && t("notifications.filterSuccess")}
+												{log.type === "warning" && t("notifications.filterWarning")}
+												{log.type === "error" && t("notifications.filterError")}
+												{log.type === "info" && t("notifications.filterInfo")}
 											</span>
 										</td>
 										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
@@ -281,20 +279,20 @@ export default function NotificationsAdmin() {
 							</svg>
 						</button>
 
-						<h2 className="text-lg font-black text-white mb-4">{isRtl ? "بث إشعار منبثق فوري للمستخدمين" : "Broadcast Live Notification"}</h2>
+						<h2 className="text-lg font-black text-white mb-4">{t("notifications.modalTitle")}</h2>
 
 						<form onSubmit={handleSendBroadcast} className="space-y-4">
 							{/* Broadcast Title */}
 							<div className="space-y-1.5">
 								<label htmlFor="bTitleIn" className="text-xs font-bold text-zinc-400 block">
-									{isRtl ? "عنوان بث الإشعار" : "Broadcast Title"}
+									{t("notifications.formTitle")}
 								</label>
 								<input
 									id="bTitleIn"
 									type="text"
 									value={bTitle}
 									onChange={(e) => setBTitle(e.target.value)}
-									placeholder={isRtl ? "مثال: جاهزية طلبك!" : "e.g., Order is Ready!"}
+									placeholder={t("notifications.formTitlePlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
 									required
 								/>
@@ -303,13 +301,13 @@ export default function NotificationsAdmin() {
 							{/* Broadcast Message */}
 							<div className="space-y-1.5">
 								<label htmlFor="bMessageIn" className="text-xs font-bold text-zinc-400 block">
-									{isRtl ? "نص التنبيه المرسل للعميل" : "Broadcast Alert Message"}
+									{t("notifications.formMessage")}
 								</label>
 								<textarea
 									id="bMessageIn"
 									value={bMessage}
 									onChange={(e) => setBMessage(e.target.value)}
-									placeholder={isRtl ? "مثال: طلبك اللطيف رقم #109 جاهز للاستلام الآن من منصة الطلبات." : "e.g., Your order #109 is ready for collection."}
+									placeholder={t("notifications.formMessagePlaceholder")}
 									className="w-full h-24 bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all resize-none block"
 									required
 								/>
@@ -318,7 +316,7 @@ export default function NotificationsAdmin() {
 							{/* Broadcast Category (success, info, warning, error) */}
 							<div className="space-y-1.5">
 								<label htmlFor="bTypeIn" className="text-xs font-bold text-zinc-400 block">
-									{isRtl ? "فئة الإشعار والتأثير اللوني" : "Notification Category & Color Theme"}
+									{t("notifications.formTypeLabel")}
 								</label>
 								<select
 									id="bTypeIn"
@@ -326,10 +324,10 @@ export default function NotificationsAdmin() {
 									onChange={(e) => setBType(e.target.value)}
 									className="w-full bg-[#07080a] border border-white/10 text-zinc-300 rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
 								>
-									<option value="success">{isRtl ? "تم بنجاح (✓ - أخضر)" : "Success (✓ - Green)"}</option>
-									<option value="info">{isRtl ? "إشعار تنويهي (i - أزرق)" : "Info (i - Blue)"}</option>
-									<option value="warning">{isRtl ? "تنبيه حرج (! - كهرماني)" : "Warning (! - Amber)"}</option>
-									<option value="error">{isRtl ? "عملية خاطئة (✕ - أحمر)" : "Error (✕ - Red)"}</option>
+									<option value="success">{t("notifications.optionSuccess")}</option>
+									<option value="info">{t("notifications.optionInfo")}</option>
+									<option value="warning">{t("notifications.optionWarning")}</option>
+									<option value="error">{t("notifications.optionError")}</option>
 								</select>
 							</div>
 
@@ -345,7 +343,7 @@ export default function NotificationsAdmin() {
 									type="submit"
 									className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] text-xs font-extrabold transition-all"
 								>
-									{isRtl ? "بث الإشعار الآن" : "Broadcast Now"}
+									{t("notifications.btnBroadcastNow")}
 								</button>
 							</div>
 						</form>

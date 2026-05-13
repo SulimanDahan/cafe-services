@@ -6,7 +6,10 @@ declare global {
 	var prisma: PrismaClient | undefined;
 }
 
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL;
+if (connectionString?.includes("${DATABASE_USER}")) {
+	connectionString = `postgresql://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@localhost:5432/${process.env.DATABASE_NAME}?schema=public`;
+}
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);

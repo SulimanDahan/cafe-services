@@ -161,13 +161,13 @@ export default function Home() {
 								href="/"
 								className="px-4 py-1.5 rounded-full text-xs font-black bg-amber-500/10 text-amber-300 border border-amber-500/30 shadow-md active:scale-95"
 							>
-								{isRtl ? "الرئيسية" : "Home"}
+								{t("home.navHome")}
 							</Link>
 							<Link
 								href="/order"
 								className="px-3 py-1.5 rounded-full text-xs font-bold text-zinc-400 hover:text-white transition-all active:scale-95"
 							>
-								{isRtl ? "طلب أصناف" : "Order Items"}
+								{t("home.navOrder")}
 							</Link>
 						</nav>
 					</div>
@@ -255,9 +255,7 @@ export default function Home() {
 										<div className="w-2.5 h-2.5 rounded-full bg-green-500" />
 									</div>
 									<span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-										{locale === "ar"
-											? "قناة البيانات الفورية"
-											: "Live SSE Channels"}
+										{t("home.liveChannelsTitle")}
 									</span>
 								</div>
 
@@ -269,21 +267,15 @@ export default function Home() {
 											</span>
 											<div>
 												<p className="text-xs font-bold text-white">
-													{locale === "ar"
-														? "تم تحضير الطلب #129"
-														: "Order Prepared #129"}
+													{t("home.simOrderTitle")}
 												</p>
 												<p className="text-[10px] text-zinc-400 font-medium">
-													{locale === "ar"
-														? "جاهز للاستلام"
-														: "Ready for collection"}
+													{t("home.simOrderSub")}
 												</p>
 											</div>
 										</div>
 										<span className="text-[9px] text-zinc-500 font-bold">
-											{locale === "ar"
-												? "قبل قليل"
-												: "Just now"}
+											{t("home.simOrderTime")}
 										</span>
 									</div>
 
@@ -294,21 +286,15 @@ export default function Home() {
 											</span>
 											<div>
 												<p className="text-xs font-bold text-white">
-													{locale === "ar"
-														? "تنبيه انخفاض مخزون البن"
-														: "Coffee Stock Depleting"}
+													{t("home.simStockTitle")}
 												</p>
 												<p className="text-[10px] text-zinc-400 font-medium">
-													{locale === "ar"
-														? "يرجى مراجعة الإعدادات"
-														: "Please check inventory"}
+													{t("home.simStockSub")}
 												</p>
 											</div>
 										</div>
 										<span className="text-[9px] text-zinc-500 font-bold">
-											{locale === "ar"
-												? "ذ دقيقة"
-												: "1 min ago"}
+											{t("home.simStockTime")}
 										</span>
 									</div>
 								</div>
@@ -354,9 +340,7 @@ export default function Home() {
 							{t("home.sectionTitle")}
 						</h2>
 						<span className="text-[11px] text-zinc-500 font-bold uppercase tracking-wider hidden sm:inline">
-							{locale === "ar"
-								? "مجموعة الضيافة المعتمدة"
-								: "Certified Catering Suite"}
+							{t("home.cateringSubtitle")}
 						</span>
 					</div>
 

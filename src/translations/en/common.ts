@@ -25,7 +25,15 @@ export const common = {
 	notificationCenterUnread: "unread messages",
 	notificationCenterMarkRead: "Mark all read",
 	notificationCenterNone: "No notifications yet",
-	notificationCenterDesc: "Real-time alerts will appear here as they are broadcasted.",
+	notificationCenterDesc:
+		"Real-time alerts will appear here as they are broadcasted.",
 	notificationCenterSimulate: "Simulate Live Event",
 	notificationCenterClear: "Clear All",
+	outOfStock: "Out of Stock",
+	inStock: "In Stock",
+	unauthorizedTitle: "Unauthorized Access Scope",
+	unauthorizedDesc:
+		"Sorry! You cannot access the admin control panel from within the Customer standalone app. Please use a regular browser or install the dedicated Admin application.",
+	btnReturnOrder: "Return to Ordering App",
+	yemeniRial: "Yemeni Rial",
 };

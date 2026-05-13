@@ -28,4 +28,11 @@ export const common = {
 	notificationCenterDesc: "ستظهر الإشعارات الحية والمباشرة هنا فور بثها.",
 	notificationCenterSimulate: "محاكاة حدث فوري",
 	notificationCenterClear: "مسح السجل",
+	outOfStock: "غير متوفر",
+	inStock: "متوفر",
+	unauthorizedTitle: "نطاق وصول غير مسموح به",
+	unauthorizedDesc:
+		"عذراً، لا يمكن فتح لوحة التحكم الإدارية من داخل تطبيق الزبائن الذاتي. يرجى استخدام متصفح عادي أو تثبيت تطبيق الإدارة المخصص.",
+	btnReturnOrder: "العودة لتطبيق الطلبات",
+	yemeniRial: "ريال يمني",
 };

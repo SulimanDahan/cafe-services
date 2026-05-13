@@ -2,36 +2,30 @@
 
 import { useState } from "react";
 import AdminHeader from "@/components/AdminHeader";
-import FormToggle from "@/components/FormToggle";
 import { useLanguage } from "@/config/i18n";
 
 /**
  * Admin Settings Page.
- * Manages configuration variables such as store settings, currency representation,
- * operating hours, real-time alert toggles, and system-wide parameter configurations.
+ * Manages configuration variables mapped directly to the Prisma Settings schema:
+ * currency_name, notification_threshold, app_lang, and per_page.
  * Formatted in high-contrast Material You dark-mode, completely bilingual.
  */
 export default function SettingsAdmin() {
-	const { t, isRtl } = useLanguage();
+	const { t, isRtl, locale, setLocale } = useLanguage();
 
-	// Store configurations state
-	const [cafeName, setCafeName] = useState("مقهى الخدمات الفاخر");
-	const [contactPhone, setContactPhone] = useState("0554321098");
-	const [currency, setCurrency] = useState(isRtl ? "دينار عراقي (IQD)" : "Iraqi Dinar (IQD)");
-
-	// Operational parameters
-	const [openHour, setOpenHour] = useState("07:00");
-	const [closeHour, setCloseHour] = useState("23:30");
-	const [enableReservations, setEnableReservations] = useState(true);
-
-	// Live alert parameters
-	const [enableAudioChime, setEnableAudioChime] = useState(true);
-	const [ssePingInterval, setSsePingInterval] = useState("20");
+	// Prisma Settings Schema States
+	const [currencyName, setCurrencyName] = useState("yemeniRial");
+	const [appLang, setAppLang] = useState(locale);
+	const [perPage, setPerPage] = useState(25);
+	const [notificationThreshold, setNotificationThreshold] = useState(100);
 
 	const [isSaved, setIsSaved] = useState(false);
 
 	const handleSaveAll = (e: React.FormEvent) => {
 		e.preventDefault();
+		if (appLang === "ar" || appLang === "en") {
+			setLocale(appLang);
+		}
 		setIsSaved(true);
 		setTimeout(() => setIsSaved(false), 4000);
 	};
@@ -46,7 +40,7 @@ export default function SettingsAdmin() {
 
 			{/* Form Container */}
 			<form onSubmit={handleSaveAll} className="space-y-6">
-				{/* 1. General Identity Settings */}
+				{/* 1. System & Localization Settings (currency_name, app_lang, per_page) */}
 				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-6 shadow-md space-y-4">
 					<div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
 						<div className="text-amber-400">
@@ -66,139 +60,86 @@ export default function SettingsAdmin() {
 							</svg>
 						</div>
 						<h2 className="text-sm font-black text-white">
-							{isRtl ? "إعدادات الهوية والعلامة التجارية" : "Identity & Branding Settings"}
+							{t("settings.sectionIdentity")}
 						</h2>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						{/* Store Name */}
-						<div className="space-y-1.5">
-							<label
-								htmlFor="cName"
-								className="text-xs font-bold text-zinc-400 block"
-							>
-								{isRtl ? "اسم المقهى التجاري" : "Cafe Name"}
-							</label>
-							<input
-								id="cName"
-								type="text"
-								value={cafeName}
-								onChange={(e) => setCafeName(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
-								required
-							/>
-						</div>
-
-						{/* Phone Number */}
-						<div className="space-y-1.5">
-							<label
-								htmlFor="cPhone"
-								className="text-xs font-bold text-zinc-400 block"
-							>
-								{isRtl ? "رقم الهاتف والتواصل" : "Contact Phone Number"}
-							</label>
-							<input
-								id="cPhone"
-								type="text"
-								value={contactPhone}
-								onChange={(e) => setContactPhone(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
-								required
-							/>
-						</div>
-
-						{/* Default Currency */}
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						{/* Default Currency (currency_name) */}
 						<div className="space-y-1.5">
 							<label
 								htmlFor="cCurrency"
 								className="text-xs font-bold text-zinc-400 block"
 							>
-								{isRtl ? "العملة الافتراضية المعتمدة" : "Default Certified Currency"}
+								{t("settings.inputDefaultCurrency")}
 							</label>
-							<input
+							<select
 								id="cCurrency"
-								type="text"
-								value={currency}
-								onChange={(e) => setCurrency(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
-								required
-							/>
+								value={currencyName}
+								onChange={(e) => setCurrencyName(e.target.value)}
+								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block cursor-pointer"
+							>
+								<option value="yemeniRial">{t("common.yemeniRial")}</option>
+								<option value="IQD">دينار عراقي (IQD)</option>
+								<option value="USD">دولار أمريكي (USD)</option>
+								<option value="EUR">يورو (EUR)</option>
+								<option value="SAR">ريال سعودي (SAR)</option>
+								<option value="AED">درهم إماراتي (AED)</option>
+							</select>
+							<span className="text-[10px] text-zinc-500 font-bold block mt-1">
+								{t("settings.inputDefaultCurrencyDesc")}
+							</span>
+						</div>
+
+						{/* Application Language (app_lang) */}
+						<div className="space-y-1.5">
+							<label
+								htmlFor="appLangSel"
+								className="text-xs font-bold text-zinc-400 block"
+							>
+								{t("settings.appLangLabel")}
+							</label>
+							<select
+								id="appLangSel"
+								value={appLang}
+								onChange={(e) => setAppLang(e.target.value as "ar" | "en")}
+								className="w-full bg-[#07080a] border border-white/10 text-amber-300 font-bold rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block cursor-pointer"
+							>
+								<option value="ar">العربية (Arabic)</option>
+								<option value="en">English (الإنجليزية)</option>
+							</select>
+							<span className="text-[10px] text-zinc-500 font-bold block mt-1">
+								{t("settings.appLangDesc")}
+							</span>
+						</div>
+
+						{/* Items Per Page (per_page) */}
+						<div className="space-y-1.5">
+							<label
+								htmlFor="perPageSel"
+								className="text-xs font-bold text-zinc-400 block"
+							>
+								{t("settings.perPageLabel")}
+							</label>
+							<select
+								id="perPageSel"
+								value={perPage}
+								onChange={(e) => setPerPage(Number(e.target.value))}
+								className="w-full bg-[#07080a] border border-white/10 text-white font-bold rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block cursor-pointer"
+							>
+								<option value="10">10</option>
+								<option value="25">25</option>
+								<option value="50">50</option>
+								<option value="100">100</option>
+							</select>
+							<span className="text-[10px] text-zinc-500 font-bold block mt-1">
+								{t("settings.perPageDesc")}
+							</span>
 						</div>
 					</div>
 				</div>
 
-				{/* 2. Operations & Reservations Settings */}
-				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-6 shadow-md space-y-4">
-					<div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
-						<div className="text-amber-400">
-							<svg
-								className="w-5 h-5"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-						</div>
-						<h2 className="text-sm font-black text-white">
-							{isRtl ? "إعدادات العمل والتشغيل" : "Operational Settings"}
-						</h2>
-					</div>
-
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						{/* Open Hour */}
-						<div className="space-y-1.5">
-							<label
-								htmlFor="oHour"
-								className="text-xs font-bold text-zinc-400 block"
-							>
-								{isRtl ? "ساعة بدء الاستقبال والعمل" : "Opening Hours"}
-							</label>
-							<input
-								id="oHour"
-								type="time"
-								value={openHour}
-								onChange={(e) => setOpenHour(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-zinc-300 rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
-								required
-							/>
-						</div>
-
-						{/* Close Hour */}
-						<div className="space-y-1.5">
-							<label
-								htmlFor="cHour"
-								className="text-xs font-bold text-zinc-400 block"
-							>
-								{isRtl ? "ساعة إغلاق الصالة والمنصة" : "Closing Hours"}
-							</label>
-							<input
-								id="cHour"
-								type="time"
-								value={closeHour}
-								onChange={(e) => setCloseHour(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-zinc-300 rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
-								required
-							/>
-						</div>
-					</div>
-
-					{/* Toggle live reservations */}
-					<FormToggle
-						checked={enableReservations}
-						onChange={setEnableReservations}
-						label={isRtl ? "تفعيل نظام حجز الطاولات المباشر" : "Enable Live Table Booking"}
-						description={isRtl ? "يسمح لعملاء الموقع المفتوح برؤية الطاولات الشاغرة وحجزها حياً." : "Enables customers to view and dynamically book empty tables."}
-					/>
-				</div>
-
-				{/* 3. Real-time Streams & Alerts Parameters */}
+				{/* 2. Notifications & Priority Threshold Settings (notification_threshold) */}
 				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-6 shadow-md space-y-4">
 					<div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
 						<div className="text-amber-400">
@@ -218,43 +159,35 @@ export default function SettingsAdmin() {
 							</svg>
 						</div>
 						<h2 className="text-sm font-black text-white">
-							{isRtl ? "إعدادات الإشعارات وبث الأحداث الفورية (SSE)" : "Live Events & Notifications Settings (SSE)"}
+							{t("settings.sectionNotifications")}
 						</h2>
 					</div>
 
-					{/* Audio Chime toggles */}
-					<FormToggle
-						checked={enableAudioChime}
-						onChange={setEnableAudioChime}
-						label={isRtl ? "تفعيل النغمات والمنبهات الصوتية للحساب الإداري" : "Enable Sound Signals for Admin Console"}
-						description={isRtl ? "توليد نغمات موسيقية متناسقة برمجياً عبر الـ Web Audio API فور وصول طلب أو إشعار جديد." : "Synthesize premium alerts natively using the Web Audio API."}
-					/>
-
-					{/* SSE Stream Ping Interval */}
+					{/* High Priority Billing Threshold (notification_threshold) */}
 					<div className="space-y-1.5">
-						<div className="flex justify-between items-center">
-							<label
-								htmlFor="pingInt"
-								className="text-xs font-bold text-zinc-400"
-							>
-								{isRtl ? "الفاصل الزمني لإرسال نبضات الاتصال (SSE Ping Interval)" : "SSE Keep-Alive Ping Interval"}
-							</label>
-							<span className="text-xs text-amber-400 font-black">
-								{ssePingInterval} {isRtl ? "ثانية" : "seconds"}
+						<label
+							htmlFor="nThresh"
+							className="text-xs font-bold text-zinc-400 block"
+						>
+							{t("settings.inputThreshold")}
+						</label>
+						<div className="relative flex items-center">
+							<input
+								id="nThresh"
+								type="number"
+								min="0"
+								step="10"
+								value={notificationThreshold}
+								onChange={(e) => setNotificationThreshold(Number(e.target.value))}
+								className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all block"
+								required
+							/>
+							<span className={`absolute ${isRtl ? "left-4" : "right-4"} text-xs font-black text-amber-400 pointer-events-none`}>
+								{currencyName === "yemeniRial" ? t("common.yemeniRial") : currencyName}
 							</span>
 						</div>
-						<input
-							id="pingInt"
-							type="range"
-							min="10"
-							max="60"
-							step="5"
-							value={ssePingInterval}
-							onChange={(e) => setSsePingInterval(e.target.value)}
-							className="w-full accent-amber-500 bg-[#07080a] h-1.5 rounded-lg appearance-none cursor-pointer"
-						/>
-						<span className="text-[10px] text-zinc-500 font-bold block mt-0.5">
-							{isRtl ? "عدد الثواني الفاصلة لحماية البث من الانقطاع المفاجئ من قِبل جدران الحماية وخوادم AWS/Cloudflare." : "Seconds between background pings to prevent system-wide SSE connection dropouts."}
+						<span className="text-[10px] text-zinc-500 font-bold block mt-1">
+							{t("settings.inputThresholdDesc")}
 						</span>
 					</div>
 				</div>
@@ -277,7 +210,7 @@ export default function SettingsAdmin() {
 									d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
 								/>
 							</svg>
-							<span>{isRtl ? "تم حفظ وتحديث الإعدادات بنجاح تـام!" : "All platform settings successfully saved!"}</span>
+							<span>{t("settings.msgSaved")}</span>
 						</div>
 					) : (
 						<div />
@@ -286,7 +219,7 @@ export default function SettingsAdmin() {
 						type="submit"
 						className="px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] font-extrabold text-xs transition-all duration-200 active:scale-95 shadow-lg shadow-amber-500/10"
 					>
-						{isRtl ? "حفظ كافة الإعدادات" : "Save All Configuration"}
+						{t("settings.btnSaveAll")}
 					</button>
 				</div>
 			</form>

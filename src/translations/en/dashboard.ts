@@ -19,4 +19,13 @@ export const dashboard = {
 	actionAccept: "Accept",
 	actionReject: "Reject",
 	testNotification: "Simulate Real-time Alert",
+	welcomeTitle: "Welcome Back to your Dashboard",
+	nowSimulated: "Now (Simulated)",
+	clientNamePlaceholder: "Client full name",
+	roomMain1: "Main Hall - Table 1",
+	roomMain5: "Main Hall - Table 5",
+	roomVip: "VIP Closed Room",
+	roomTerrace: "Outdoor Terrace - Table 12",
+	statTotalBookings: "Total Bookings",
+	searchPlaceholder: "Search client or phone...",
 };

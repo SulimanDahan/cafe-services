@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, ReactNode } from "react";
-import { ADMIN_ROUTES } from "@/config/routes";
+import { ADMIN_ROUTES } from "@/config/admin_routes";
 import { useLanguage } from "@/config/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import {
@@ -19,6 +19,7 @@ import {
 } from "@/components/icons";
 
 import NotificationCenter from "@/components/NotificationCenter";
+import PWAInstallBanner from "@/components/PWAInstallBanner";
 
 interface LayoutProps {
 	children: ReactNode;
@@ -42,7 +43,7 @@ function PageLoader() {
 				<div className="relative h-20 w-20">
 					{/* Outer Spinning Rim */}
 					<div className="absolute inset-0 rounded-full border-4 border-amber-500/10 border-t-amber-500 animate-spin" />
-					
+
 					{/* Inner Pulse Circle with SVG Icon */}
 					<div className="absolute inset-4 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center animate-pulse">
 						<svg
@@ -96,10 +97,15 @@ export default function AdminLayout({ children }: LayoutProps) {
 		if (typeof window === "undefined") return;
 
 		// Check if PWA standalone mode
-		const standaloneCheck = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+		const standaloneCheck =
+			window.matchMedia("(display-mode: standalone)").matches ||
+			(window.navigator as Navigator & { standalone?: boolean })
+				.standalone === true;
 
 		// Dynamic manifest swap to Admin configuration
-		let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+		let link = document.querySelector(
+			'link[rel="manifest"]',
+		) as HTMLLinkElement;
 		if (link) {
 			link.href = "/admin-manifest.json";
 		} else {
@@ -169,20 +175,30 @@ export default function AdminLayout({ children }: LayoutProps) {
 			setIsLoading(true);
 		};
 
-		document.addEventListener("click", handleAnchorClick, { capture: true });
+		document.addEventListener("click", handleAnchorClick, {
+			capture: true,
+		});
 		window.addEventListener("popstate", handlePopState);
 		window.addEventListener("navigation-start", handleNavigationStart);
 
 		return () => {
-			document.removeEventListener("click", handleAnchorClick, { capture: true });
+			document.removeEventListener("click", handleAnchorClick, {
+				capture: true,
+			});
 			window.removeEventListener("popstate", handlePopState);
-			window.removeEventListener("navigation-start", handleNavigationStart);
+			window.removeEventListener(
+				"navigation-start",
+				handleNavigationStart,
+			);
 		};
 	}, [pathname]);
 
 	if (isCustomerAppBlock) {
 		return (
-			<div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-[#07080a] p-6 text-center select-none animate-fade-in" dir={isRtl ? "rtl" : "ltr"}>
+			<div
+				className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-[#07080a] p-6 text-center select-none animate-fade-in"
+				dir={isRtl ? "rtl" : "ltr"}
+			>
 				<div className="absolute w-72 h-72 rounded-full bg-red-500/10 blur-[100px] pointer-events-none" />
 				<div className="max-w-md w-full rounded-3xl border border-red-500/20 bg-[#131522] p-8 space-y-6 shadow-2xl relative overflow-hidden">
 					<div className="h-16 w-16 mx-auto rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 font-black text-2xl">
@@ -190,12 +206,10 @@ export default function AdminLayout({ children }: LayoutProps) {
 					</div>
 					<div className="space-y-2">
 						<h2 className="text-lg font-black text-white">
-							{isRtl ? "نطاق وصول غير مسموح به" : "Unauthorized Access Scope"}
+							{t("common.unauthorizedTitle")}
 						</h2>
 						<p className="text-xs text-zinc-400 leading-relaxed">
-							{isRtl
-								? "عذراً، لا يمكن فتح لوحة التحكم الإدارية من داخل تطبيق الزبائن الذاتي. يرجى استخدام متصفح عادي أو تثبيت تطبيق الإدارة المخصص."
-								: "Sorry! You cannot access the admin control panel from within the Customer standalone app. Please use a regular browser or install the dedicated Admin application."}
+							{t("common.unauthorizedDesc")}
 						</p>
 					</div>
 					<button
@@ -204,7 +218,7 @@ export default function AdminLayout({ children }: LayoutProps) {
 						}}
 						className="w-full py-3 rounded-full bg-red-500 text-white font-bold text-xs hover:bg-red-600 transition-colors cursor-pointer active:scale-95"
 					>
-						{isRtl ? "العودة لتطبيق الطلبات" : "Return to Ordering App"}
+						{t("common.btnReturnOrder")}
 					</button>
 				</div>
 			</div>
@@ -212,7 +226,10 @@ export default function AdminLayout({ children }: LayoutProps) {
 	}
 
 	// Exclude layout wrapper on the login page but mount the page transition loader
-	if (pathname === ADMIN_ROUTES.login || pathname === `${ADMIN_ROUTES.login}/`) {
+	if (
+		pathname === ADMIN_ROUTES.login ||
+		pathname === `${ADMIN_ROUTES.login}/`
+	) {
 		return (
 			<>
 				{children}
@@ -267,8 +284,19 @@ export default function AdminLayout({ children }: LayoutProps) {
 			name: t("sidebar.rooms"),
 			path: ADMIN_ROUTES.room,
 			icon: (
-				<svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+				<svg
+					className="w-5 h-5 shrink-0"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth="2"
+						d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+					/>
 				</svg>
 			),
 		},
@@ -361,7 +389,9 @@ export default function AdminLayout({ children }: LayoutProps) {
 			dir={isRtl ? "rtl" : "ltr"}
 		>
 			{/* Persistent Desktop Sidebar Drawer on the Side (w-64) */}
-			<aside className={`hidden lg:block w-64 shrink-0 sticky top-0 h-screen z-30 ${isRtl ? "border-l border-white/10" : "border-r border-white/10"}`}>
+			<aside
+				className={`hidden lg:block w-64 shrink-0 sticky top-0 h-screen z-30 ${isRtl ? "border-l border-white/10" : "border-r border-white/10"}`}
+			>
 				{sidebarContent}
 			</aside>
 
@@ -442,9 +472,11 @@ export default function AdminLayout({ children }: LayoutProps) {
 					className={`lg:hidden fixed top-0 bottom-0 z-50 transition-transform duration-300 transform h-screen shrink-0 w-64 border-white/10 ${
 						isRtl ? "right-0 border-l" : "left-0 border-r"
 					} ${
-						isMobileOpen 
-							? "translate-x-0" 
-							: isRtl ? "translate-x-full" : "-translate-x-full"
+						isMobileOpen
+							? "translate-x-0"
+							: isRtl
+								? "translate-x-full"
+								: "-translate-x-full"
 					}`}
 				>
 					{sidebarContent}
@@ -455,6 +487,9 @@ export default function AdminLayout({ children }: LayoutProps) {
 					{children}
 				</main>
 			</div>
+
+			{/* Dynamic PWA Installation Promotion */}
+			<PWAInstallBanner appType="admin" />
 
 			{/* Full Screen Page Transition Overlay Loader */}
 			{isLoading && <PageLoader />}

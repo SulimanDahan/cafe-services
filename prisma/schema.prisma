@@ -10,6 +10,14 @@ datasource db {
   provider = "postgresql"
 }
 
+model UserSession {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
 model Notification {
   id        String   @id @default(uuid())
   title     String
@@ -18,12 +26,13 @@ model Notification {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  username   String   @unique
-  password   String
-  is_admin   Boolean  @default(false)
-  is_disable Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id           String        @id @default(uuid())
+  username     String        @unique
+  password     String
+  is_admin     Boolean       @default(false)
+  is_disable   Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  userSessions UserSession[]
 }
 
 model Room {
@@ -81,11 +90,11 @@ model Order {
 
 model Settings {
   id                     String   @id @default(uuid())
-  currency_name          String   @default("IQD")
-  tax_rate               Decimal  @default(10) // in percent
-  allow_notifications    Boolean  @default(true)
+  currency_name          String   @default("yemeniRial")
   notification_threshold Int      @default(100)
   app_lang               String   @default("ar")
+  per_page               Int      @default(25) // Number of items to display per page
+  session_expiry_minutes Int      @default(30) // Number of minutes
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }

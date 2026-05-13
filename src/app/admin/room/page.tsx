@@ -53,7 +53,7 @@ const DEFAULT_ROOMS: Room[] = [
  * Allows managing physical rooms/tables and printing their dynamic QR codes.
  */
 export default function AdminRoomsPage() {
-	const { isRtl } = useLanguage();
+	const { t, isRtl } = useLanguage();
 	const [rooms, setRooms] = useState<Room[]>(() => {
 		if (typeof window === "undefined") return DEFAULT_ROOMS;
 		const storedRooms = localStorage.getItem("cafe_rooms");
@@ -109,11 +109,7 @@ export default function AdminRoomsPage() {
 			(r) => r.qr_code.toLowerCase() === lowerToken,
 		);
 		if (isTokenDuplicate) {
-			alert(
-				isRtl
-					? "عذراً! رمز الـ QR هذا مستخدم مسبقاً لطاولة أخرى. يرجى إدخال رمز فريد."
-					: "Sorry! This QR token is already in use by another table. Please enter a unique token.",
-			);
+			alert(t("reservations.errDuplicateQr"));
 			return;
 		}
 
@@ -142,9 +138,7 @@ export default function AdminRoomsPage() {
 		const roomToDelete = rooms.find((r) => r.id === id);
 		if (!roomToDelete) return;
 
-		const confirmMsg = isRtl
-			? `هل أنت متأكد من رغبتك في حذف الطاولة: (${roomToDelete.name})؟ سيتم قفل إمكانية الطلب المرتبطة بها.`
-			: `Are you sure you want to delete table: (${roomToDelete.name})? All ordering channels associated with it will be removed.`;
+		const confirmMsg = `${t("reservations.confirmDeleteTable")}${roomToDelete.name}${t("reservations.confirmDeleteTableSuffix")}`;
 
 		if (confirm(confirmMsg)) {
 			const updated = rooms.filter((r) => r.id !== id);
@@ -229,16 +223,8 @@ export default function AdminRoomsPage() {
 
 			{/* Page Header */}
 			<AdminHeader
-				title={
-					isRtl
-						? "إدارة القاعات والطاولات"
-						: "Rooms & Tables Management"
-				}
-				subtitle={
-					isRtl
-						? "توليد ملصقات الـ QR المادية للخدمة الذاتية مع الطباعة والتحكم التشغيلي الكامل."
-						: "Generate physical self-service QR stickers with native printing capabilities."
-				}
+				title={t("reservations.roomsPageTitle")}
+				subtitle={t("reservations.roomsPageSub")}
 			>
 				<button
 					onClick={handleOpenAddModal}
@@ -259,9 +245,7 @@ export default function AdminRoomsPage() {
 						/>
 					</svg>
 					<span>
-						{isRtl
-							? "إضافة طاولة / قاعة جديدة"
-							: "Add Room / Table"}
+						{t("reservations.btnAddRoomTable")}
 					</span>
 				</button>
 			</AdminHeader>
@@ -271,7 +255,7 @@ export default function AdminRoomsPage() {
 				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-6 flex flex-col justify-between gap-3 shadow-md relative overflow-hidden group hover:border-amber-500/20 transition-colors">
 					<div className="absolute right-0 top-0 h-16 w-16 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-colors" />
 					<span className="text-xs text-zinc-400 font-bold uppercase tracking-wide">
-						{isRtl ? "إجمالي الطاولات المسجلة" : "Total Tables"}
+						{t("reservations.statTotalTables")}
 					</span>
 					<span className="text-4xl font-black text-white">
 						{rooms.length}
@@ -280,7 +264,7 @@ export default function AdminRoomsPage() {
 				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-6 flex flex-col justify-between gap-3 shadow-md relative overflow-hidden group hover:border-green-500/20 transition-colors">
 					<div className="absolute right-0 top-0 h-16 w-16 bg-green-500/5 rounded-full blur-xl group-hover:bg-green-500/10 transition-colors" />
 					<span className="text-xs text-zinc-400 font-bold uppercase tracking-wide">
-						{isRtl ? "طاولات نشطة ومتاحة" : "Active & Available"}
+						{t("reservations.statActiveTables")}
 					</span>
 					<span className="text-4xl font-black text-green-400">
 						{rooms.filter((r) => !r.is_disable).length}
@@ -289,7 +273,7 @@ export default function AdminRoomsPage() {
 				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-6 flex flex-col justify-between gap-3 shadow-md relative overflow-hidden group hover:border-red-500/20 transition-colors">
 					<div className="absolute right-0 top-0 h-16 w-16 bg-red-500/5 rounded-full blur-xl group-hover:bg-red-500/10 transition-colors" />
 					<span className="text-xs text-zinc-400 font-bold uppercase tracking-wide">
-						{isRtl ? "خارج الخدمة مؤقتاً" : "Out of Service"}
+						{t("reservations.statOutOfService")}
 					</span>
 					<span className="text-4xl font-black text-red-400">
 						{rooms.filter((r) => r.is_disable).length}
@@ -304,11 +288,7 @@ export default function AdminRoomsPage() {
 					<SearchInput
 						value={searchQuery}
 						onChange={setSearchQuery}
-						placeholder={
-							isRtl
-								? "البحث بالاسم أو رمز الـ QR..."
-								: "Search room name or QR token..."
-						}
+						placeholder={t("reservations.roomsSearch")}
 					/>
 				</div>
 
@@ -319,32 +299,22 @@ export default function AdminRoomsPage() {
 								className={`border-b border-white/10 text-zinc-400 text-xs font-black ${isRtl ? "text-right" : "text-left"}`}
 							>
 								<th className="pb-3 px-4">
-									{isRtl
-										? "رقم الغرفة المرجعي"
-										: "Room Identifier"}
+									{t("reservations.colRoomIdentifier")}
 								</th>
 								<th className="pb-3 px-4">
-									{isRtl
-										? "اسم القاعة / الطاولة"
-										: "Room / Table Name"}
+									{t("reservations.colRoomTableName")}
 								</th>
 								<th className="pb-3 px-4">
-									{isRtl
-										? "رمز الـ QR المبرمج"
-										: "Programmed QR Token"}
+									{t("reservations.colQrToken")}
 								</th>
 								<th className="pb-3 px-4 text-center">
-									{isRtl
-										? "الحالة التشغيلية"
-										: "Operational Status"}
+									{t("reservations.colOperatingStatus")}
 								</th>
 								<th className="pb-3 px-4 text-center">
-									{isRtl
-										? "طباعة وإعداد الـ QR"
-										: "QR & Label Actions"}
+									{t("reservations.colQrActions")}
 								</th>
 								<th className="pb-3 px-4 text-center">
-									{isRtl ? "العمليات" : "Operations"}
+									{t("reservations.colOperations")}
 								</th>
 							</tr>
 						</thead>
@@ -391,12 +361,8 @@ export default function AdminRoomsPage() {
 													className={`w-1.5 h-1.5 rounded-full ${!room.is_disable ? "bg-green-400" : "bg-red-400"}`}
 												/>
 												{!room.is_disable
-													? isRtl
-														? "نشطة ومتاحة للطلب"
-														: "Active & Available"
-													: isRtl
-														? "خارج الخدمة مؤقتاً"
-														: "Out of Service"}
+													? t("reservations.statusActiveAvailable")
+													: t("reservations.statusOutOfService")}
 											</span>
 										</td>
 
@@ -423,9 +389,7 @@ export default function AdminRoomsPage() {
 													/>
 												</svg>
 												<span>
-													{isRtl
-														? "ملصق الـ QR للطباعة"
-														: "Print QR Label"}
+													{t("reservations.btnPrintQr")}
 												</span>
 											</button>
 										</td>
@@ -447,12 +411,8 @@ export default function AdminRoomsPage() {
 													}`}
 													title={
 														!room.is_disable
-															? isRtl
-																? "تعطيل مؤقتاً"
-																: "Deactivate Temporarily"
-															: isRtl
-																? "تفعيل الآن"
-																: "Activate Now"
+															? t("reservations.actionDeactivate")
+															: t("reservations.actionActivate")
 													}
 												>
 													{!room.is_disable ? (
@@ -496,11 +456,7 @@ export default function AdminRoomsPage() {
 														)
 													}
 													className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200 cursor-pointer"
-													title={
-														isRtl
-															? "مسح الطاولة نهائياً"
-															: "Delete table"
-													}
+													title={t("reservations.actionDeletePerm")}
 												>
 													<svg
 														className="w-4 h-4"
@@ -527,9 +483,7 @@ export default function AdminRoomsPage() {
 										colSpan={6}
 										className="py-12 text-center text-zinc-500 font-medium text-xs"
 									>
-										{isRtl
-											? "لا توجد طاولات أو قاعات متوفرة."
-											: "No dining rooms or tables registered."}
+										{t("reservations.noTablesRegistered")}
 									</td>
 								</tr>
 							)}
@@ -566,9 +520,7 @@ export default function AdminRoomsPage() {
 						</button>
 
 						<h2 className="text-lg font-black text-white mb-4">
-							{isRtl
-								? "إضافة قاعة أو طاولة مادية جديدة"
-								: "Add New Dining Table / Room"}
+							{t("reservations.modalAddPhysTitle")}
 						</h2>
 
 						<form
@@ -581,9 +533,7 @@ export default function AdminRoomsPage() {
 									htmlFor="rName"
 									className="text-xs font-bold text-zinc-400 block"
 								>
-									{isRtl
-										? "اسم القاعة أو رقم الطاولة بالتفصيل"
-										: "Room / Table Detailed Name"}
+									{t("reservations.formRoomName")}
 								</label>
 								<input
 									id="rName"
@@ -592,11 +542,7 @@ export default function AdminRoomsPage() {
 									onChange={(e) =>
 										setNewRoomName(e.target.value)
 									}
-									placeholder={
-										isRtl
-											? "مثال: طاولة VIP 3 (المنطقة الخارجية)..."
-											: "e.g., Table VIP 3..."
-									}
+									placeholder={t("reservations.formRoomPlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200"
 									required
 									autoFocus
@@ -609,9 +555,7 @@ export default function AdminRoomsPage() {
 									htmlFor="rToken"
 									className="text-xs font-bold text-zinc-400 block"
 								>
-									{isRtl
-										? "معرّف رمز الـ QR للطاولة (فريد)"
-										: "Unique QR Code Token Value"}
+									{t("reservations.formQrToken")}
 								</label>
 								<input
 									id="rToken"
@@ -625,9 +569,7 @@ export default function AdminRoomsPage() {
 									required
 								/>
 								<p className="text-[10px] text-zinc-500 leading-normal font-medium mt-1">
-									{isRtl
-										? "ملاحظة: هذا هو المعرّف الفعلي المطبوع داخل ملصق الـ QR. يجب أن يكون فريداً بالكامل ولا يتكرر لتفادي الخلط في حجوزات الطاولات."
-										: "Note: This is the actual token encoded inside the physical sticker. It must be unique to avoid table checkout collision."}
+									{t("reservations.formQrTokenDesc")}
 								</p>
 							</div>
 
@@ -638,13 +580,13 @@ export default function AdminRoomsPage() {
 									onClick={() => setIsAddOpen(false)}
 									className="px-4 py-2.5 rounded-full border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
 								>
-									{isRtl ? "إلغاء" : "Cancel"}
+									{t("common.cancel")}
 								</button>
 								<button
 									type="submit"
 									className="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] text-xs font-extrabold transition-all cursor-pointer shadow-md"
 								>
-									{isRtl ? "إضافة وحفظ" : "Save Table"}
+									{t("reservations.btnSaveTable")}
 								</button>
 							</div>
 						</form>
@@ -682,14 +624,10 @@ export default function AdminRoomsPage() {
 
 						<div className="text-center space-y-1">
 							<h2 className="text-lg font-black text-white">
-								{isRtl
-									? "ملصق رمز الـ QR للطاولة"
-									: "Table QR Code Sticker"}
+								{t("reservations.stickerTitle")}
 							</h2>
 							<p className="text-xs text-zinc-400">
-								{isRtl
-									? "معاينة الملصق المادي وبدء عملية الطباعة المباشرة."
-									: "Preview physical label sticker and trigger printing."}
+								{t("reservations.stickerSub")}
 							</p>
 						</div>
 
@@ -705,9 +643,7 @@ export default function AdminRoomsPage() {
 								</div>
 								<div className="text-left font-black tracking-wide leading-none text-white print:text-black">
 									<p className="text-[10px] print:text-black">
-										{isRtl
-											? "مقهى الخدمات الفاخرة"
-											: "Premium Cafe"}
+										{t("reservations.stickerCafe")}
 									</p>
 									<p className="text-[7px] text-amber-400/90 tracking-widest uppercase mt-0.5">
 										SERVICES
@@ -721,7 +657,7 @@ export default function AdminRoomsPage() {
 									{selectedRoom.name}
 								</h3>
 								<span className="inline-flex items-center px-2 py-0.5 rounded bg-[#131522] print:bg-zinc-100 border border-white/5 print:border-black/10 text-[8px] font-mono text-zinc-400 print:text-zinc-600 uppercase">
-									{isRtl ? "المعرّف:" : "ID:"}{" "}
+									{t("reservations.stickerId")}{" "}
 									{selectedRoom.qr_code}
 								</span>
 							</div>
@@ -747,14 +683,10 @@ export default function AdminRoomsPage() {
 							{/* Call to action */}
 							<div className="space-y-1">
 								<p className="text-[10px] font-black text-amber-400 print:text-black uppercase tracking-wide">
-									{isRtl
-										? "وجه كاميرتك للمسح والطلب"
-										: "Scan QR to view menu & order"}
+									{t("reservations.stickerScan")}
 								</p>
 								<p className="text-[8px] text-zinc-500 print:text-zinc-600 leading-normal max-w-50 mx-auto">
-									{isRtl
-										? "يتطلب وجود حجز معتمد وساري المفعول لتاريخ اليوم لبدء الطلب."
-										: "Requires an active, accepted booking for today's date to proceed."}
+									{t("reservations.stickerScanDesc")}
 								</p>
 							</div>
 						</div>
@@ -765,7 +697,7 @@ export default function AdminRoomsPage() {
 								onClick={() => setIsPreviewOpen(false)}
 								className="px-4 py-2.5 rounded-full border border-white/10 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
 							>
-								{isRtl ? "إغلاق المعاينة" : "Dismiss Preview"}
+								{t("reservations.btnDismissPreview")}
 							</button>
 							<button
 								onClick={handlePrintLabel}
@@ -787,9 +719,7 @@ export default function AdminRoomsPage() {
 									/>
 								</svg>
 								<span>
-									{isRtl
-										? "طباعة الملصق الآن"
-										: "Print Label Now"}
+									{t("reservations.btnPrintLabel")}
 								</span>
 							</button>
 						</div>

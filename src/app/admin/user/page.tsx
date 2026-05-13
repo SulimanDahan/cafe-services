@@ -137,9 +137,7 @@ export default function UsersAdmin() {
 		// Prevent deleting 'admin' default account
 		const target = users.find((u) => u.id === id);
 		if (target?.username === "admin") {
-			const alertMsg = isRtl
-				? "لا يمكن حذف حساب المسؤول الافتراضي (admin) لسلامة دخول النظام!"
-				: "Cannot delete default admin account to prevent absolute lockouts!";
+			const alertMsg = t("users.errDeleteAdmin");
 			alert(alertMsg);
 			return;
 		}
@@ -182,11 +180,11 @@ export default function UsersAdmin() {
 					<SearchInput
 						value={searchQuery}
 						onChange={setSearchQuery}
-						placeholder={isRtl ? "البحث باسم المستخدم..." : "Search username..."}
+						placeholder={t("users.searchPlaceholder")}
 					/>
 
 					<span className="text-xs text-zinc-400 font-bold shrink-0">
-						{isRtl ? "إجمالي الحسابات:" : "Total Accounts:"} {users.length}
+						{t("users.totalAccounts")} {users.length}
 					</span>
 				</div>
 
@@ -215,11 +213,11 @@ export default function UsersAdmin() {
 										<td className={`py-4 px-4 whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 											{user.is_admin ? (
 												<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border bg-amber-500/10 text-amber-300 border-amber-500/25">
-													{isRtl ? "مدير النظام (Admin)" : "Administrator (Admin)"}
+													{t("users.roleAdminBadge")}
 												</span>
 											) : (
 												<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border bg-blue-500/10 text-blue-400 border-blue-500/20">
-													{isRtl ? "كاشير / باريستا (Staff)" : "Cashier / Barista (Staff)"}
+													{t("users.roleStaffBadge")}
 												</span>
 											)}
 										</td>
@@ -237,7 +235,7 @@ export default function UsersAdmin() {
 												<span
 													className={`w-1.5 h-1.5 rounded-full ${!user.is_disable ? "bg-green-400" : "bg-red-400"}`}
 												/>
-												{!user.is_disable ? (isRtl ? "نشط ومفعل" : "Active") : (isRtl ? "معطل مؤقتاً" : "Disabled")}
+												{!user.is_disable ? t("users.statusActive") : t("users.statusDisabled")}
 											</span>
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
@@ -250,7 +248,7 @@ export default function UsersAdmin() {
 															? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
 															: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-[#07080a]"
 													}`}
-													title={!user.is_disable ? (isRtl ? "تعطيل الحساب" : "Disable User") : (isRtl ? "تفعيل الحساب" : "Enable User")}
+													title={!user.is_disable ? t("users.actionDisable") : t("users.actionEnable")}
 												>
 													{!user.is_disable ? (
 														<svg
@@ -373,8 +371,8 @@ export default function UsersAdmin() {
 
 						<h2 className="text-lg font-black text-white mb-4">
 							{editingUser
-								? (isRtl ? "تعديل صلاحيات حساب مستخدم" : "Edit User Credentials")
-								: (isRtl ? "إنشاء حساب مستخدم جديد" : "Create New User Account")}
+								? t("users.modalEditTitle")
+								: t("users.modalAddTitle")}
 						</h2>
 
 						<form onSubmit={handleSave} className="space-y-4">
@@ -384,14 +382,14 @@ export default function UsersAdmin() {
 									htmlFor="usernameIn"
 									className="text-xs font-bold text-zinc-400 block"
 								>
-									{isRtl ? "اسم المستخدم (الدخول)" : "Username (Login)"}
+									{t("users.formUsernameLabel")}
 								</label>
 								<input
 									id="usernameIn"
 									type="text"
 									value={usernameInput}
 									onChange={(e) => setUsernameInput(e.target.value)}
-									placeholder={isRtl ? "مثال: ahmad_barista..." : "e.g. ahmad_barista..."}
+									placeholder={t("users.formUsernamePlaceholder")}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200 block"
 									required
 									autoFocus
@@ -404,7 +402,7 @@ export default function UsersAdmin() {
 									htmlFor="passwordIn"
 									className="text-xs font-bold text-zinc-400 block"
 								>
-									{isRtl ? "كلمة المرور السريـة" : "Secret Password"}
+									{t("users.formPasswordLabel")}
 								</label>
 								<input
 									id="passwordIn"
@@ -413,7 +411,7 @@ export default function UsersAdmin() {
 									onChange={(e) => setPasswordInput(e.target.value)}
 									placeholder={
 										editingUser
-											? (isRtl ? "اتركه فارغاً للإبقاء على الحالية" : "Leave blank to keep unchanged")
+											? t("users.formPasswordLeaveBlank")
 											: "••••••••"
 									}
 									className="w-full bg-[#07080a] border border-white/10 text-white rounded-2xl px-4 py-3 text-xs focus:outline-none focus:border-amber-500 transition-all duration-200 block"
@@ -425,10 +423,10 @@ export default function UsersAdmin() {
 							<div className="flex items-center justify-between p-3.5 rounded-2xl border border-white/10 bg-[#07080a]/40">
 								<div className="flex flex-col">
 									<span className="text-xs font-black text-white">
-										{isRtl ? "ترقية لحساب مدير نظام" : "Promote to Administrator"}
+										{t("users.formPromoteAdmin")}
 									</span>
 									<span className="text-[10px] text-zinc-500 font-bold mt-0.5">
-										{isRtl ? "يمنح الحساب كامل صلاحيات التعديل والحذف." : "Grants full administrative capabilities over resources."}
+										{t("users.formPromoteAdminDesc")}
 									</span>
 								</div>
 								<label className="relative inline-flex items-center cursor-pointer shrink-0">

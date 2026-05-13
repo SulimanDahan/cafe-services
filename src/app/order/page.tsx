@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/config/i18n";
+import PWAInstallBanner from "@/components/PWAInstallBanner";
 
 declare global {
 	interface Window {
@@ -207,6 +208,17 @@ export default function CustomerOrderPage() {
 	// Multi-PWA scope sandboxing and dynamic state configuration
 	useEffect(() => {
 		if (typeof window === "undefined") return;
+
+		// Dynamic manifest injection for Customer configuration
+		let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+		if (link) {
+			link.href = "/customer-manifest.json";
+		} else {
+			link = document.createElement("link");
+			link.rel = "manifest";
+			link.href = "/customer-manifest.json";
+			document.head.appendChild(link);
+		}
 
 		// Check if PWA standalone mode
 		const standaloneCheck = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
@@ -807,15 +819,15 @@ export default function CustomerOrderPage() {
 	const getCategoryLabel = (cat: string) => {
 		switch (cat) {
 			case "all":
-				return isRtl ? "الكل" : "All";
+				return t("orders.catAll");
 			case "m_saq":
-				return isRtl ? "مشروبات ساخنة" : "Hot Drinks";
+				return t("orders.catHot");
 			case "m_bar":
-				return isRtl ? "مشروبات باردة" : "Cold Drinks";
+				return t("orders.catCold");
 			case "makh":
-				return isRtl ? "مخبوزات" : "Pastries";
+				return t("orders.catPastry");
 			case "halw":
-				return isRtl ? "حلويات" : "Desserts";
+				return t("orders.catDessert");
 			default:
 				return cat;
 		}
@@ -842,12 +854,10 @@ export default function CustomerOrderPage() {
 					</div>
 					<div className="space-y-2">
 						<h2 className="text-lg font-black text-white">
-							{isRtl ? "تطبيق مخصص للإدارة الفنية" : "Application Dedicated to Admin"}
+							{t("orders.adminAppTitle")}
 						</h2>
 						<p className="text-xs text-zinc-400 leading-relaxed">
-							{isRtl
-								? "عذراً، هذا التطبيق المثبت مخصص لإدارة العمليات التشغيلية للمقهى والـ Admin فقط. لطلب الخدمات، يرجى تصفح الموقع أو مسح رمز الـ QR الخاص بطاولتك."
-								: "Sorry! This installed application is dedicated exclusively to technical cafe operations and admin control. To order services, please use a browser or scan your table's QR sticker."}
+							{t("orders.adminAppDesc")}
 						</p>
 					</div>
 					<button
@@ -856,7 +866,7 @@ export default function CustomerOrderPage() {
 						}}
 						className="w-full py-3 rounded-full bg-amber-500 text-[#07080a] font-black text-xs hover:bg-amber-600 transition-colors cursor-pointer active:scale-95"
 					>
-						{isRtl ? "العودة للوحة الإدارة" : "Return to Admin Console"}
+						{t("orders.returnAdmin")}
 					</button>
 				</div>
 			</div>
@@ -868,6 +878,9 @@ export default function CustomerOrderPage() {
 			className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex flex-col selection:bg-amber-500 selection:text-black overflow-x-hidden"
 			dir={isRtl ? "rtl" : "ltr"}
 		>
+			{/* Dynamic PWA Installation Promotion */}
+			<PWAInstallBanner appType="customer" />
+
 			{/* Custom laser line scan animations styling injection */}
 			<style jsx global>{`
 				@keyframes laser-sweep {
@@ -917,13 +930,13 @@ export default function CustomerOrderPage() {
 								href="/"
 								className="px-3 py-1.5 rounded-full text-xs font-bold text-zinc-400 hover:text-white transition-all active:scale-95"
 							>
-								{isRtl ? "الرئيسية" : "Home"}
+								{t("home.navHome")}
 							</Link>
 							<Link
 								href="/order"
 								className="px-4 py-1.5 rounded-full text-xs font-black bg-amber-500/10 text-amber-300 border border-amber-500/30 shadow-md active:scale-95"
 							>
-								{isRtl ? "طلب أصناف" : "Order Items"}
+								{t("home.navOrder")}
 							</Link>
 						</nav>
 					</div>
@@ -934,9 +947,7 @@ export default function CustomerOrderPage() {
 							<div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-black uppercase">
 								<span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
 								<span>
-									{isRtl
-										? `طاولة نشطة: ${activeSession.room_name.split(" ")[0]}`
-										: `Active Table: ${activeSession.room_name.split(" ")[0]}`}
+									{`${t("orders.activeTableBadge")} ${activeSession.room_name.split(" ")[0]}`}
 								</span>
 							</div>
 						)}
@@ -1035,14 +1046,10 @@ export default function CustomerOrderPage() {
 
 						<div className="space-y-3">
 							<h1 className="text-xl sm:text-2xl font-black text-white">
-								{isRtl
-									? "بوابة الخدمة الذاتية وحماية الطاولات"
-									: "Table Access Security Gateway"}
+								{t("orders.step1Title")}
 							</h1>
 							<p className="text-xs text-zinc-400 font-medium leading-relaxed max-w-md mx-auto">
-								{isRtl
-									? "للبدء بطلب أصناف الضيافة الفاخرة على طاولتك، يرجى التكرم بمسح رمز الـ QR الملصق على الطاولة والتأكد من وجود حجز مؤكد ومفعل باسمك لتاريخ اليوم."
-									: "To begin ordering premium refreshments directly to your table, please scan the QR code sticker located on your table and verify your confirmed booking for today."}
+								{t("orders.step1Sub")}
 							</p>
 						</div>
 
@@ -1072,9 +1079,7 @@ export default function CustomerOrderPage() {
 									/>
 								</svg>
 								<span>
-									{isRtl
-										? "مسح رمز الـ QR للطاولة"
-										: "Scan Table QR Code"}
+									{t("orders.btnScan")}
 								</span>
 							</button>
 						</div>
@@ -1091,19 +1096,13 @@ export default function CustomerOrderPage() {
 							<div className="space-y-1.5">
 								<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-green-500/10 border border-green-500/25 text-green-400 shadow-sm uppercase">
 									<span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-									{isRtl
-										? "تم التحقق ومطابقة الحجز بنجاح"
-										: "Booking Verified & Secure Session Active"}
+									{t("orders.bookingVerified")}
 								</span>
 								<h1 className="text-xl sm:text-2xl font-black text-white">
-									{isRtl
-										? `أهلاً بك، عميلنا المميز: ${activeSession.client_name}`
-										: `Welcome back, guest: ${activeSession.client_name}`}
+									{`${t("orders.welcomeGuestPrefix")} ${activeSession.client_name}`}
 								</h1>
 								<p className="text-xs text-zinc-400 font-medium">
-									{isRtl
-										? `طاولة الحجز الخاصة بك: (${activeSession.room_name}) — رقم الحجز المرجعي: ${activeSession.number}`
-										: `Your Assigned Location: (${activeSession.room_name}) — Reference Number: ${activeSession.number}`}
+									{`${t("orders.assignedLocationPrefix")} (${activeSession.room_name}) — ${t("orders.refNumberPrefix")} ${activeSession.number}`}
 								</p>
 							</div>
 
@@ -1128,9 +1127,7 @@ export default function CustomerOrderPage() {
 									/>
 								</svg>
 								<span>
-									{isRtl
-										? "إنهاء الجلسة / خروج"
-										: "End Session / Log out"}
+									{t("orders.endSession")}
 								</span>
 							</button>
 						</div>
@@ -1142,9 +1139,7 @@ export default function CustomerOrderPage() {
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-1">
 								<h2 className="text-lg font-black text-white flex items-center gap-2">
 									<span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-									{isRtl
-										? "قائمة الأصناف والمأكولات المتوفرة"
-										: "Premium Catering Menu"}
+									{t("orders.cateringMenuTitle")}
 								</h2>
 
 								{/* Category Select tabs */}
@@ -1187,7 +1182,7 @@ export default function CustomerOrderPage() {
 														{item.price.toLocaleString(
 															"en-US",
 														)}{" "}
-														{isRtl ? "د.ع" : "IQD"}
+														{t("common.currency")}
 													</span>
 												</div>
 												<h3 className="text-sm font-black text-white group-hover:text-amber-300 transition-colors">
@@ -1256,9 +1251,7 @@ export default function CustomerOrderPage() {
 														/>
 													</svg>
 													<span>
-														{isRtl
-															? "اطلب الآن"
-															: "Order Now"}
+														{t("orders.btnAddOrder")}
 													</span>
 												</button>
 											</div>
@@ -1276,14 +1269,12 @@ export default function CustomerOrderPage() {
 
 								<div>
 									<span className="text-[10px] font-black text-amber-400/90 tracking-widest uppercase">
-										{isRtl
-											? "مجموع الفاتورة الحالية للطاولة"
-											: "Active Table Bill Summary"}
+										{t("orders.basketTotal")}
 									</span>
 									<h3 className="text-3xl font-black text-white mt-1">
 										{totalBill.toLocaleString("en-US")}{" "}
 										<span className="text-sm font-black text-amber-400">
-											{isRtl ? "د.ع" : "IQD"}
+											{t("common.currency")}
 										</span>
 									</h3>
 								</div>
@@ -1291,9 +1282,7 @@ export default function CustomerOrderPage() {
 								<div className="divide-y divide-white/5 text-xs text-zinc-300">
 									<div className="py-2.5 flex justify-between">
 										<span>
-											{isRtl
-												? "رقم الحجز المرجعي:"
-												: "Booking Identifier:"}
+											{t("orders.bookingIdLabel")}
 										</span>
 										<span className="font-bold text-white">
 											{activeSession.number}
@@ -1301,9 +1290,7 @@ export default function CustomerOrderPage() {
 									</div>
 									<div className="py-2.5 flex justify-between">
 										<span>
-											{isRtl
-												? "اسم العميل صاحب الطاولة:"
-												: "Guest Full Name:"}
+											{t("orders.guestNameLabel")}
 										</span>
 										<span className="font-bold text-white">
 											{activeSession.client_name}
@@ -1311,9 +1298,7 @@ export default function CustomerOrderPage() {
 									</div>
 									<div className="py-2.5 flex justify-between">
 										<span>
-											{isRtl
-												? "موقع الطاولة الحالي:"
-												: "Table Location:"}
+											{t("orders.tableLocLabel")}
 										</span>
 										<span className="font-bold text-amber-300">
 											{
@@ -1325,16 +1310,14 @@ export default function CustomerOrderPage() {
 									</div>
 									<div className="py-2.5 flex justify-between">
 										<span>
-											{isRtl
-												? "إجمالي عدد الأصناف المطلوبة:"
-												: "Total Ordered Pieces:"}
+											{t("orders.totalOrderedLabel")}
 										</span>
 										<span className="font-bold text-white">
 											{tableOrders.reduce(
 												(sum, o) => sum + o.quantity,
 												0,
 											)}{" "}
-											{isRtl ? "وحدات" : "Units"}
+											{t("orders.unitUnits")}
 										</span>
 									</div>
 								</div>
@@ -1344,9 +1327,7 @@ export default function CustomerOrderPage() {
 							<div className="rounded-[28px] border border-white/10 bg-[#131522] p-5.5 shadow-xl space-y-4">
 								<h3 className="text-sm font-black text-white border-b border-white/5 pb-3 flex items-center justify-between">
 									<span>
-										{isRtl
-											? "طلباتك النشطة الآن"
-											: "My Active Table Orders"}
+										{t("orders.myActiveOrders")}
 									</span>
 									<span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#0d0f17] text-zinc-400 border border-white/5">
 										{tableOrders.length}
@@ -1369,7 +1350,7 @@ export default function CustomerOrderPage() {
 														{o.item_price.toLocaleString(
 															"en-US",
 														)}{" "}
-														{isRtl ? "د.ع" : "IQD"}
+														{t("common.currency")}
 													</p>
 													<p className="text-[9px] text-zinc-500 font-medium font-mono">
 														{o.createdAt
@@ -1387,7 +1368,7 @@ export default function CustomerOrderPage() {
 														).toLocaleString(
 															"en-US",
 														)}{" "}
-														{isRtl ? "د.ع" : "IQD"}
+														{t("common.currency")}
 													</span>
 
 													{/* Cancel action trigger */}
@@ -1399,11 +1380,7 @@ export default function CustomerOrderPage() {
 															)
 														}
 														className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all shrink-0 active:scale-95"
-														title={
-															isRtl
-																? "إلغاء الطلب"
-																: "Cancel Order"
-														}
+														title={t("orders.btnCancelOrder")}
 													>
 														<svg
 															className="w-3.5 h-3.5"
@@ -1425,9 +1402,7 @@ export default function CustomerOrderPage() {
 										))
 									) : (
 										<div className="py-10 text-center text-zinc-600 font-medium text-xs italic">
-											{isRtl
-												? "لم تقم بطلب أي أصناف لطاولتك بعد!"
-												: "No items ordered for this table yet!"}
+											{t("orders.noItemsOrderedYet")}
 										</div>
 									)}
 								</div>
@@ -1470,14 +1445,10 @@ export default function CustomerOrderPage() {
 
 						<div className="text-center">
 							<h2 className="text-base font-black text-white">
-								{isRtl
-									? "مسح الـ QR وقفل الجلسة الأمنية"
-									: "QR Table Scan & Verification"}
+								{t("orders.scanModalTitle")}
 							</h2>
 							<p className="text-xs text-zinc-400 mt-1">
-								{isRtl
-									? "وجه كاميرا جوالك إلى الرمز، أو قم بمحاكاة المسح عبر الرموز المتاحة أدناه"
-									: "Point your phone camera at the QR, or simulate scanning using the codes below"}
+								{t("orders.scanModalSub")}
 							</p>
 						</div>
 
@@ -1526,9 +1497,7 @@ export default function CustomerOrderPage() {
 								<div className="text-center space-y-2 z-10">
 									<div className="animate-spin h-5 w-5 border-2 border-amber-500 border-t-transparent rounded-full mx-auto" />
 									<p className="text-[10px] text-amber-400 font-bold">
-										{isRtl
-											? "جاري قراءة المعرف..."
-											: "Decoding..."}
+										{t("orders.decoding")}
 									</p>
 								</div>
 							)}
@@ -1550,7 +1519,7 @@ export default function CustomerOrderPage() {
 										/>
 									</svg>
 									<p className="text-[10px] font-black">
-										{isRtl ? "تم التحقق!" : "Verified!"}
+										{t("orders.verified")}
 									</p>
 								</div>
 							)}
@@ -1572,7 +1541,7 @@ export default function CustomerOrderPage() {
 										/>
 									</svg>
 									<p className="text-[10px] font-black">
-										{isRtl ? "فشل الحجز!" : "Failed!"}
+										{t("orders.failed")}
 									</p>
 								</div>
 							)}
@@ -1581,9 +1550,7 @@ export default function CustomerOrderPage() {
 						{/* STICKER SIMULATORS PANEL */}
 						<div className="space-y-2.5">
 							<span className="text-[10px] text-zinc-500 font-black uppercase tracking-wider block text-center">
-								{isRtl
-									? "انقر لتحديد رمز الـ QR للطاولة ومطابقة حجز اليوم:"
-									: "Select a table QR to match today's reservation:"}
+								{t("orders.simulatedScanSub")}
 							</span>
 
 							<div className="grid grid-cols-1 gap-2">
@@ -1598,18 +1565,14 @@ export default function CustomerOrderPage() {
 								>
 									<div className="space-y-1">
 										<p className="text-xs font-black text-white group-hover:text-amber-300">
-											{isRtl
-												? "رمز QR: طاولة VIP 1"
-												: "QR: Table VIP 1"}
+											{t("orders.qrVip1")}
 										</p>
 										<p className="text-[10px] text-green-400 font-bold">
-											{isRtl
-												? "حجز مؤكد اليوم (سليمان)"
-												: "Confirmed Booking Today (Suleiman)"}
+											{t("orders.qrVip1Desc")}
 										</p>
 									</div>
 									<span className="text-xs font-black text-zinc-400 uppercase font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
-										{isRtl ? "مسح الرمز" : "Scan Code"}
+										{t("orders.btnScanCode")}
 									</span>
 								</button>
 
@@ -1627,18 +1590,14 @@ export default function CustomerOrderPage() {
 								>
 									<div className="space-y-1">
 										<p className="text-xs font-black text-white group-hover:text-amber-300">
-											{isRtl
-												? "رمز QR: طاولة عائلية 4"
-												: "QR: Family Table 4"}
+											{t("orders.qrTable4")}
 										</p>
 										<p className="text-[10px] text-zinc-400 font-semibold">
-											{isRtl
-												? "حجز معلق الغد (أحمد العتيبي)"
-												: "Pending Tomorrow (Ahmed)"}
+											{t("orders.qrTable4Desc")}
 										</p>
 									</div>
 									<span className="text-xs font-black text-zinc-400 uppercase font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
-										{isRtl ? "مسح الرمز" : "Scan Code"}
+										{t("orders.btnScanCode")}
 									</span>
 								</button>
 
@@ -1656,18 +1615,14 @@ export default function CustomerOrderPage() {
 								>
 									<div className="space-y-1">
 										<p className="text-xs font-black text-white group-hover:text-amber-300">
-											{isRtl
-												? "رمز QR: طاولة ثنائية 2"
-												: "QR: Double Table 2"}
+											{t("orders.qrTable2")}
 										</p>
 										<p className="text-[10px] text-zinc-400 font-semibold">
-											{isRtl
-												? "حجز مؤكد في 14 مايو (سارة)"
-												: "Confirmed May 14 (Sarah)"}
+											{t("orders.qrTable2Desc")}
 										</p>
 									</div>
 									<span className="text-xs font-black text-zinc-400 uppercase font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
-										{isRtl ? "مسح الرمز" : "Scan Code"}
+										{t("orders.btnScanCode")}
 									</span>
 								</button>
 							</div>
