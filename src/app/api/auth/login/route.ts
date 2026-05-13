@@ -4,6 +4,7 @@ import encryptPassword from "@/helpers/encrypters";
 import arApiMessages from "@/translations/ar/api_messages";
 import enApiMessages from "@/translations/en/api_messages";
 import appLanguages from "@/config/app_languages";
+import { SessionModel } from "@/models/session_model";
 
 export async function POST(request: NextRequest) {
 	const { username, password } = await request.json();
@@ -41,12 +42,16 @@ export async function POST(request: NextRequest) {
 		});
 
 		// Create session cookie
-		const sessionCookie = `cafe_session=${session.id}; Path=/; Max-Age=${sessionExpiryTime * 60}; HttpOnly; Secure; SameSite=Lax`;
+		const sessionCookie = `auth_session=${session.id}; Path=/; Max-Age=${sessionExpiryTime * 60}; HttpOnly; Secure; SameSite=Lax`;
 
 		// Set the session cookie in the response
 		const response = NextResponse.json({
 			success: true,
-			data: { user },
+			data: {
+				username: user.username,
+				id: session.id,
+				expiresAt: session.expiresAt,
+			} as SessionModel,
 		});
 		response.headers.set("Set-Cookie", sessionCookie);
 		return response;

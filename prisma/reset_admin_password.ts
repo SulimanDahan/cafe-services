@@ -13,7 +13,7 @@ async function main() {
 
 	if (password && admin) {
 		const hashedPassword = encryptPassword(password);
-		await prisma.user.update({
+		const updatedUser = await prisma.user.update({
 			where: {
 				id: admin.id,
 			},

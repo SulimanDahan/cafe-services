@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_ROUTES } from "./config/admin_routes";
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
 	const pathname = req.nextUrl.pathname;
 	const isAdminPath = pathname.startsWith("/admin") && !pathname.includes("manifest");
 	if (isAdminPath) {

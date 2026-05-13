@@ -28,6 +28,7 @@ export default function LoginPage() {
 			return;
 		}
 
+		setIsLoading(true);
 		fetch("/api/auth/login", {
 			method: "POST",
 			body: JSON.stringify(loginData),
@@ -37,13 +38,26 @@ export default function LoginPage() {
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data);
+				if (data.success) {
+					// Store non-sensitive display user info in client cookie
+					document.cookie = `auth_user=${encodeURIComponent(data.data.username)}; path=/; max-age=1800; SameSite=Lax`;
+					
+					// Store session state in localStorage and sessionStorage for client components
+					localStorage.setItem("auth_session", JSON.stringify(data.data));
+					sessionStorage.setItem("auth_session", JSON.stringify(data.data));
+					
+					window.dispatchEvent(new CustomEvent("navigation-start"));
+					router.push(ADMIN_ROUTES.dashboard);
+				} else {
+					setError(data.error || t("login.errorInvalid"));
+					setIsLoading(false);
+				}
 			})
 			.catch((err) => {
 				console.log(err);
+				setError(t("login.errorInvalid"));
+				setIsLoading(false);
 			});
-
-		setIsLoading(true);
 	};
 
 	return (
