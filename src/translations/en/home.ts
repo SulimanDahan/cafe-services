@@ -42,4 +42,13 @@ export const home = {
 	simStockTime: "1 min ago",
 	cateringSubtitle: "Certified Catering Suite",
 	liveChannelsTitle: "Live SSE Channels",
+	btnBookRoom: "Book a Room",
+	modalBookTitle: "Complete Room Reservation",
+	formClientName: "Full Name",
+	formClientPlaceholder: "e.g., John Doe...",
+	formPhone: "Contact Number",
+	formDateTime: "Date and Time",
+	formAssignedRoom: "Select Room",
+	btnSubmitBooking: "Confirm Booking",
+	bookingSuccess: "Booking request submitted successfully! Awaiting confirmation.",
 };

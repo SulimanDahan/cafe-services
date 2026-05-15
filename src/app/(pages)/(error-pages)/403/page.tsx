@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ADMIN_ROUTES } from "@/config/admin_routes";
+import { ADMIN_PAGE_ROUTES } from "@/config/page_routes";
 
 /**
  * Premium 403 Forbidden Page Component.
@@ -36,7 +36,7 @@ export default function ForbiddenPage() {
 				{/* Action Buttons with Clean SVG Icons */}
 				<div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
 					<Link
-						href={ADMIN_ROUTES.login}
+						href={ADMIN_PAGE_ROUTES.login}
 						className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-amber-500 hover:bg-amber-400 text-[#07080a] font-bold px-6 py-3.5 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20 active:scale-[0.98] text-sm"
 					>
 						<svg

@@ -1,39 +1,41 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: cafe-postgres-prod
-    restart: always
-    environment:
-      POSTGRES_USER: cafe_admin
-      POSTGRES_PASSWORD: cafe_secure_pass
-      POSTGRES_DB: cafe_db
-    volumes:
-      - postgres_data_prod:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cafe_admin -d cafe_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    postgres:
+        image: postgres:16-alpine
+        container_name: cafe-postgres-prod
+        restart: always
+        environment:
+            POSTGRES_USER: cafe_admin
+            POSTGRES_PASSWORD: cafe_secure_pass
+            POSTGRES_DB: cafe_db
+        ports:
+            - "21593:5432"
+        volumes:
+            - postgres_data_prod:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U cafe_admin -d cafe_db"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
-  web-prod:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: cafe-services-prod
-    restart: always
-    ports:
-      - "3001:3000" # Mapped to host port 3001 to prevent collisions with port 3000 in dev
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - uploads_data_prod:/app/public/uploads # Persistent storage for uploaded media/images in production
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://cafe_admin:cafe_secure_pass@postgres:5432/cafe_db?schema=public
+    web-prod:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: cafe-services-prod
+        restart: always
+        ports:
+            - "3001:3000" # Mapped to host port 3001 to prevent collisions with port 3000 in dev
+        depends_on:
+            postgres:
+                condition: service_healthy
+        volumes:
+            - uploads_data_prod:/app/public/uploads # Persistent storage for uploaded media/images in production
+        environment:
+            - NODE_ENV=production
+            - DATABASE_URL=postgresql://cafe_admin:cafe_secure_pass@postgres:5432/cafe_db?schema=public
 
 volumes:
-  postgres_data_prod:
-    driver: local
-  uploads_data_prod:
-    driver: local
+    postgres_data_prod:
+        driver: local
+    uploads_data_prod:
+        driver: local

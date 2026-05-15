@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 const CACHE_NAME = "cafe-services-cache-v1";
 
 // Core static assets to cache on installation
@@ -7,12 +5,11 @@ const STATIC_ASSETS = [
 	"/",
 	"/customer-manifest.json",
 	"/admin-manifest.json",
-	"/icon.svg",
-	"/globals.css"
+	"/icon.svg"
 ];
 
 // Install Event: cache static resources
-self.addEventListener("install", (event: any) => {
+self.addEventListener("install", (event) => {
 	event.waitUntil(
 		caches.open(CACHE_NAME).then((cache) => {
 			return cache.addAll(STATIC_ASSETS);
@@ -23,7 +20,7 @@ self.addEventListener("install", (event: any) => {
 });
 
 // Activate Event: prune old caches
-self.addEventListener("activate", (event: any) => {
+self.addEventListener("activate", (event) => {
 	event.waitUntil(
 		caches.keys().then((cacheNames) => {
 			return Promise.all(
@@ -40,7 +37,7 @@ self.addEventListener("activate", (event: any) => {
 });
 
 // Fetch Event: network-first strategy for dynamic pages, cache-fallback for assets
-self.addEventListener("fetch", (event: any) => {
+self.addEventListener("fetch", (event) => {
 	const url = new URL(event.request.url);
 
 	// Bypass real-time notification streams entirely to prevent stalling stream connections

@@ -42,4 +42,13 @@ export const home = {
 	simStockTime: "قبل دقيقة",
 	cateringSubtitle: "مجموعة الضيافة المعتمدة",
 	liveChannelsTitle: "قناة البيانات الفورية",
+	btnBookRoom: "حجز غرفة",
+	modalBookTitle: "إتمام عملية حجز الغرفة",
+	formClientName: "الاسم الكامل",
+	formClientPlaceholder: "مثال: أحمد محمد...",
+	formPhone: "رقم التواصل",
+	formDateTime: "تاريخ ووقت الحجز",
+	formAssignedRoom: "اختر الغرفة / القاعة",
+	btnSubmitBooking: "تأكيد الحجز",
+	bookingSuccess: "تم إرسال طلب الحجز بنجاح! بانتظار التأكيد.",
 };

@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ADMIN_ROUTES } from "@/config/admin_routes";
+// import { ADMIN_PAGE_ROUTES } from "@/config/page_routes";
 import { useLanguage } from "@/config/i18n";
 import { defaultLoginData, LoginModel } from "@/models/login_model";
+import { LOGIN_API_ROUTE } from "@/config/api_routes";
+import { ADMIN_DASHBOARD_PAGE_ROUTE } from "@/config/page_routes";
 
 /**
  * Premium Admin Login Page Component.
@@ -29,7 +31,7 @@ export default function LoginPage() {
 		}
 
 		setIsLoading(true);
-		fetch("/api/auth/login", {
+		fetch(LOGIN_API_ROUTE, {
 			method: "POST",
 			body: JSON.stringify(loginData),
 			headers: {
@@ -41,13 +43,19 @@ export default function LoginPage() {
 				if (data.success) {
 					// Store non-sensitive display user info in client cookie
 					document.cookie = `auth_user=${encodeURIComponent(data.data.username)}; path=/; max-age=1800; SameSite=Lax`;
-					
+
 					// Store session state in localStorage and sessionStorage for client components
-					localStorage.setItem("auth_session", JSON.stringify(data.data));
-					sessionStorage.setItem("auth_session", JSON.stringify(data.data));
-					
+					localStorage.setItem(
+						"auth_session",
+						JSON.stringify(data.data),
+					);
+					sessionStorage.setItem(
+						"auth_session",
+						JSON.stringify(data.data),
+					);
+
 					window.dispatchEvent(new CustomEvent("navigation-start"));
-					router.push(ADMIN_ROUTES.dashboard);
+					router.push(ADMIN_DASHBOARD_PAGE_ROUTE);
 				} else {
 					setError(data.error || t("login.errorInvalid"));
 					setIsLoading(false);

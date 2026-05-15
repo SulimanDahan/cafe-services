@@ -154,12 +154,12 @@ export default function ItemsAdmin() {
 				prev.map((i) =>
 					i.id === editingItem.id
 						? {
-								...i,
-								name_ar: itemNameAr,
-								name_en: itemNameEn,
-								price: parseFloat(itemPrice),
-								groupId: itemGroupId,
-							}
+							...i,
+							name_ar: itemNameAr,
+							name_en: itemNameEn,
+							price: parseFloat(itemPrice),
+							groupId: itemGroupId,
+						}
 						: i,
 				),
 			);
@@ -232,13 +232,15 @@ export default function ItemsAdmin() {
 						/>
 
 						{/* Filter Group Dropdown */}
+						{/* <Dropdown
+							
+						> */}
 						<select
+							className="bg-[#07080a] border border-white/10 text-zinc-300 rounded-full px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
 							value={selectedGroupFilter}
 							onChange={(e) =>
 								setSelectedGroupFilter(e.target.value)
-							}
-							className="bg-[#07080a] border border-white/10 text-zinc-300 rounded-full px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
-						>
+							}>
 							<option value="all">
 								{t("item.filterAllCategories")}
 							</option>
@@ -248,6 +250,8 @@ export default function ItemsAdmin() {
 								</option>
 							))}
 						</select>
+						<input className="p-1 border-2 border-white rounded " />
+						{/* </Dropdown> */}
 					</div>
 
 					<span className="text-xs text-zinc-400 font-bold shrink-0">
@@ -331,22 +335,21 @@ export default function ItemsAdmin() {
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
 												<span
-													className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border ${
-														!item.is_disable
-															? "bg-green-500/10 text-green-400 border-green-500/20"
-															: "bg-red-500/10 text-red-400 border-red-500/20"
-													}`}
+													className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border ${!item.is_disable
+														? "bg-green-500/10 text-green-400 border-green-500/20"
+														: "bg-red-500/10 text-red-400 border-red-500/20"
+														}`}
 												>
 													<span
 														className={`w-1.5 h-1.5 rounded-full ${!item.is_disable ? "bg-green-400" : "bg-red-400"}`}
 													/>
 													{!item.is_disable
 														? t(
-																"item.statusInStock",
-															)
+															"item.statusInStock",
+														)
 														: t(
-																"item.statusOutOfStock",
-															)}
+															"item.statusOutOfStock",
+														)}
 												</span>
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
@@ -358,19 +361,18 @@ export default function ItemsAdmin() {
 																item.id,
 															)
 														}
-														className={`p-1.5 rounded-lg border transition-all duration-200 ${
-															!item.is_disable
-																? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
-																: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-[#07080a]"
-														}`}
+														className={`p-1.5 rounded-lg border transition-all duration-200 ${!item.is_disable
+															? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
+															: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-[#07080a]"
+															}`}
 														title={
 															!item.is_disable
 																? t(
-																		"item.actionSetOutOfStock",
-																	)
+																	"item.actionSetOutOfStock",
+																)
 																: t(
-																		"item.actionSetInStock",
-																	)
+																	"item.actionSetInStock",
+																)
 														}
 													>
 														{!item.is_disable ? (

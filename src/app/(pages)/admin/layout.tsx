@@ -1,25 +1,14 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
 import { useState, useEffect, ReactNode } from "react";
-import { ADMIN_ROUTES } from "@/config/admin_routes";
 import { useLanguage } from "@/config/i18n";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import {
-	DashboardIcon,
-	CalendarIcon,
-	OrderIcon,
-	ItemGroupIcon,
-	ItemIcon,
-	BellIcon,
-	UsersIcon,
-	SettingsIcon,
-	LogoutIcon,
-} from "@/components/icons";
-
+import { LogoutIcon } from "@/components/icons";
 import NotificationCenter from "@/components/NotificationCenter";
 import PWAInstallBanner from "@/components/PWAInstallBanner";
+import { EMPTY_COOKIE } from "@/config/constants";
+import { MAIN_ADMIN_ROUTE } from "@/config/page_routes";
+import { AdminDrawerLinks } from "@/components/partials/admin_drawer_links";
 
 interface LayoutProps {
 	children: ReactNode;
@@ -226,10 +215,7 @@ export default function AdminLayout({ children }: LayoutProps) {
 	}
 
 	// Exclude layout wrapper on the login page but mount the page transition loader
-	if (
-		pathname === ADMIN_ROUTES.login ||
-		pathname === `${ADMIN_ROUTES.login}/`
-	) {
+	if (pathname === MAIN_ADMIN_ROUTE || pathname === `${MAIN_ADMIN_ROUTE}/`) {
 		return (
 			<>
 				{children}
@@ -238,74 +224,34 @@ export default function AdminLayout({ children }: LayoutProps) {
 		);
 	}
 
-	// Dynamic navigation links utilizing individual imported React icon components and translation handles
-	const navLinks = [
-		{
-			name: t("sidebar.dashboard"),
-			path: ADMIN_ROUTES.dashboard,
-			icon: <DashboardIcon size={20} className="shrink-0" />,
-		},
-		{
-			name: t("sidebar.reservations"),
-			path: ADMIN_ROUTES.reservation,
-			icon: <CalendarIcon size={20} className="shrink-0" />,
-		},
-		{
-			name: t("sidebar.orders"),
-			path: ADMIN_ROUTES.order,
-			icon: <OrderIcon size={20} className="shrink-0" />,
-		},
-		{
-			name: t("sidebar.itemGroups"),
-			path: ADMIN_ROUTES.itemGroup,
-			icon: <ItemGroupIcon size={20} className="shrink-0" />,
-		},
-		{
-			name: t("sidebar.items"),
-			path: ADMIN_ROUTES.item,
-			icon: <ItemIcon size={20} className="shrink-0" />,
-		},
-		{
-			name: t("sidebar.notifications"),
-			path: ADMIN_ROUTES.notifications,
-			icon: <BellIcon size={20} className="shrink-0" />,
-		},
-		{
-			name: t("sidebar.users"),
-			path: ADMIN_ROUTES.user,
-			icon: <UsersIcon size={20} className="shrink-0" />,
-		},
-		{
-			name: t("sidebar.settings"),
-			path: ADMIN_ROUTES.settings,
-			icon: <SettingsIcon size={20} className="shrink-0" />,
-		},
-		{
-			name: t("sidebar.rooms"),
-			path: ADMIN_ROUTES.room,
-			icon: (
-				<svg
-					className="w-5 h-5 shrink-0"
-					fill="none"
-					stroke="currentColor"
-					viewBox="0 0 24 24"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth="2"
-						d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-					/>
-				</svg>
-			),
-		},
-	];
+	const handleLogout = async () => {
+		let hasLogedOut: boolean = false;
+		const sessionCookie = document.cookie
+			.split(";")
+			.find((cookie) => cookie.startsWith("auth_session="))
+			?.split("=")[1];
 
-	const handleLogout = () => {
-		// Dispatch transition start to guarantee the loader displays immediately during server payload fetches
-		window.dispatchEvent(new CustomEvent("navigation-start"));
-		router.push(ADMIN_ROUTES.login);
+		if (!sessionCookie) {
+			hasLogedOut = true;
+		} else {
+			await fetch("api/auth/logout", {
+				method: "POST",
+				body: JSON.stringify({ session_id: sessionCookie }),
+			})
+				.then(() => {
+					hasLogedOut = true;
+				})
+				.catch(() => {
+					hasLogedOut = false;
+				});
+		}
+
+		if (hasLogedOut) {
+			document.cookie = EMPTY_COOKIE;
+			router.push(MAIN_ADMIN_ROUTE);
+		} else {
+			console.error("Failed to log out");
+		}
 	};
 
 	const sidebarContent = (
@@ -340,35 +286,11 @@ export default function AdminLayout({ children }: LayoutProps) {
 				</div>
 			</div>
 
-			{/* Language Switcher Section (Desktop) */}
-			<div className="px-6 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
-				<span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-					Language / اللغة
-				</span>
-				<LanguageSwitcher />
-			</div>
-
-			{/* Navigation Links Area */}
-			<nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5">
-				{navLinks.map((link) => {
-					const isActive = pathname === link.path;
-					return (
-						<Link
-							key={link.path}
-							href={link.path}
-							onClick={() => setIsMobileOpen(false)}
-							className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all duration-200 relative group active:scale-[0.98] ${
-								isActive
-									? "bg-amber-500/10 text-amber-300 border-r-4 border-r-amber-500"
-									: "text-zinc-400 hover:text-white hover:bg-white/5"
-							}`}
-						>
-							{link.icon}
-							<span>{link.name}</span>
-						</Link>
-					);
-				})}
-			</nav>
+			<AdminDrawerLinks
+				t={t}
+				pathname={pathname}
+				setIsMobileOpen={setIsMobileOpen}
+			/>
 
 			{/* Footer Action (Logout) */}
 			<div className="p-4 border-t border-white/10 shrink-0">

@@ -9,8 +9,13 @@ async function main() {
 
 	if (name && password) {
 		const hashedPassword = encryptPassword(password);
-		await prisma.user.create({
-			data: {
+		await prisma.user.upsert({
+			where: { username: name },
+			update: {
+				password: hashedPassword,
+				is_admin: true,
+			},
+			create: {
 				username: name,
 				password: hashedPassword,
 				is_admin: true,

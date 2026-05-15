@@ -8,7 +8,7 @@ declare global {
 
 let connectionString = process.env.DATABASE_URL;
 if (connectionString?.includes("${DATABASE_USER}")) {
-	connectionString = `postgresql://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@localhost:5432/${process.env.DATABASE_NAME}?schema=public`;
+	connectionString = `postgresql://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@localhost:21593/${process.env.DATABASE_NAME}?schema=public`;
 }
 
 const pool = new Pool({ connectionString });
