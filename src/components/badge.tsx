@@ -7,7 +7,12 @@ interface BadgeProps extends PropsWithChildren {
     pulse?: boolean;
 }
 
-export const Badge = ({ children, variant = "amber", pulse, ...rest }: BadgeProps) => {
+export const Badge = ({
+    children,
+    variant = "amber",
+    pulse,
+    ...rest
+}: BadgeProps) => {
     const styles = {
         amber: "bg-amber-500/10 border-amber-500/30 text-amber-300",
         zinc: "bg-zinc-800 text-zinc-400 border-white/10",

@@ -10,7 +10,7 @@ interface User {
 	username: string;
 	is_admin: boolean;
 	is_disable: boolean;
-	createdAt: string;
+	created_at: string;
 }
 
 /**
@@ -28,35 +28,35 @@ export default function UsersAdmin() {
 			username: "admin",
 			is_admin: true,
 			is_disable: false,
-			createdAt: "12 مايو 2026",
+			created_at: "12 مايو 2026",
 		},
 		{
 			id: "u2",
 			username: "suliman_dahan",
 			is_admin: true,
 			is_disable: false,
-			createdAt: "12 مايو 2026",
+			created_at: "12 مايو 2026",
 		},
 		{
 			id: "u3",
 			username: "barista_ahmed",
 			is_admin: false,
 			is_disable: false,
-			createdAt: "12 مايو 2026",
+			created_at: "12 مايو 2026",
 		},
 		{
 			id: "u4",
 			username: "cashier_sara",
 			is_admin: false,
 			is_disable: false,
-			createdAt: "11 مايو 2026",
+			created_at: "11 مايو 2026",
 		},
 		{
 			id: "u5",
 			username: "temp_user",
 			is_admin: false,
 			is_disable: true,
-			createdAt: "05 مايو 2026",
+			created_at: "05 مايو 2026",
 		},
 	]);
 
@@ -114,7 +114,7 @@ export default function UsersAdmin() {
 				username: usernameInput,
 				is_admin: isAdminInput,
 				is_disable: false,
-				createdAt: new Date().toLocaleDateString(isRtl ? "ar-SA" : "en-US", {
+				created_at: new Date().toLocaleDateString(isRtl ? "ar-SA" : "en-US", {
 					day: "numeric",
 					month: "long",
 					year: "numeric",
@@ -222,7 +222,7 @@ export default function UsersAdmin() {
 											)}
 										</td>
 										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{user.createdAt}
+											{user.created_at}
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
 											<span

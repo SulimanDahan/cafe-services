@@ -4,7 +4,8 @@ import encryptPassword from "@/helpers/encrypters";
 import arApiMessages from "@/translations/ar/api_messages";
 import enApiMessages from "@/translations/en/api_messages";
 import appLanguages from "@/config/app_languages";
-import { SessionModel } from "@/models/session_model";
+import { SessionModel } from "@/models/data_models/session_model";
+import { AUTH_COOKIE_NAME } from "@/config/constants";
 
 export async function POST(request: NextRequest) {
 	const { username, password } = await request.json();
@@ -37,12 +38,12 @@ export async function POST(request: NextRequest) {
 		const session = await prisma.userSession.create({
 			data: {
 				userId: user.id,
-				expiresAt: new Date(Date.now() + sessionExpiryTime * 60 * 1000),
+				expires_at: new Date(Date.now() + sessionExpiryTime * 60 * 1000),
 			},
 		});
 
 		// Create session cookie
-		const sessionCookie = `auth_session=${session.id}; Path=/; Max-Age=${sessionExpiryTime * 60}; HttpOnly; Secure; SameSite=Lax`;
+		const sessionCookie = `${AUTH_COOKIE_NAME}=${session.id}; Path=/; Max-Age=${sessionExpiryTime * 60}; HttpOnly; Secure; SameSite=Lax`;
 
 		// Set the session cookie in the response
 		const response = NextResponse.json({
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
 			data: {
 				username: user.username,
 				id: session.id,
-				expiresAt: session.expiresAt,
+				expires_at: session.expires_at,
 			} as SessionModel,
 		});
 		response.headers.set("Set-Cookie", sessionCookie);

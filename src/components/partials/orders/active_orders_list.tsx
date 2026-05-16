@@ -5,7 +5,7 @@ interface Order {
     item_name: string;
     item_price: number;
     quantity: number;
-    createdAt: string;
+    created_at: string;
 }
 
 interface ActiveOrdersListProps {
@@ -49,7 +49,7 @@ export default function ActiveOrdersList({
                                     {o.quantity} × {o.item_price.toLocaleString("en-US")} {currencyLabel}
                                 </p>
                                 <p className="text-[9px] text-zinc-500 font-medium font-mono">
-                                    {o.createdAt.split(" ").slice(2).join(" ")}
+                                    {o.created_at.split(" ").slice(2).join(" ")}
                                 </p>
                             </div>
 

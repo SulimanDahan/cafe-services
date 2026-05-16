@@ -14,15 +14,16 @@ model UserSession {
   id        String   @id @default(uuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  expiresAt DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  expires_at DateTime
 }
 
 model Notification {
   id        String   @id @default(uuid())
   title     String
   message   String
-  createdAt DateTime @default(now())
+  created_at DateTime @default(now())
 }
 
 model User {
@@ -31,7 +32,8 @@ model User {
   password     String
   is_admin     Boolean       @default(false)
   is_disable   Boolean       @default(false)
-  createdAt    DateTime      @default(now())
+  created_at    DateTime      @default(now())
+  updated_at   DateTime      @default(now()) @updatedAt
   userSessions UserSession[]
 }
 
@@ -40,7 +42,8 @@ model Room {
   name         String        @unique
   is_disable   Boolean       @default(false)
   qr_code      String        @unique
-  createdAt    DateTime      @default(now())
+  created_at    DateTime      @default(now())
+  updated_at   DateTime      @default(now()) @updatedAt
   reservations Reservation[]
 }
 
@@ -48,7 +51,8 @@ model ItemGroup {
   id         String   @id @default(uuid())
   name       String   @unique
   is_disable Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  created_at  DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
   items      Item[]
 }
 
@@ -59,7 +63,8 @@ model Item {
   group      ItemGroup @relation(fields: [group_id], references: [id])
   group_id   String
   is_disable Boolean   @default(false)
-  createdAt  DateTime  @default(now())
+  created_at  DateTime  @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
   orders     Order[]
 }
 
@@ -73,7 +78,8 @@ model Reservation {
   room        Room     @relation(fields: [room_id], references: [id])
   accepted    Boolean  @default(false)
   completed   Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
   orders      Order[]
 }
 
@@ -85,7 +91,8 @@ model Order {
   quantity       Int         @default(1)
   reservation    Reservation @relation(fields: [reservation_id], references: [id])
   item           Item        @relation(fields: [item_id], references: [id])
-  createdAt      DateTime    @default(now())
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @default(now()) @updatedAt
 }
 
 model Settings {
@@ -95,6 +102,6 @@ model Settings {
   app_lang               String   @default("ar")
   per_page               Int      @default(25) // Number of items to display per page
   session_expiry_minutes Int      @default(30) // Number of minutes
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  created_at              DateTime @default(now())
+  updated_at              DateTime @default(now()) @updatedAt
 }

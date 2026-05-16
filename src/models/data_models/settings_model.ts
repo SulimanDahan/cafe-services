@@ -5,8 +5,8 @@ export type SettingsModel = {
     app_lang: string;
     per_page: number; // Number of items to display per page
     session_expiry_minutes: number;
-    createdAt: string;
-    updatedAt: string;
+    created_at: Date;
+    updated_at: Date;
 };
 
 export const initialSettings: SettingsModel = {
@@ -16,6 +16,6 @@ export const initialSettings: SettingsModel = {
     app_lang: "ar",
     per_page: 0,
     session_expiry_minutes: 0,
-    createdAt: "",
-    updatedAt: ""
+    created_at: new Date(),
+    updated_at: new Date()
 }

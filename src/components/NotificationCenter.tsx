@@ -12,7 +12,7 @@ interface Notification {
 	message: string;
 	type: string; // info, success, warning, error
 	read: boolean;
-	createdAt: string;
+	created_at: string;
 }
 
 /**
@@ -334,7 +334,7 @@ export default function NotificationCenter() {
 												</span>
 												<span className="text-[10px] text-zinc-400 font-bold shrink-0">
 													{new Date(
-														n.createdAt,
+														n.created_at,
 													).toLocaleTimeString([], {
 														hour: "2-digit",
 														minute: "2-digit",

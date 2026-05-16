@@ -12,7 +12,7 @@ interface NotificationLog {
 	message_ar: string;
 	message_en: string;
 	type: string; // success, warning, info, error
-	createdAt: string;
+	created_at: string;
 }
 
 /**
@@ -32,7 +32,7 @@ export default function NotificationsAdmin() {
 			message_ar: "الطلب رقم #2405 تم تحضيره بنجاح وهو جاهز للاستلام الآن.",
 			message_en: "Order #2405 has been successfully prepared and is ready for pickup.",
 			type: "success",
-			createdAt: "12 مايو 2026 19:30",
+			created_at: "12 مايو 2026 19:30",
 		},
 		{
 			id: "n2",
@@ -41,7 +41,7 @@ export default function NotificationsAdmin() {
 			message_ar: "أوشكت حبوب الإسبريسو على النفاد. يرجى إعادة تعبئة المخزون قريباً.",
 			message_en: "Espresso coffee beans are almost out of stock. Please replenish soon.",
 			type: "warning",
-			createdAt: "12 مايو 2026 18:15",
+			created_at: "12 مايو 2026 18:15",
 		},
 		{
 			id: "n3",
@@ -50,7 +50,7 @@ export default function NotificationsAdmin() {
 			message_ar: "تم رفض المعاملة رقم #A329 من قِبل معالج الدفع الإلكتروني.",
 			message_en: "Transaction #A329 was declined by the online payment gateway.",
 			type: "error",
-			createdAt: "11 مايو 2026 21:00",
+			created_at: "11 مايو 2026 21:00",
 		},
 		{
 			id: "n4",
@@ -59,7 +59,7 @@ export default function NotificationsAdmin() {
 			message_ar: "من مقرر إجراء صيانة وقائية وتحسين لقاعدة البيانات الليلة الساعة 2:00 صباحاً.",
 			message_en: "Scheduled database maintenance and optimizations tonight at 2:00 AM.",
 			type: "info",
-			createdAt: "10 مايو 2026 10:00",
+			created_at: "10 مايو 2026 10:00",
 		},
 	]);
 
@@ -102,7 +102,7 @@ export default function NotificationsAdmin() {
 			message_ar: bMessage,
 			message_en: bMessage,
 			type: bType,
-			createdAt: new Date().toLocaleString(isRtl ? "ar-SA" : "en-US", {
+			created_at: new Date().toLocaleString(isRtl ? "ar-SA" : "en-US", {
 				day: "numeric",
 				month: "long",
 				year: "numeric",
@@ -237,7 +237,7 @@ export default function NotificationsAdmin() {
 											</span>
 										</td>
 										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{log.createdAt}
+											{log.created_at}
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
 											<div className="flex items-center justify-center">

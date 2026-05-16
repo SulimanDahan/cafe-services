@@ -3,12 +3,13 @@ import {
     ADMIN_DASHBOARD_PAGE_ROUTE,
     MAIN_ADMIN_ROUTE,
 } from "./config/page_routes";
-import { publicRoutes } from "./config/public_routes";
+import { publicRoutes } from "./config/routes";
+import { AUTH_COOKIE_NAME } from "./config/constants";
 
 export default async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
     if (!publicRoutes.includes(pathname)) {
-        const authSession = req.cookies.get("auth_session");
+        const authSession = req.cookies.get(AUTH_COOKIE_NAME);
         const isLoginPage = req.nextUrl.pathname === MAIN_ADMIN_ROUTE;
 
         if (!authSession) {

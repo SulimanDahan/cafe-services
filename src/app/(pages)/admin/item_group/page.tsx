@@ -10,7 +10,7 @@ interface ItemGroup {
 	name_ar: string;
 	name_en: string;
 	is_disable: boolean;
-	createdAt: string;
+	created_at: string;
 	itemCount: number;
 }
 
@@ -24,12 +24,12 @@ export default function ItemGroupsAdmin() {
 
 	// Pre-seeded database matching ItemGroup schema
 	const [groups, setGroups] = useState<ItemGroup[]>([
-		{ id: "g1", name_ar: "المشروبات الساخنة", name_en: "Hot Beverages", is_disable: false, createdAt: "12 مايو 2026", itemCount: 12 },
-		{ id: "g2", name_ar: "المشروبات الباردة", name_en: "Cold Beverages", is_disable: false, createdAt: "12 مايو 2026", itemCount: 8 },
-		{ id: "g3", name_ar: "المعجنات والمخبوزات", name_en: "Pastries & Bakery", is_disable: false, createdAt: "11 مايو 2026", itemCount: 15 },
-		{ id: "g4", name_ar: "الحلويات الفاخرة", name_en: "Premium Desserts", is_disable: false, createdAt: "10 مايو 2026", itemCount: 6 },
-		{ id: "g5", name_ar: "ركن القهوة المختصة", name_en: "Specialty Coffee Bar", is_disable: false, createdAt: "09 مايو 2026", itemCount: 10 },
-		{ id: "g6", name_ar: "الباقات والمناسبات", name_en: "Packages & Catering", is_disable: true, createdAt: "05 مايو 2026", itemCount: 4 },
+		{ id: "g1", name_ar: "المشروبات الساخنة", name_en: "Hot Beverages", is_disable: false, created_at: "12 مايو 2026", itemCount: 12 },
+		{ id: "g2", name_ar: "المشروبات الباردة", name_en: "Cold Beverages", is_disable: false, created_at: "12 مايو 2026", itemCount: 8 },
+		{ id: "g3", name_ar: "المعجنات والمخبوزات", name_en: "Pastries & Bakery", is_disable: false, created_at: "11 مايو 2026", itemCount: 15 },
+		{ id: "g4", name_ar: "الحلويات الفاخرة", name_en: "Premium Desserts", is_disable: false, created_at: "10 مايو 2026", itemCount: 6 },
+		{ id: "g5", name_ar: "ركن القهوة المختصة", name_en: "Specialty Coffee Bar", is_disable: false, created_at: "09 مايو 2026", itemCount: 10 },
+		{ id: "g6", name_ar: "الباقات والمناسبات", name_en: "Packages & Catering", is_disable: true, created_at: "05 مايو 2026", itemCount: 4 },
 	]);
 
 	const [searchQuery, setSearchQuery] = useState("");
@@ -76,7 +76,7 @@ export default function ItemGroupsAdmin() {
 				name_ar: groupNameAr,
 				name_en: groupNameEn,
 				is_disable: false,
-				createdAt: new Date().toLocaleDateString(isRtl ? "ar-SA" : "en-US", { day: "numeric", month: "long", year: "numeric" }),
+				created_at: new Date().toLocaleDateString(isRtl ? "ar-SA" : "en-US", { day: "numeric", month: "long", year: "numeric" }),
 				itemCount: 0,
 			};
 			setGroups((prev) => [newGroup, ...prev]);
@@ -153,7 +153,7 @@ export default function ItemGroupsAdmin() {
 											{group.itemCount} {t("itemGroup.itemsLinked")}
 										</td>
 										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{group.createdAt}
+											{group.created_at}
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
 											<span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border ${

@@ -45,7 +45,7 @@
 //     item_name: string;
 //     item_price: number;
 //     quantity: number;
-//     createdAt: string;
+//     created_at: string;
 // }
 
 // interface MenuItem {
@@ -113,7 +113,7 @@
 //         item_name: "سبانش لاتيه بارد",
 //         item_price: 22000,
 //         quantity: 2,
-//         createdAt: "12 مايو 2026 21:10",
+//         created_at: "12 مايو 2026 21:10",
 //     },
 //     {
 //         id: "ord-2",
@@ -124,7 +124,7 @@
 //         item_name: "كيكة العسل والزعفران",
 //         item_price: 28000,
 //         quantity: 1,
-//         createdAt: "12 مايو 2026 21:15",
+//         created_at: "12 مايو 2026 21:15",
 //     },
 //     {
 //         id: "ord-3",
@@ -135,7 +135,7 @@
 //         item_name: "كابتشينو كلاسيك",
 //         item_price: 18000,
 //         quantity: 1,
-//         createdAt: "11 مايو 2026 18:30",
+//         created_at: "11 مايو 2026 18:30",
 //     },
 // ];
 
@@ -766,7 +766,7 @@
 //             item_name: isRtl ? item.name_ar : item.name_en,
 //             item_price: item.price,
 //             quantity: qty,
-//             createdAt: new Date().toLocaleString(isRtl ? "ar-SA" : "en-US", {
+//             created_at: new Date().toLocaleString(isRtl ? "ar-SA" : "en-US", {
 //                 day: "numeric",
 //                 month: "long",
 //                 year: "numeric",
@@ -1257,7 +1257,7 @@
 //                                                             )}
 //                                                         </p>
 //                                                         <p className="text-[9px] text-zinc-500 font-medium font-mono">
-//                                                             {o.createdAt
+//                                                             {o.created_at
 //                                                                 .split(" ")
 //                                                                 .slice(2)
 //                                                                 .join(" ")}
@@ -1599,7 +1599,7 @@ interface Order {
     item_name: string;
     item_price: number;
     quantity: number;
-    createdAt: string;
+    created_at: string;
 }
 
 interface MenuItem {
@@ -1666,7 +1666,7 @@ const DEFAULT_ORDERS: Order[] = [
         item_name: "سبانش لاتيه بارد",
         item_price: 22000,
         quantity: 2,
-        createdAt: "12 مايو 2026 21:10",
+        created_at: "12 مايو 2026 21:10",
     },
     {
         id: "ord-2",
@@ -1677,7 +1677,7 @@ const DEFAULT_ORDERS: Order[] = [
         item_name: "كيكة العسل والزعفران",
         item_price: 28000,
         quantity: 1,
-        createdAt: "12 مايو 2026 21:15",
+        created_at: "12 مايو 2026 21:15",
     },
     {
         id: "ord-3",
@@ -1688,7 +1688,7 @@ const DEFAULT_ORDERS: Order[] = [
         item_name: "كابتشينو كلاسيك",
         item_price: 18000,
         quantity: 1,
-        createdAt: "11 مايو 2026 18:30",
+        created_at: "11 مايو 2026 18:30",
     },
 ];
 
@@ -2081,7 +2081,7 @@ export default function CustomerOrderPage() {
             item_name: isRtl ? item.name_ar : item.name_en,
             item_price: item.price,
             quantity: qty,
-            createdAt: new Date().toLocaleString(isRtl ? "ar-SA" : "en-US", {
+            created_at: new Date().toLocaleString(isRtl ? "ar-SA" : "en-US", {
                 day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
             }),
         };

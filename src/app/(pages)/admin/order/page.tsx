@@ -27,7 +27,7 @@ interface Order {
 	item_name: string;
 	item_price: number;
 	quantity: number;
-	createdAt: string;
+	created_at: string;
 }
 
 export default function AdminOrdersOperations() {

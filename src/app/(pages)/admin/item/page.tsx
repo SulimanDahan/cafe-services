@@ -12,7 +12,7 @@ interface Item {
 	price: number;
 	groupId: string; // foreign key
 	is_disable: boolean;
-	createdAt: string;
+	created_at: string;
 }
 
 interface ItemGroup {
@@ -38,7 +38,7 @@ export default function ItemsAdmin() {
 			price: 14000,
 			groupId: "g5",
 			is_disable: false,
-			createdAt: "12 مايو 2026",
+			created_at: "12 مايو 2026",
 		},
 		{
 			id: "i2",
@@ -47,7 +47,7 @@ export default function ItemsAdmin() {
 			price: 18000,
 			groupId: "g1",
 			is_disable: false,
-			createdAt: "12 مايو 2026",
+			created_at: "12 مايو 2026",
 		},
 		{
 			id: "i3",
@@ -56,7 +56,7 @@ export default function ItemsAdmin() {
 			price: 22000,
 			groupId: "g2",
 			is_disable: false,
-			createdAt: "12 مايو 2026",
+			created_at: "12 مايو 2026",
 		},
 		{
 			id: "i4",
@@ -65,7 +65,7 @@ export default function ItemsAdmin() {
 			price: 16000,
 			groupId: "g3",
 			is_disable: false,
-			createdAt: "11 مايو 2026",
+			created_at: "11 مايو 2026",
 		},
 		{
 			id: "i5",
@@ -74,7 +74,7 @@ export default function ItemsAdmin() {
 			price: 28000,
 			groupId: "g4",
 			is_disable: false,
-			createdAt: "10 مايو 2026",
+			created_at: "10 مايو 2026",
 		},
 		{
 			id: "i6",
@@ -83,7 +83,7 @@ export default function ItemsAdmin() {
 			price: 24000,
 			groupId: "g2",
 			is_disable: true,
-			createdAt: "05 مايو 2026",
+			created_at: "05 مايو 2026",
 		},
 	]);
 
@@ -172,7 +172,7 @@ export default function ItemsAdmin() {
 				price: parseFloat(itemPrice),
 				groupId: itemGroupId,
 				is_disable: false,
-				createdAt: new Date().toLocaleDateString(
+				created_at: new Date().toLocaleDateString(
 					isRtl ? "ar-SA" : "en-US",
 					{ day: "numeric", month: "long", year: "numeric" },
 				),
@@ -331,7 +331,7 @@ export default function ItemsAdmin() {
 											<td
 												className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
 											>
-												{item.createdAt}
+												{item.created_at}
 											</td>
 											<td className="py-4 px-4 text-center whitespace-nowrap">
 												<span

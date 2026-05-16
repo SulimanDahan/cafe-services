@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 // import { ADMIN_PAGE_ROUTES } from "@/config/page_routes";
 import { useLanguage } from "@/config/i18n";
-import { defaultLoginData, LoginModel } from "@/models/login_model";
+import { defaultLoginData, LoginModel } from "@/models/data_models/login_model";
 import { LOGIN_API_ROUTE } from "@/config/api_routes";
 import { ADMIN_DASHBOARD_PAGE_ROUTE } from "@/config/page_routes";
+import { AUTH_COOKIE_NAME } from "@/config/constants";
 
 /**
  * Premium Admin Login Page Component.
@@ -46,11 +47,11 @@ export default function LoginPage() {
 
 					// Store session state in localStorage and sessionStorage for client components
 					localStorage.setItem(
-						"auth_session",
+						AUTH_COOKIE_NAME,
 						JSON.stringify(data.data),
 					);
 					sessionStorage.setItem(
-						"auth_session",
+						AUTH_COOKIE_NAME,
 						JSON.stringify(data.data),
 					);
 

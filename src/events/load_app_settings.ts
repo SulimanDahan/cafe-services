@@ -1,5 +1,5 @@
 import { SETTINGS_API_ROUTE } from "@/config/api_routes";
-import { SettingsModel } from "@/models/settings_model";
+import { SettingsModel } from "@/models/data_models/settings_model";
 
 const loadAppSettings = async () => {
     try {

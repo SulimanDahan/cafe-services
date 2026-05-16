@@ -1,7 +1,7 @@
 type SessionModel = {
 	id: string;
 	username: string;
-	expiresAt: Date;
+	expires_at: Date;
 };
 
 export type { SessionModel };

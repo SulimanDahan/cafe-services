@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 	// 1. Send all existing unread/recent notifications as an initial sync
 	try {
 		const recentNotifications = await prisma.notification.findMany({
-			orderBy: { createdAt: "desc" },
+			orderBy: { created_at: "desc" },
 			take: 20,
 		});
 		sendEvent("initial-notifications", recentNotifications);

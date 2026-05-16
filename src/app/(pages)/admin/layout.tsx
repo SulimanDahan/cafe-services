@@ -6,7 +6,7 @@ import { useLanguage } from "@/config/i18n";
 import { LogoutIcon } from "@/components/icons";
 import NotificationCenter from "@/components/NotificationCenter";
 import PWAInstallBanner from "@/components/PWAInstallBanner";
-import { EMPTY_COOKIE } from "@/config/constants";
+import { AUTH_COOKIE_NAME, EMPTY_COOKIE } from "@/config/constants";
 import { MAIN_ADMIN_ROUTE } from "@/config/page_routes";
 import { AdminDrawerLinks } from "@/components/partials/admin_drawer_links";
 
@@ -228,7 +228,7 @@ export default function AdminLayout({ children }: LayoutProps) {
 		let hasLogedOut: boolean = false;
 		const sessionCookie = document.cookie
 			.split(";")
-			.find((cookie) => cookie.startsWith("auth_session="))
+			.find((cookie) => cookie.startsWith(`${AUTH_COOKIE_NAME}=`))
 			?.split("=")[1];
 
 		if (!sessionCookie) {

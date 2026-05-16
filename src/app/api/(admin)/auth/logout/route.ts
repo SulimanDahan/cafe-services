@@ -1,31 +1,35 @@
 import { EMPTY_COOKIE } from "@/config/constants";
 import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import ApiErrorModel from "@/models/app_models/api_error_model";
+import ApiSuccessModel from "@/models/app_models/api_success_model";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export async function POST(request: NextRequest) {
-	const { session_id } = await request.json();
+export async function POST(
+    request: NextApiRequest,
+    response: NextApiResponse<ApiErrorModel | ApiSuccessModel>,
+) {
+    const session_id = (await request.body.json()) as string;
 
-	if (!session_id) {
-		return NextResponse.json(
-			{ success: false, error: "Session ID is required" },
-			{ status: 400 },
-		);
-	}
+    if (!session_id) {
+        return response.status(400).json({
+            error: "Session ID is required",
+        });
+    }
 
-	const result = await prisma.userSession.delete({
-		where: { id: session_id },
-	});
+    const result = await prisma.userSession.delete({
+        where: { id: session_id },
+    });
 
-	if (!result) {
-		return NextResponse.json(
-			{ success: false, error: "Session not found" },
-			{ status: 404 },
-		);
-	}
+    if (!result) {
+        return response.status(404).json({
+            error: "Session not found",
+        });
+    }
 
-	// Set the session cookie to expire immediately
-	const response = NextResponse.json({ success: true });
-	response.headers.set("Set-Cookie", EMPTY_COOKIE);
+    // Set the session cookie to expire immediately
 
-	return response;
+    return response
+        .setHeader("Set-Cookie", EMPTY_COOKIE)
+        .status(200)
+        .json({ message: "Logout successful" });
 }
