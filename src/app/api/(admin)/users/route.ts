@@ -1,32 +1,61 @@
-import ApiErrorModel from "@/models/app_models/api_error_model";
-import UserModel from "@/models/data_models/user_model";
-import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 /**
- * API route handler for managing users. Supports GET for fetching all users and POST for creating a new user.
- *
- * @param NextApiRequest request
- * @param NextApiResponse<UserModel[] | UserModel | ApiErrorModel> response
- * @returns UserModel[] | UserModel | ApiErrorModel
+ * GET all users
  */
-export default async function handler(
-    request: NextApiRequest,
-    response: NextApiResponse<UserModel[] | UserModel | ApiErrorModel>,
-) {
+export async function GET() {
     try {
-        if (request.method === "GET") {
-            const data = await prisma.user.findMany();
-            return response.status(200).json(data as UserModel[]);
-        } else if (request.method === "POST") {
-            const data = request.body;
-            const result = await prisma.user.create({ data });
-            return response.status(200).json(result as UserModel);
-        }
-    } catch (error) {
-        console.error("Error handling users API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
+        const users = await prisma.user.findMany({
+            orderBy: { created_at: "desc" },
         });
+        return NextResponse.json(users);
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return NextResponse.json(
+            { error: "Failed to fetch users" },
+            { status: 500 }
+        );
     }
 }
+
+/**
+ * POST a new user
+ */
+export async function POST(request: Request) {
+    try {
+        const data = await request.json();
+        
+        // Basic validation
+        if (!data.username || !data.password) {
+            return NextResponse.json(
+                { error: "Username and password are required" },
+                { status: 400 }
+            );
+        }
+
+        const newUser = await prisma.user.create({
+            data: {
+                username: data.username,
+                password: data.password, // Note: In a real app, hash this!
+                is_admin: data.is_admin ?? false,
+                is_disable: data.is_disable ?? false,
+            },
+        });
+
+        return NextResponse.json(newUser, { status: 201 });
+    } catch (error: any) {
+        console.error("Error creating user:", error);
+        if (error.code === "P2002") {
+            return NextResponse.json(
+                { error: "Username already exists" },
+                { status: 409 }
+            );
+        }
+        return NextResponse.json(
+            { error: "Failed to create user" },
+            { status: 500 }
+        );
+    }
+}
+

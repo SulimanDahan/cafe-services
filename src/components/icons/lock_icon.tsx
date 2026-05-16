@@ -1,14 +1,13 @@
-import { PropsWithChildren } from "react";
+import { SVGProps } from "react";
 
-const LockIcon = ({...rest}: PropsWithChildren) => {
+const LockIcon = (props: SVGProps<SVGSVGElement>) => {
     return (
         <svg
-            // className="w-10 h-10"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
-            {...rest}
+            {...props}
         >
             <path
                 strokeLinecap="round"

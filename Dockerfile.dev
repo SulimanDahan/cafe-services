@@ -20,4 +20,4 @@ ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
 # Run database synchronization on startup, then launch development server
-CMD ["sh", "-c", "npx prisma db push && npm run dev"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm run dev"]

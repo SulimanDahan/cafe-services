@@ -1,73 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminHeader from "@/components/AdminHeader";
 import SearchInput from "@/components/SearchInput";
 import { useLanguage } from "@/config/i18n";
-
-interface User {
-	id: string;
-	username: string;
-	is_admin: boolean;
-	is_disable: boolean;
-	created_at: string;
-}
+import { useUser } from "@/context/user_context";
+import UserModel from "@/models/data_models/user_model";
 
 /**
  * Admin User Management Page.
  * Implements the User model representing administrative accounts (Admins and Staff).
- * Supports search, creating users, editing, enabling/disabling, and safe removals with 0 emojis.
+ * Supports search, creating users, editing, enabling/disabling, and safe removals.
  */
 export default function UsersAdmin() {
 	const { t, isRtl } = useLanguage();
-
-	// Pre-seeded database matching User schema
-	const [users, setUsers] = useState<User[]>([
-		{
-			id: "u1",
-			username: "admin",
-			is_admin: true,
-			is_disable: false,
-			created_at: "12 مايو 2026",
-		},
-		{
-			id: "u2",
-			username: "suliman_dahan",
-			is_admin: true,
-			is_disable: false,
-			created_at: "12 مايو 2026",
-		},
-		{
-			id: "u3",
-			username: "barista_ahmed",
-			is_admin: false,
-			is_disable: false,
-			created_at: "12 مايو 2026",
-		},
-		{
-			id: "u4",
-			username: "cashier_sara",
-			is_admin: false,
-			is_disable: false,
-			created_at: "11 مايو 2026",
-		},
-		{
-			id: "u5",
-			username: "temp_user",
-			is_admin: false,
-			is_disable: true,
-			created_at: "05 مايو 2026",
-		},
-	]);
+	const { users, isUsersLoading, fetchAllUsers, addUser, updateUser, deleteUser } = useUser();
 
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isOpen, setIsOpen] = useState(false);
-	const [editingUser, setEditingUser] = useState<User | null>(null);
+	const [editingUser, setEditingUser] = useState<UserModel | null>(null);
 
 	// Form input states
 	const [usernameInput, setUsernameInput] = useState("");
 	const [passwordInput, setPasswordInput] = useState("");
 	const [isAdminInput, setIsAdminInput] = useState(false);
+
+	// Fetch users on mount
+	useEffect(() => {
+		fetchAllUsers();
+	}, [fetchAllUsers]);
 
 	// Filter search logic
 	const filteredUsers = users.filter((u) =>
@@ -82,7 +43,7 @@ export default function UsersAdmin() {
 		setIsOpen(true);
 	};
 
-	const handleOpenEdit = (user: User) => {
+	const handleOpenEdit = (user: UserModel) => {
 		setEditingUser(user);
 		setUsernameInput(user.username);
 		setPasswordInput(""); // Leave password blank on edit unless modifying
@@ -90,50 +51,41 @@ export default function UsersAdmin() {
 		setIsOpen(true);
 	};
 
-	const handleSave = (e: React.FormEvent) => {
+	const handleSave = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!usernameInput.trim()) return;
 
+		let success = false;
 		if (editingUser) {
 			// Edit existing user
-			setUsers((prev) =>
-				prev.map((u) =>
-					u.id === editingUser.id
-						? {
-								...u,
-								username: usernameInput,
-								is_admin: isAdminInput,
-							}
-						: u,
-				),
-			);
+			success = await updateUser(editingUser.id, {
+				username: usernameInput,
+				password: passwordInput || undefined,
+				is_admin: isAdminInput,
+			});
 		} else {
 			// Add new user
-			const newUser: User = {
-				id: `u-${Date.now()}`,
+			success = await addUser({
 				username: usernameInput,
+				password: passwordInput,
 				is_admin: isAdminInput,
-				is_disable: false,
-				created_at: new Date().toLocaleDateString(isRtl ? "ar-SA" : "en-US", {
-					day: "numeric",
-					month: "long",
-					year: "numeric",
-				}),
-			};
-			setUsers((prev) => [newUser, ...prev]);
+			});
 		}
-		setIsOpen(false);
+
+		if (success) {
+			setIsOpen(false);
+		} else {
+			alert(t("common.errorOccurred"));
+		}
 	};
 
-	const handleToggleDisable = (id: string) => {
-		setUsers((prev) =>
-			prev.map((u) =>
-				u.id === id ? { ...u, is_disable: !u.is_disable } : u,
-			),
-		);
+	const handleToggleDisable = async (user: UserModel) => {
+		await updateUser(user.id, {
+			is_disable: !user.is_disable,
+		});
 	};
 
-	const handleDelete = (id: string) => {
+	const handleDeleteUser = async (id: string) => {
 		// Prevent deleting 'admin' default account
 		const target = users.find((u) => u.id === id);
 		if (target?.username === "admin") {
@@ -141,8 +93,22 @@ export default function UsersAdmin() {
 			alert(alertMsg);
 			return;
 		}
-		setUsers((prev) => prev.filter((u) => u.id !== id));
+		
+		if (confirm(t("common.confirmDelete"))) {
+			await deleteUser(id);
+		}
 	};
+
+	// Helper for date formatting
+	const formatDate = (date: Date | string) => {
+		const d = new Date(date);
+		return d.toLocaleDateString(isRtl ? "ar-SA" : "en-US", {
+			day: "numeric",
+			month: "long",
+			year: "numeric",
+		});
+	};
+
 
 	return (
 		<div className="space-y-6">
@@ -201,7 +167,16 @@ export default function UsersAdmin() {
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-white/5">
-							{filteredUsers.length > 0 ? (
+							{isUsersLoading ? (
+								<tr>
+									<td colSpan={5} className="py-10 text-center">
+										<div className="flex flex-col items-center gap-3">
+											<div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+											<span className="text-xs text-zinc-500 font-bold">{t("common.loading")}</span>
+										</div>
+									</td>
+								</tr>
+							) : filteredUsers.length > 0 ? (
 								filteredUsers.map((user) => (
 									<tr
 										key={user.id}
@@ -222,7 +197,7 @@ export default function UsersAdmin() {
 											)}
 										</td>
 										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{user.created_at}
+											{formatDate(user.created_at)}
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
 											<span
@@ -242,7 +217,7 @@ export default function UsersAdmin() {
 											<div className="flex items-center justify-center gap-2">
 												{/* Toggle active state */}
 												<button
-													onClick={() => handleToggleDisable(user.id)}
+													onClick={() => handleToggleDisable(user)}
 													className={`p-1.5 rounded-lg border transition-all duration-200 ${
 														!user.is_disable
 															? "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
@@ -307,7 +282,7 @@ export default function UsersAdmin() {
 
 												{/* Delete User */}
 												<button
-													onClick={() => handleDelete(user.id)}
+													onClick={() => handleDeleteUser(user.id)}
 													className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
 													title={t("common.delete")}
 												>

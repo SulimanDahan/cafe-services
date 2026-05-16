@@ -5,12 +5,14 @@ interface BadgeProps extends PropsWithChildren {
     children: React.ReactNode;
     variant?: "amber" | "zinc";
     pulse?: boolean;
+    className?: string;
 }
 
 export const Badge = ({
     children,
     variant = "amber",
     pulse,
+    className = "",
     ...rest
 }: BadgeProps) => {
     const styles = {
@@ -20,7 +22,7 @@ export const Badge = ({
 
     return (
         <span
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black border shadow-md ${styles[variant]}`}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black border shadow-md ${styles[variant]} ${className}`}
             {...rest}
         >
             {pulse && (

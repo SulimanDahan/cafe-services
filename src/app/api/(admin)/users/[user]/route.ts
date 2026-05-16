@@ -1,43 +1,81 @@
-import ApiErrorModel from "@/models/app_models/api_error_model";
-import UserModel from "@/models/data_models/user_model";
-import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 /**
- * API route handler for managing a specific user by ID. Supports GET, PUT, and DELETE methods.
- * 
- * @param NextApiRequest request
- * @param NextApiResponse<UserModel | ApiErrorModel> response
- * @returns UserModel
+ * GET a specific user
  */
-export default async function handler(
-    request: NextApiRequest,
-    response: NextApiResponse<UserModel | ApiErrorModel>,
+export async function GET(
+    request: Request,
+    { params }: { params: { user: string } }
 ) {
     try {
-        const user_id: string = request.query.user as string;
-        if (request.method === "GET") {
-            const data = await prisma.user.findFirst({
-                where: { id: user_id },
-            });
-            return response.status(200).json(data as UserModel);
-        } else if (request.method === "PUT") {
-            const data = request.body;
-            const result = await prisma.user.update({
-                where: { id: user_id },
-                data,
-            });
-            return response.status(200).json(result as UserModel);
-        } else if (request.method === "DELETE") {
-            const result = await prisma.user.delete({
-                where: { id: user_id },
-            });
-            return response.status(200).json(result as UserModel);
-        }
-    } catch (error) {
-        console.error("Error handling user API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
+        const userId = params.user;
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
         });
+
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        return NextResponse.json(user);
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
     }
 }
+
+/**
+ * PUT (update) a specific user
+ */
+export async function PUT(
+    request: Request,
+    { params }: { params: { user: string } }
+) {
+    try {
+        const userId = params.user;
+        const data = await request.json();
+
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                username: data.username,
+                password: data.password, // Only if provided
+                is_admin: data.is_admin,
+                is_disable: data.is_disable,
+            },
+        });
+
+        return NextResponse.json(updatedUser);
+    } catch (error: any) {
+        console.error("Error updating user:", error);
+        if (error.code === "P2025") {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+        return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    }
+}
+
+/**
+ * DELETE a specific user
+ */
+export async function DELETE(
+    request: Request,
+    { params }: { params: { user: string } }
+) {
+    try {
+        const userId = params.user;
+        await prisma.user.delete({
+            where: { id: userId },
+        });
+
+        return NextResponse.json({ success: true });
+    } catch (error: any) {
+        console.error("Error deleting user:", error);
+        if (error.code === "P2025") {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+        return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
+    }
+}
+

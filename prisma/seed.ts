@@ -21,6 +21,18 @@ async function main() {
 				is_admin: true,
 			},
 		});
+
+		// Initialize default settings (clear old ones first to avoid duplicates)
+		await prisma.settings.deleteMany();
+		await prisma.settings.create({
+			data: {
+				currency_name: "yemeniRial",
+				app_lang: "ar",
+				per_page: 25,
+				notification_threshold: 100,
+				session_expiry_minutes: 30
+			}
+		});
 	} else {
 		throw "check default username and password in .env file";
 	}

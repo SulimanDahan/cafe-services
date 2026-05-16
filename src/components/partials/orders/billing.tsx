@@ -59,7 +59,7 @@ export default function Billing({
                 <div className="py-2.5 flex justify-between">
                     <span>{tableLocLabel}</span>
                     <span className="font-bold text-amber-300">
-                        {roomName.split(" ")[0]}
+                        {roomName ? roomName.split(" ")[0] : ""}
                     </span>
                 </div>
                 <div className="py-2.5 flex justify-between">

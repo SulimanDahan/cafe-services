@@ -1,42 +1,54 @@
-import type { Metadata } from "next";
 import { Cairo, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/config/i18n";
-import loadAppSettings from "@/events/load_app_settings";
+import { UserProvider } from "@/context/user_context";
+import { prisma } from "@/lib/prisma";
+import { SettingsProvider } from "@/context/settings_context";
+import { SettingsModel } from "@/models/data_models/settings_model";
+import { getServerTranslations } from "@/lib/i18n_server";
 
 const cairo = Cairo({
-    variable: "--font-cairo",
-    subsets: ["arabic", "latin"],
+	variable: "--font-cairo",
+	subsets: ["arabic", "latin"],
 });
 
 const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
+	variable: "--font-geist-mono",
+	subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-    title: "Cafe Services - Real-Time Dashboard",
-    description:
-        "Containerized Next.js Cafe Services platform with live notifications and PostgreSQL connection.",
-};
+export async function generateMetadata() {
+	const appSettings = await prisma.settings.findFirst();
+	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
+	const { t } = getServerTranslations(locale);
+
+	return {
+		title: t("common.logoTitle") + " - " + t("common.logoSubtitle"),
+		description: t("common.logoSubtitle"),
+	};
+}
 
 export default async function RootLayout({
-    children,
+	children,
 }: Readonly<{
-    children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
+	const appSettings = await prisma.settings.findFirst();
+	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
 
-	const appSettings = await loadAppSettings();
-
-    return (
-        <html
-            lang={appSettings?.app_lang}
-            dir={appSettings?.app_lang === "ar" ? "rtl" : "ltr"}
-            className={`${cairo.variable} ${geistMono.variable} h-full antialiased`}
-        >
-            <body className="min-h-full flex flex-col">
-                <LanguageProvider>{children}</LanguageProvider>
-            </body>
-        </html>
-    );
+	return (
+		<html
+			lang={locale}
+			dir={locale === "en" ? "ltr" : "rtl"}
+			className={`${cairo.variable} ${geistMono.variable} h-full antialiased`}
+		>
+			<body className="min-h-full flex flex-col">
+				<SettingsProvider initialData={appSettings as SettingsModel}>
+					<LanguageProvider initialLocale={locale}>
+						<UserProvider>{children}</UserProvider>
+					</LanguageProvider>
+				</SettingsProvider>
+			</body>
+		</html>
+	);
 }

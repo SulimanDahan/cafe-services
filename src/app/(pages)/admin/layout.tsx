@@ -6,7 +6,6 @@ import { useLanguage } from "@/config/i18n";
 import { LogoutIcon } from "@/components/icons";
 import NotificationCenter from "@/components/NotificationCenter";
 import PWAInstallBanner from "@/components/PWAInstallBanner";
-import { AUTH_COOKIE_NAME, EMPTY_COOKIE } from "@/config/constants";
 import { MAIN_ADMIN_ROUTE } from "@/config/page_routes";
 import { AdminDrawerLinks } from "@/components/partials/admin_drawer_links";
 
@@ -225,32 +224,15 @@ export default function AdminLayout({ children }: LayoutProps) {
 	}
 
 	const handleLogout = async () => {
-		let hasLogedOut: boolean = false;
-		const sessionCookie = document.cookie
-			.split(";")
-			.find((cookie) => cookie.startsWith(`${AUTH_COOKIE_NAME}=`))
-			?.split("=")[1];
-
-		if (!sessionCookie) {
-			hasLogedOut = true;
-		} else {
-			await fetch("api/auth/logout", {
-				method: "POST",
-				body: JSON.stringify({ session_id: sessionCookie }),
-			})
-				.then(() => {
-					hasLogedOut = true;
-				})
-				.catch(() => {
-					hasLogedOut = false;
-				});
-		}
-
-		if (hasLogedOut) {
-			document.cookie = EMPTY_COOKIE;
+		try {
+			// The HttpOnly session cookie is sent automatically by the browser.
+			// The server reads and deletes it — no client-side cookie access needed.
+			await fetch("/api/auth/logout", { method: "POST" });
+		} catch (err) {
+			console.error("Logout request failed:", err);
+		} finally {
+			// Always redirect to login — proxy will block re-entry without a valid session
 			router.push(MAIN_ADMIN_ROUTE);
-		} else {
-			console.error("Failed to log out");
 		}
 	};
 
@@ -391,15 +373,13 @@ export default function AdminLayout({ children }: LayoutProps) {
 
 				{/* Mobile Drawer Menu Content */}
 				<aside
-					className={`lg:hidden fixed top-0 bottom-0 z-50 transition-transform duration-300 transform h-screen shrink-0 w-64 border-white/10 ${
-						isRtl ? "right-0 border-l" : "left-0 border-r"
-					} ${
-						isMobileOpen
+					className={`lg:hidden fixed top-0 bottom-0 z-50 transition-transform duration-300 transform h-screen shrink-0 w-64 border-white/10 ${isRtl ? "right-0 border-l" : "left-0 border-r"
+						} ${isMobileOpen
 							? "translate-x-0"
 							: isRtl
 								? "translate-x-full"
 								: "-translate-x-full"
-					}`}
+						}`}
 				>
 					{sidebarContent}
 				</aside>

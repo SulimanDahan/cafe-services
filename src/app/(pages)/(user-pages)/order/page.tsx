@@ -1564,6 +1564,7 @@ import AdminBlockOverlay from "@/components/partials/orders/admin_block_overlay"
 import Billing from "@/components/partials/orders/billing";
 import ActiveOrdersList from "@/components/partials/orders/active_orders_list";
 import QrScannerModal from "@/components/partials/modals/qrscan_modal";
+import { LogoutIcon } from "@/components/icons";
 
 
 declare global {
@@ -1781,7 +1782,7 @@ export default function CustomerOrderPage() {
                 const storedRes = localStorage.getItem("cafe_reservations");
                 let currentRes = DEFAULT_RESERVATIONS;
                 if (storedRes) {
-                    try { currentRes = JSON.parse(storedRes); } catch {}
+                    try { currentRes = JSON.parse(storedRes); } catch { }
                 }
                 const stillExists = currentRes.find((r) => r.id === sessionObj.id);
                 if (stillExists) return sessionObj;
@@ -1810,6 +1811,11 @@ export default function CustomerOrderPage() {
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const scanIntervalRef = useRef<number | null>(null);
+
+    const [hasMounted, setHasMounted] = useState(false);
+    useEffect(() => {
+        (() => setHasMounted(true))();
+    }, []);
 
     // البيئة وعزل الـ PWA
     useEffect(() => {
@@ -1843,7 +1849,7 @@ export default function CustomerOrderPage() {
         script.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js";
         script.async = true;
         document.body.appendChild(script);
-        return () => { try { document.body.removeChild(script); } catch {} };
+        return () => { try { document.body.removeChild(script); } catch { } };
     }, []);
 
     // حلقة مسح الكاميرا بحثاً عن الكود
@@ -1913,11 +1919,11 @@ export default function CustomerOrderPage() {
                         .then((newStream) => {
                             if (videoRef.current) {
                                 videoRef.current.srcObject = newStream;
-                                videoRef.current.play().catch(() => {});
+                                videoRef.current.play().catch(() => { });
                                 setCameraStream(newStream);
                                 startQrScanningLoop(videoRef.current, newStream);
                             }
-                        }).catch(() => {});
+                        }).catch(() => { });
                 }
             }, 3500);
         }
@@ -1966,7 +1972,7 @@ export default function CustomerOrderPage() {
                 setCameraStream(null);
             };
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isScannerOpen, isRtl]);
 
     // المزامنة اللحظية
@@ -2140,6 +2146,8 @@ export default function CustomerOrderPage() {
         );
     }
 
+    if (!hasMounted) return null;
+
     return (
         <>
             <PWAInstallBanner appType="customer" />
@@ -2181,7 +2189,7 @@ export default function CustomerOrderPage() {
                                     onClick={() => { setScanStep("idle"); setScanErrorMsg(""); setIsScannerOpen(true); }}
                                     className="px-8 py-4 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] font-extrabold text-sm transition-all duration-200 active:scale-95 shadow-xl shadow-amber-500/10 inline-flex items-center gap-2.5 cursor-pointer"
                                 >
-                                    <QrCodeNeonIcon className="text-black w-5 h-5 bg-black"/>
+                                    <QrCodeNeonIcon className="text-black w-5 h-5 bg-black" />
                                     <span>{t("orders.btnScan")}</span>
                                 </PrimaryButton>
                             </div>
@@ -2204,9 +2212,10 @@ export default function CustomerOrderPage() {
                                     onClick={handleLogOutSession}
                                     className="px-5 py-2.5 rounded-full border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-400 font-extrabold text-xs transition-all active:scale-95 flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0"
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    {/* <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                    </svg>
+                                    </svg> */}
+                                    <LogoutIcon />
                                     <span>{t("orders.endSession")}</span>
                                 </PrimaryButton>
                             </div>

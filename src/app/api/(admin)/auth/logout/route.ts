@@ -1,35 +1,37 @@
-import { EMPTY_COOKIE } from "@/config/constants";
+import { AUTH_COOKIE_NAME } from "@/config/constants";
 import { prisma } from "@/lib/prisma";
-import ApiErrorModel from "@/models/app_models/api_error_model";
-import ApiSuccessModel from "@/models/app_models/api_success_model";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(
-    request: NextApiRequest,
-    response: NextApiResponse<ApiErrorModel | ApiSuccessModel>,
-) {
-    const session_id = (await request.body.json()) as string;
+export async function POST(request: NextRequest) {
+	try {
+		// Read the session ID directly from the HttpOnly cookie (not the body)
+		const sessionId = request.cookies.get(AUTH_COOKIE_NAME)?.value;
 
-    if (!session_id) {
-        return response.status(400).json({
-            error: "Session ID is required",
-        });
-    }
+		if (sessionId) {
+			// Delete the session from the database (best-effort — ignore if already gone)
+			await prisma.userSession
+				.delete({ where: { id: sessionId } })
+				.catch(() => null);
+		}
 
-    const result = await prisma.userSession.delete({
-        where: { id: session_id },
-    });
+		const isProduction = process.env.NODE_ENV === "production";
 
-    if (!result) {
-        return response.status(404).json({
-            error: "Session not found",
-        });
-    }
+		// Clear the HttpOnly session cookie regardless of whether session existed
+		const response = NextResponse.json({ message: "Logout successful" });
+		response.cookies.set(AUTH_COOKIE_NAME, "", {
+			httpOnly: true,
+			secure: isProduction,
+			sameSite: "lax",
+			path: "/",
+			maxAge: 0, // Expire immediately
+		});
 
-    // Set the session cookie to expire immediately
-
-    return response
-        .setHeader("Set-Cookie", EMPTY_COOKIE)
-        .status(200)
-        .json({ message: "Logout successful" });
+		return response;
+	} catch (error) {
+		console.error("[AUTH] Logout error:", error);
+		return NextResponse.json(
+			{ error: "Internal Server Error" },
+			{ status: 500 },
+		);
+	}
 }

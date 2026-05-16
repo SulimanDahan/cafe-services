@@ -26,6 +26,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 
 interface LanguageProviderProps {
 	children: ReactNode;
+	initialLocale?: Locale;
 }
 
 /**
@@ -34,8 +35,12 @@ interface LanguageProviderProps {
  * Dynamically handles document layout direction ("rtl" vs "ltr") and stores preference in localStorage.
  * Provides a highly robust dot-notation translation selector (e.g., t("common.save")).
  */
-export function LanguageProvider({ children }: LanguageProviderProps) {
-	const [locale, setLocaleState] = useState<Locale>("ar");
+export function LanguageProvider({
+	children,
+	initialLocale,
+}: LanguageProviderProps) {
+	const [locale, setLocaleState] = useState<Locale>(initialLocale || "ar");
+
 
 	// Synchronize locale state with localStorage preference on mount
 	useEffect(() => {

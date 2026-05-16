@@ -14,15 +14,12 @@ import { CheckIcon } from "@/components/icons/check_icon";
 import { UserIcon } from "@/components/icons/user_icon";
 import InfoIcon from "@/components/icons/info_icon";
 import { CalendarIcon } from "@/components/icons";
+import PWAInstallBanner from "@/components/PWAInstallBanner";
 
 export default function Home() {
-    const { t, isRtl } = useLanguage();
+    const { t } = useLanguage();
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [isBookModalOpen, setIsBookModalOpen] = useState(false);
-    const [bookClientName, setBookClientName] = useState("");
-    const [bookPhone, setBookPhone] = useState("");
-    const [bookDateTime, setBookDateTime] = useState("");
-    const [showSuccess, setShowSuccess] = useState(false);
 
     // البيانات الافتراضية للغرف
     const DEFAULT_ROOMS = [
@@ -45,50 +42,6 @@ export default function Home() {
             return DEFAULT_ROOMS;
         }
     });
-
-    const [bookRoomId, setBookRoomId] = useState(rooms[0]?.id || "");
-
-    const handleBookSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (
-            !bookClientName.trim() ||
-            !bookPhone.trim() ||
-            !bookDateTime ||
-            !bookRoomId
-        )
-            return;
-
-        const selectedRoom = rooms.find((r: any) => r.id === bookRoomId);
-
-        const newRes = {
-            id: `res-${Date.now()}`,
-            number: `R-${Math.floor(1000 + Math.random() * 9000)}`,
-            client_name: bookClientName,
-            phone: bookPhone,
-            datetime: new Date(bookDateTime).toLocaleString(
-                isRtl ? "ar-SA" : "en-US",
-            ),
-            room_id: bookRoomId,
-            room_name: selectedRoom?.name,
-            accepted: false,
-        };
-
-        const existing = JSON.parse(
-            localStorage.getItem("cafe_reservations") || "[]",
-        );
-        localStorage.setItem(
-            "cafe_reservations",
-            JSON.stringify([newRes, ...existing]),
-        );
-        window.dispatchEvent(new CustomEvent("reservations-updated"));
-
-        setIsBookModalOpen(false);
-        setBookClientName("");
-        setBookPhone("");
-        setBookDateTime("");
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 4000);
-    };
 
     // حالة الـ Toast
     const [toast, setToast] = useState({
@@ -141,9 +94,10 @@ export default function Home() {
             icon: <CheckIcon className="w-6 h-6 text-amber-400" />,
         },
     ];
-	
+
     return (
         <>
+            <PWAInstallBanner appType="customer" />
             <main className="flex-1 max-w-7xl w-[calc(100%-2rem)] mx-auto md:px-4 lg:px-6 py-10 flex flex-col gap-10">
                 {/* Hero Panel */}
                 <div className="relative rounded-[28px] overflow-hidden border border-white/10 bg-[#131522]/40 p-6 sm:p-10 md:p-14 shadow-2xl">
@@ -167,11 +121,11 @@ export default function Home() {
                                     {t("home.btnBookRoom")}
                                 </PrimaryButton>
                                 <div className="flex flex-wrap gap-3">
-                                    <Badge variant="zinc" className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#0d0f17] border border-white/10 text-xs font-bold text-zinc-300 shadow-lg">
+                                    <Badge variant="zinc">
                                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                                         {t("home.tagDocker")}
                                     </Badge>
-                                    <Badge variant="zinc" className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#0d0f17] border border-white/10 text-xs font-bold text-zinc-300 shadow-lg">
+                                    <Badge variant="zinc">
                                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                                         {t("home.tagSse")}
                                     </Badge>
@@ -256,8 +210,7 @@ export default function Home() {
                 onClose={() => setIsBookModalOpen(false)}
                 rooms={rooms}
                 onSuccess={() => {
-                    setShowSuccess(true);
-                    setTimeout(() => setShowSuccess(false), 4000);
+                    showNotice(t("home.bookingSuccess"));
                 }}
             />
         </>
