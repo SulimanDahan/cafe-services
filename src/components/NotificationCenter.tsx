@@ -1,4 +1,5 @@
 "use client";
+import { NOTIFICATION_CREATE_API_ROUTE, NOTIFICATION_STREAM_API_ROUTE } from "@/config/api_routes";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -71,7 +72,7 @@ export default function NotificationCenter() {
 
 	// Connect to Real-time SSE Stream
 	useEffect(() => {
-		const eventSource = new EventSource("/api/notifications/stream");
+		const eventSource = new EventSource(NOTIFICATION_STREAM_API_ROUTE);
 
 		// Initial load of previous notifications
 		eventSource.addEventListener("initial-notifications", (event: any) => {
@@ -192,7 +193,7 @@ export default function NotificationCenter() {
 
 		try {
 			await fetch(
-				`/api/notifications/create?title=${encodeURIComponent(
+				`${NOTIFICATION_CREATE_API_ROUTE}?title=${encodeURIComponent(
 					titles[type],
 				)}&message=${encodeURIComponent(messages[type])}&type=${type}`,
 			);

@@ -1,13 +1,26 @@
 import Link from "next/link";
-import { ADMIN_PAGE_ROUTES } from "@/config/page_routes";
+import { MAIN_ADMIN_ROUTE, MAIN_PAGE_ROUTE } from "@/config/page_routes";
+import { LoginIcon, HomeIcon } from "@/components/icons";
+import { prisma } from "@/lib/prisma";
+import { getServerTranslations } from "@/lib/i18n_server";
+
+export const dynamic = "force-dynamic";
 
 /**
- * Premium 403 Forbidden Page Component.
+ * Premium 403 Forbidden Page Component (SSR).
  * Styled in high-contrast Material You Dark Spec with zero emojis and clean SVGs.
+ * Dynamically queries settings from the database at request-time to load system locale.
  */
-export default function ForbiddenPage() {
+export default async function ForbiddenPage() {
+	const settings = await prisma.settings.findFirst();
+	const locale = settings?.app_lang === "en" ? "en" : "ar";
+	const { t } = getServerTranslations(locale);
+
 	return (
-		<div className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden">
+		<div 
+			className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden"
+			dir={locale === "ar" ? "rtl" : "ltr"}
+		>
 			{/* Ambient Glowing Graphics */}
 			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-amber-500/5 blur-[120px] pointer-events-none" />
 
@@ -24,63 +37,35 @@ export default function ForbiddenPage() {
 				{/* Error text block */}
 				<div className="space-y-3">
 					<h1 className="text-2xl font-black text-white">
-						الوصول غير مصرح به
+						{t("errors.unauthorized.title")}
 					</h1>
 					<p className="text-zinc-400 text-sm max-w-sm mx-auto leading-relaxed font-medium">
-						عذراً، ليس لديك الصلاحيات الكافية للوصول إلى هذه الصفحة
-						أو المجلد. يرجى مراجعة مدير النظام أو تسجيل الدخول
-						بصلاحيات إدارية.
+						{t("errors.unauthorized.desc")}
 					</p>
 				</div>
 
 				{/* Action Buttons with Clean SVG Icons */}
 				<div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
 					<Link
-						href={ADMIN_PAGE_ROUTES.login}
+						href={MAIN_ADMIN_ROUTE}
 						className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-amber-500 hover:bg-amber-400 text-[#07080a] font-bold px-6 py-3.5 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20 active:scale-[0.98] text-sm"
 					>
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2"
-								d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-							/>
-						</svg>
-						<span>بوابة الإدارة</span>
+						<LoginIcon className="w-4 h-4" />
+						<span>{t("errors.unauthorized.btnAdmin")}</span>
 					</Link>
 
 					<Link
-						href="/"
+						href={MAIN_PAGE_ROUTE}
 						className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#131522] border border-white/10 hover:border-white/20 text-white font-bold px-6 py-3.5 rounded-full transition-all duration-300 active:scale-[0.98] text-sm"
 					>
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2"
-								d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-							/>
-						</svg>
-						<span>الصفحة الرئيسية</span>
+						<HomeIcon className="w-4 h-4" />
+						<span>{t("errors.unauthorized.btnHome")}</span>
 					</Link>
 				</div>
 
 				{/* Footer Info */}
 				<div className="text-[10px] text-zinc-600 font-medium pt-8">
-					<span>رمز الخطأ: HTTP 403 FORBIDDEN</span>
+					<span>{t("errors.unauthorized.code")}</span>
 				</div>
 			</div>
 		</div>

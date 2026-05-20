@@ -1,33 +1,77 @@
-import ApiErrorModel from "@/models/app_models/api_error_model";
-import ReservationModel from "@/models/data_models/reservation_model";
-import { NextApiRequest, NextApiResponse } from "next";
+import { reservationSchema } from "@/lib/validations/reservation";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export default async function handler(request: NextApiRequest, response: NextApiResponse<ReservationModel | ApiErrorModel>) {
+type Params = { params: Promise<{ reservation: string }> };
+
+/** GET a specific reservation with room relation */
+export async function GET(_req: Request, { params }: Params) {
     try {
-        const reservation_id: string = request.query.reservation as string;
-        if (request.method === "GET") {
-            const data = await prisma.reservation.findFirst({
-                where: { id: reservation_id },
-            });
-            return response.status(200).json(data as ReservationModel);
-        } else if (request.method === "PUT") {
-            const data = request.body;
-            const result = await prisma.reservation.update({
-                where: { id: reservation_id },
-                data,
-            });
-            return response.status(200).json(result as ReservationModel);
-        } else if (request.method === "DELETE") {
-            const result = await prisma.reservation.delete({
-                where: { id: reservation_id },
-            });
-            return response.status(200).json(result as ReservationModel);
-        }
-    } catch (error) {
-        console.error("Error handling reservation API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
+        const { reservation: id } = await params;
+        const reservation = await prisma.reservation.findUnique({
+            where: { id },
+            include: { room: true, orders: { include: { item: true } } },
         });
+        if (!reservation) return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+        return NextResponse.json(reservation);
+    } catch (error) {
+        console.error("Error fetching reservation:", error);
+        return NextResponse.json({ error: "Failed to fetch reservation" }, { status: 500 });
+    }
+}
+
+/** PUT (update) a specific reservation — used for accept/reject */
+export async function PUT(request: Request, { params }: Params) {
+    try {
+        const { reservation: id } = await params;
+        const body = await request.json();
+        const validation = reservationSchema.partial().safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: "Validation failed", details: validation.error.format() },
+                { status: 422 }
+            );
+        }
+
+        const data = validation.data;
+
+        const updated = await prisma.reservation.update({
+            where: { id },
+            data: {
+                client_name: data.client_name,
+                phone: data.phone,
+                room_id: data.room_id,
+                date_time: data.date_time,
+                accepted: data.accepted,
+                completed: data.completed,
+            },
+            include: { room: true },
+        });
+
+        return NextResponse.json(updated);
+    } catch (error: unknown) {
+        console.error("Error updating reservation:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+        return NextResponse.json({ error: "Failed to update reservation" }, { status: 500 });
+    }
+}
+
+/** DELETE a specific reservation (cascade deletes orders) */
+export async function DELETE(_req: Request, { params }: Params) {
+    try {
+        const { reservation: id } = await params;
+
+        // Delete associated orders first (no cascade in schema)
+        await prisma.order.deleteMany({ where: { reservation_id: id } });
+        await prisma.reservation.delete({ where: { id } });
+
+        return NextResponse.json({ success: true });
+    } catch (error: unknown) {
+        console.error("Error deleting reservation:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+        return NextResponse.json({ error: "Failed to delete reservation" }, { status: 500 });
     }
 }

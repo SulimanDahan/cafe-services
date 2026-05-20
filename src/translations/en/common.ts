@@ -35,5 +35,7 @@ export const common = {
 	unauthorizedDesc:
 		"Sorry! You cannot access the admin control panel from within the Customer standalone app. Please use a regular browser or install the dedicated Admin application.",
 	btnReturnOrder: "Return to Ordering App",
-	yemeniRial: "Yemeni Rial",
+	YER: "Yemeni Rial",
+	SAR: "Saudi Rial",
+	USD: "US Dollar",
 };

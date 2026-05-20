@@ -36,4 +36,8 @@ export const notifications = {
 	optionWarning: "Warning (! - Amber)",
 	optionError: "Error (✕ - Red)",
 	btnBroadcastNow: "Broadcast Now",
+	newBookingTitle: "New Booking Request",
+	newBookingMessage: "There is a new reservation for room '{room}'",
+	newOrderTitle: "New Order",
+	newOrderMessage: "There is a new order for room '{room}'",
 };

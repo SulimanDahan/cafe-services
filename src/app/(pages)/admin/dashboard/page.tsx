@@ -1,135 +1,95 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import SearchInput from "@/components/SearchInput";
 import MetricCard from "@/components/MetricCard";
+import { RefreshIcon, CalendarIcon, ClockIcon, CheckCircleIcon, MoneyIcon, BuildingIcon, ItemIcon, OrderIcon, CheckIcon, TrashIcon } from "@/components/icons";
 import { useLanguage } from "@/config/i18n";
+import { useSettings } from "@/context/settings_context";
+import { DASHBOARD_API_ROUTE } from "@/config/api_routes";
+import { useReservation } from "@/context/reservation_context";
+import ReservationModel from "@/models/data_models/reservation_model";
 
-interface Reservation {
-	id: string;
-	number: number;
-	clientName: string;
-	phone: string;
-	roomName: string;
-	dateTime: string;
-	accepted: boolean;
-	itemsCount: number;
-	totalPrice: number;
+interface DashboardStats {
+	totalReservations: number;
+	pendingReservations: number;
+	acceptedReservations: number;
+	totalRooms: number;
+	totalItems: number;
+	totalRevenue: number;
+	totalOrderedUnits: number;
+}
+
+interface DashboardData {
+	stats: DashboardStats;
+	recentReservations: ReservationModel[];
 }
 
 /**
- * Premium Admin Dashboard Component.
- * Fully styled according to high-contrast Material You Dark Spec (GEMINI.md).
- * Uses pure SVG icons, contains absolutely NO emojis, and supports bilingual translations.
+ * Admin Dashboard — Live data from DB.
+ * Stats fetched from /api/dashboard. Accept/delete actions via ReservationContext.
  */
 export default function AdminDashboard() {
 	const { t, isRtl } = useLanguage();
+	const { settings } = useSettings();
+	const { acceptReservation, deleteReservation } = useReservation();
 
-	// Pre-populated realistic cafe mock data (NO emojis)
-	const [reservations, setReservations] = useState<Reservation[]>([
-		{
-			id: "res-1",
-			number: 1024,
-			clientName: "أحمد بن عبد الله",
-			phone: "0501234567",
-			roomName: "القاعة الرئيسية - طاولة 5",
-			dateTime: "12 مايو 2026 - 08:30 م",
-			accepted: true,
-			itemsCount: 3,
-			totalPrice: 85500,
-		},
-		{
-			id: "res-2",
-			number: 1025,
-			clientName: "سليمان الدهان",
-			phone: "0559876543",
-			roomName: "قاعة VIP المغلقة",
-			dateTime: "12 مايو 2026 - 09:15 م",
-			accepted: false,
-			itemsCount: 5,
-			totalPrice: 180000,
-		},
-		{
-			id: "res-3",
-			number: 1026,
-			clientName: "سارة عبد الرحمن",
-			phone: "0543332211",
-			roomName: "الشرفة الخارجية - طاولة 12",
-			dateTime: "13 مايو 2026 - 06:00 م",
-			accepted: false,
-			itemsCount: 2,
-			totalPrice: 42000,
-		},
-		{
-			id: "res-4",
-			number: 1027,
-			clientName: "فيصل الحربي",
-			phone: "0561112223",
-			roomName: "القاعة الرئيسية - طاولة 2",
-			dateTime: "13 مايو 2026 - 07:45 م",
-			accepted: true,
-			itemsCount: 4,
-			totalPrice: 110000,
-		},
-	]);
-
+	const [data, setData] = useState<DashboardData | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [activeTab, setActiveTab] = useState<"all" | "pending" | "confirmed">("all");
-	const [isAdding, setIsAdding] = useState(false);
-	
-	// Form state for adding simulated reservation
-	const [newClientName, setNewClientName] = useState("");
-	const [newPhone, setNewPhone] = useState("");
-	const [newRoom, setNewRoom] = useState("القاعة الرئيسية - طاولة 1");
-	const [newPrice, setNewPrice] = useState("");
 
-	// Actions
-	const handleAccept = (id: string) => {
-		setReservations(prev =>
-			prev.map(res => (res.id === id ? { ...res, accepted: true } : res))
-		);
-	};
+	const loadDashboard = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const res = await fetch(DASHBOARD_API_ROUTE);
+			if (!res.ok) throw new Error("Failed to load dashboard");
+			const json = await res.json();
+			setData(json);
+		} catch (err) {
+			console.error(err);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
 
-	const handleDelete = (id: string) => {
-		setReservations(prev => prev.filter(res => res.id !== id));
-	};
-
-	const handleAddReservation = (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!newClientName || !newPhone) return;
-
-		const newRes: Reservation = {
-			id: `res-${Date.now()}`,
-			number: reservations.length > 0 ? Math.max(...reservations.map(r => r.number)) + 1 : 1001,
-			clientName: newClientName,
-			phone: newPhone,
-			roomName: newRoom,
-			dateTime: t("dashboard.nowSimulated"),
-			accepted: false,
-			itemsCount: 1,
-			totalPrice: parseFloat(newPrice) || 30000,
+	useEffect(() => {
+		const fetchInitialData = async () => {
+			await loadDashboard();
 		};
+		fetchInitialData();
+	}, [loadDashboard]);
 
-		setReservations([newRes, ...reservations]);
-		setNewClientName("");
-		setNewPhone("");
-		setNewPrice("");
-		setIsAdding(false);
+	// Accept reservation then refresh dashboard
+	const handleAccept = async (id: string) => {
+		await acceptReservation(id);
+		await loadDashboard();
 	};
 
-	// Computations for premium metric cards
-	const totalRevenue = reservations
-		.filter(r => r.accepted)
-		.reduce((sum, r) => sum + r.totalPrice, 0);
+	// Delete reservation then refresh dashboard
+	const handleDelete = async (id: string) => {
+		if (!confirm(t("common.confirmDelete"))) return;
+		await deleteReservation(id);
+		await loadDashboard();
+	};
 
-	const pendingCount = reservations.filter(r => !r.accepted).length;
-	const confirmedCount = reservations.filter(r => r.accepted).length;
+	const formatDate = (date: Date | string) => {
+		const d = new Date(date);
+		return d.toLocaleDateString(isRtl ? "ar-SA" : "en-US", {
+			day: "numeric", month: "long", year: "numeric",
+			hour: "2-digit", minute: "2-digit",
+		});
+	};
 
-	// Filter & Search
-	const filteredReservations = reservations.filter(res => {
+	const stats = data?.stats;
+	const reservations = data?.recentReservations ?? [];
+
+	const filteredReservations = reservations.filter((res) => {
 		const matchesSearch =
-			res.clientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-			res.phone.includes(searchQuery);
+			res.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			res.phone.includes(searchQuery) ||
+			(res.room?.name ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+			String(res.number).includes(searchQuery);
 
 		if (activeTab === "pending") return matchesSearch && !res.accepted;
 		if (activeTab === "confirmed") return matchesSearch && res.accepted;
@@ -153,167 +113,111 @@ export default function AdminDashboard() {
 						</p>
 					</div>
 
-					{/* Action to toggle simulate reservation dialog */}
+					{/* Refresh Button */}
 					<button
-						onClick={() => setIsAdding(!isAdding)}
-						className="px-5 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20 active:scale-[0.98] transition-all duration-300 flex items-center gap-2"
+						onClick={loadDashboard}
+						disabled={isLoading}
+						className="px-5 py-3 rounded-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-[#07080a] font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/10 active:scale-[0.98] transition-all duration-300 flex items-center gap-2 cursor-pointer"
 					>
-						<svg
-							className="w-4 h-4"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2.5"
-								d="M12 4v16m8-8H4"
-							/>
-						</svg>
-						<span>{t("reservations.addReservation")}</span>
+						<RefreshIcon className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+						<span>{isLoading ? t("common.loading") : t("dashboard.refresh")}</span>
 					</button>
 				</div>
 			</div>
 
-			{/* Collapsible New Reservation Simulation Form */}
-			{isAdding && (
-				<div className="rounded-[28px] border border-amber-500/30 bg-[#131522]/90 backdrop-blur-xl p-6 shadow-xl animate-fadeIn">
-					<h3 className="text-base font-black text-white mb-4 flex items-center gap-2">
-						<span className="w-1.5 h-6 bg-amber-500 rounded-full" />
-						{t("dashboard.testNotification")}
-					</h3>
-					<form onSubmit={handleAddReservation} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-						<div className="space-y-1.5">
-							<label className="text-[10px] font-bold text-zinc-400 mr-1">{t("dashboard.columnClient")}</label>
-							<input
-								type="text"
-								required
-								value={newClientName}
-								onChange={e => setNewClientName(e.target.value)}
-								placeholder={t("dashboard.clientNamePlaceholder")}
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
-							/>
-						</div>
-
-						<div className="space-y-1.5">
-							<label className="text-[10px] font-bold text-zinc-400 mr-1">{t("dashboard.columnPhone")}</label>
-							<input
-								type="text"
-								required
-								value={newPhone}
-								onChange={e => setNewPhone(e.target.value)}
-								placeholder="05xxxxxxxx"
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
-							/>
-						</div>
-
-						<div className="space-y-1.5">
-							<label className="text-[10px] font-bold text-zinc-400 mr-1">{t("dashboard.columnRoom")}</label>
-							<select
-								value={newRoom}
-								onChange={e => setNewRoom(e.target.value)}
-								className="w-full bg-[#07080a] border border-white/10 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
-							>
-								<option value="القاعة الرئيسية - طاولة 1">{t("dashboard.roomMain1")}</option>
-								<option value="القاعة الرئيسية - طاولة 5">{t("dashboard.roomMain5")}</option>
-								<option value="قاعة VIP المغلقة">{t("dashboard.roomVip")}</option>
-								<option value="الشرفة الخارجية - طاولة 12">{t("dashboard.roomTerrace")}</option>
-							</select>
-						</div>
-
-						<div className="space-y-1.5">
-							<label className="text-[10px] font-bold text-zinc-400 mr-1">{t("dashboard.columnPrice")} ({t("common.currencySymbol")})</label>
-							<div className="flex gap-2">
-								<input
-									type="number"
-									value={newPrice}
-									onChange={e => setNewPrice(e.target.value)}
-									placeholder="30000"
-									className="w-full bg-[#07080a] border border-white/10 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
-								/>
-								<button
-									type="submit"
-									className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-[#07080a] font-bold rounded-xl text-xs shrink-0 transition-all duration-200"
-								>
-									{t("common.save")}
-								</button>
-							</div>
-						</div>
-					</form>
-				</div>
-			)}
-
-			{/* 4 Premium High-Contrast Metrics Cards (Material 3 Spec) */}
+			{/* 4 Metric Cards — Live Stats */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 				<MetricCard
 					title={t("dashboard.statTotalBookings")}
-					value={reservations.length}
+					value={isLoading ? "—" : stats?.totalReservations ?? 0}
 					icon={
-						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-						</svg>
+						<CalendarIcon className="w-6 h-6" />
 					}
 				/>
 				<MetricCard
 					title={t("dashboard.statPendingReservations")}
-					value={pendingCount}
-					highlight={pendingCount > 0}
+					value={isLoading ? "—" : stats?.pendingReservations ?? 0}
+					highlight={(stats?.pendingReservations ?? 0) > 0}
 					icon={
-						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
+						<ClockIcon className="w-6 h-6" />
 					}
 				/>
 				<MetricCard
 					title={t("dashboard.statActiveReservations")}
-					value={confirmedCount}
+					value={isLoading ? "—" : stats?.acceptedReservations ?? 0}
 					icon={
-						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
+						<CheckCircleIcon className="w-6 h-6" />
 					}
 				/>
 				<MetricCard
 					title={t("dashboard.statTotalIncome")}
-					value={`${totalRevenue.toLocaleString("en-US")} ${t("common.currencySymbol")}`}
+					value={isLoading ? "—" : `${(stats?.totalRevenue ?? 0).toLocaleString("en-US")} ${t(`common.${settings.currency_name}`)}`}
 					highlight
 					icon={
-						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-						</svg>
+						<MoneyIcon className="w-6 h-6" />
 					}
 				/>
 			</div>
 
-			{/* Main Tables Container with Filters & Search */}
+			{/* Secondary Stats Row */}
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-5 flex items-center gap-4 shadow-md hover:border-amber-500/20 transition-colors">
+					<div className="h-10 w-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+						<BuildingIcon className="w-5 h-5" />
+					</div>
+					<div>
+						<p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wide">{t("dashboard.statActiveRooms")}</p>
+						<p className="text-2xl font-black text-white">{isLoading ? "—" : stats?.totalRooms ?? 0}</p>
+					</div>
+				</div>
+
+				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-5 flex items-center gap-4 shadow-md hover:border-amber-500/20 transition-colors">
+					<div className="h-10 w-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+						<ItemIcon className="w-5 h-5" />
+					</div>
+					<div>
+						<p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wide">{t("dashboard.statMenuItems")}</p>
+						<p className="text-2xl font-black text-white">{isLoading ? "—" : stats?.totalItems ?? 0}</p>
+					</div>
+				</div>
+
+				<div className="rounded-[28px] border border-white/10 bg-[#131522] p-5 flex items-center gap-4 shadow-md hover:border-amber-500/20 transition-colors">
+					<div className="h-10 w-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+						<OrderIcon className="w-5 h-5" />
+					</div>
+					<div>
+						<p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wide">{t("dashboard.statOrderedUnits")}</p>
+						<p className="text-2xl font-black text-white">{isLoading ? "—" : stats?.totalOrderedUnits ?? 0}</p>
+					</div>
+				</div>
+			</div>
+
+			{/* Recent Reservations Table */}
 			<div className="rounded-[28px] border border-white/10 bg-[#131522] p-6 shadow-md">
-				{/* Header actions of the list */}
+				{/* Header + filters */}
 				<div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6 pb-4 border-b border-white/5">
-					{/* Tabs selection (No emojis) */}
+					{/* Tabs */}
 					<div className="flex gap-2 bg-[#07080a] p-1 rounded-full border border-white/10 self-start">
 						<button
 							onClick={() => setActiveTab("all")}
-							className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${activeTab === "all" ? "bg-amber-500 text-[#07080a]" : "text-zinc-400 hover:text-white"}`}
+							className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${activeTab === "all" ? "bg-amber-500 text-[#07080a]" : "text-zinc-400 hover:text-white"}`}
 						>
 							{t("reservations.filterAll")}
 						</button>
 						<button
 							onClick={() => setActiveTab("pending")}
-							className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${activeTab === "pending" ? "bg-amber-500 text-[#07080a]" : "text-zinc-400 hover:text-white"}`}
+							className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${activeTab === "pending" ? "bg-amber-500 text-[#07080a]" : "text-zinc-400 hover:text-white"}`}
 						>
-							{t("reservations.filterPending")} ({pendingCount})
+							{t("reservations.filterPending")} ({stats?.pendingReservations ?? 0})
 						</button>
 						<button
 							onClick={() => setActiveTab("confirmed")}
-							className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${activeTab === "confirmed" ? "bg-amber-500 text-[#07080a]" : "text-zinc-400 hover:text-white"}`}
+							className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${activeTab === "confirmed" ? "bg-amber-500 text-[#07080a]" : "text-zinc-400 hover:text-white"}`}
 						>
-							{t("reservations.filterAccepted")} ({confirmedCount})
+							{t("reservations.filterAccepted")} ({stats?.acceptedReservations ?? 0})
 						</button>
 					</div>
 
-					{/* Search Input */}
 					<SearchInput
 						value={searchQuery}
 						onChange={setSearchQuery}
@@ -322,8 +226,8 @@ export default function AdminDashboard() {
 					/>
 				</div>
 
-				{/* Responsive Layout Table */}
-				<div className="overflow-x-auto overflow-y-auto max-h-75 lg:max-h-[calc(100vh-320px)]">
+				{/* Table */}
+				<div className="overflow-x-auto overflow-y-auto max-h-75 lg:max-h-[calc(100vh-420px)]">
 					<table className="min-w-212.5 w-full border-collapse text-sm">
 						<thead>
 							<tr className={`border-b border-white/10 text-zinc-400 text-xs font-black ${isRtl ? "text-right" : "text-left"}`}>
@@ -331,25 +235,33 @@ export default function AdminDashboard() {
 								<th className="pb-3 px-4 whitespace-nowrap">{t("dashboard.columnClient")}</th>
 								<th className="pb-3 px-4 whitespace-nowrap">{t("dashboard.columnRoom")}</th>
 								<th className="pb-3 px-4 whitespace-nowrap">{t("dashboard.columnDateTime")}</th>
-								<th className="pb-3 px-4 whitespace-nowrap">{t("dashboard.columnPrice")}</th>
 								<th className="pb-3 px-4 text-center whitespace-nowrap">{t("dashboard.columnStatus")}</th>
 								<th className="pb-3 px-4 text-center whitespace-nowrap">{t("common.actions")}</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-white/5">
-							{filteredReservations.length > 0 ? (
-								filteredReservations.map(res => (
+							{isLoading ? (
+								<tr>
+									<td colSpan={6} className="py-12 text-center">
+										<div className="flex flex-col items-center gap-3">
+											<div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+											<span className="text-xs text-zinc-500 font-bold">{t("common.loading")}</span>
+										</div>
+									</td>
+								</tr>
+							) : filteredReservations.length > 0 ? (
+								filteredReservations.map((res) => (
 									<tr
 										key={res.id}
 										className="group hover:bg-[#1a1c2c]/40 transition-all duration-200"
 									>
 										<td className={`py-4 px-4 font-black text-xs text-zinc-500 whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											#{res.number}
+											R-{res.number}
 										</td>
 										<td className={`py-4 px-4 whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
 											<div className="flex flex-col">
 												<span className="font-bold text-white group-hover:text-amber-400 transition-colors duration-200">
-													{res.clientName}
+													{res.client_name}
 												</span>
 												<span className="text-[10px] text-zinc-500 font-bold mt-0.5">
 													{res.phone}
@@ -357,29 +269,17 @@ export default function AdminDashboard() {
 											</div>
 										</td>
 										<td className={`py-4 px-4 font-semibold text-zinc-300 text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{res.roomName}
+											{res.room?.name ?? t("common.unknown")}
 										</td>
 										<td className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{res.dateTime}
-										</td>
-										<td className={`py-4 px-4 font-black text-amber-400 text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
-											{res.totalPrice.toLocaleString("en-US")} {t("common.currencySymbol")}
+											{formatDate(res.date_time)}
 										</td>
 										<td className="py-4 px-4 text-center whitespace-nowrap">
-											<span
-												className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border ${
-													res.accepted
-														? "bg-green-500/10 text-green-400 border-green-500/20"
-														: "bg-amber-500/10 text-amber-300 border-amber-500/25"
-												}`}
-											>
-												<span
-													className={`w-1.5 h-1.5 rounded-full ${
-														res.accepted
-															? "bg-green-400"
-															: "bg-amber-400 animate-pulse"
-													}`}
-												/>
+											<span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border ${res.accepted
+													? "bg-green-500/10 text-green-400 border-green-500/20"
+													: "bg-amber-500/10 text-amber-300 border-amber-500/25"
+												}`}>
+												<span className={`w-1.5 h-1.5 rounded-full ${res.accepted ? "bg-green-400" : "bg-amber-400 animate-pulse"}`} />
 												{res.accepted ? t("reservations.statusAccepted") : t("reservations.statusPending")}
 											</span>
 										</td>
@@ -388,44 +288,18 @@ export default function AdminDashboard() {
 												{!res.accepted && (
 													<button
 														onClick={() => handleAccept(res.id)}
-														className="p-1.5 rounded-lg bg-green-500/10 border border-green-500/25 text-green-400 hover:bg-green-500 hover:text-white transition-all duration-200"
+														className="p-1.5 rounded-lg bg-green-500/10 border border-green-500/25 text-green-400 hover:bg-green-500 hover:text-white transition-all duration-200 cursor-pointer"
 														title={t("dashboard.actionAccept")}
 													>
-														<svg
-															className="w-4 h-4"
-															fill="none"
-															stroke="currentColor"
-															viewBox="0 0 24 24"
-															xmlns="http://www.w3.org/2000/svg"
-														>
-															<path
-																strokeLinecap="round"
-																strokeLinejoin="round"
-																strokeWidth="2.5"
-																d="M5 13l4 4L19 7"
-															/>
-														</svg>
+														<CheckIcon className="w-4 h-4" />
 													</button>
 												)}
 												<button
 													onClick={() => handleDelete(res.id)}
-													className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
+													className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200 cursor-pointer"
 													title={t("common.delete")}
 												>
-													<svg
-														className="w-4 h-4"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-														xmlns="http://www.w3.org/2000/svg"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth="2"
-															d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-														/>
-													</svg>
+													<TrashIcon className="w-4 h-4" />
 												</button>
 											</div>
 										</td>
@@ -433,10 +307,7 @@ export default function AdminDashboard() {
 								))
 							) : (
 								<tr>
-									<td
-										colSpan={7}
-										className="py-12 text-center text-zinc-500 font-medium text-xs"
-									>
+									<td colSpan={6} className="py-12 text-center text-zinc-500 font-medium text-xs">
 										{t("common.noData")}
 									</td>
 								</tr>

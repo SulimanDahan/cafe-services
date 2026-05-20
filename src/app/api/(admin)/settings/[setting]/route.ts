@@ -1,30 +1,37 @@
+import { settingsSchema } from "@/lib/validations/settings";
 import { prisma } from "@/lib/prisma";
-import { NextApiRequest, NextApiResponse } from "next";
-import { SettingsModel } from "@/models/data_models/settings_model";
-import ApiErrorModel from "@/models/app_models/api_error_model";
+import { NextRequest, NextResponse } from "next/server";
 
-/**
- * Updates system settings
- * @param NextApiRequest request 
- * @param NextApiResponse<SettingsModel | ApiErrorModel> response
- * @returns SettingsModel | ApiErrorModel
- */
-export default async function PUT(
-    request: NextApiRequest,
-    response: NextApiResponse<SettingsModel | ApiErrorModel>,
+/** PUT /api/settings/[setting] — update a settings record by ID */
+export async function PUT(
+	request: NextRequest,
+	{ params }: { params: Promise<{ setting: string }> },
 ) {
-    try {
-        const setting_id: string = request.query.setting as string;
-        const data = request.body;
-        const result = await prisma.settings.update({
-            where: { id: setting_id },
-            data,
-        });
-        return response.status(200).json(result as SettingsModel);
-    } catch (error) {
-        console.error("Error handling settings API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
-        });
-    }
+	try {
+		const { setting: settingId } = await params;
+		const body = await request.json();
+		const validation = settingsSchema.partial().safeParse(body);
+
+		if (!validation.success) {
+			return NextResponse.json(
+				{ error: "Validation failed", details: validation.error.format() },
+				{ status: 422 }
+			);
+		}
+
+		const data = validation.data;
+
+		const result = await prisma.settings.update({
+			where: { id: settingId },
+			data,
+		});
+
+		return NextResponse.json(result);
+	} catch (error) {
+		console.error("[SETTINGS] PUT error:", error);
+		return NextResponse.json(
+			{ error: "Internal Server Error" },
+			{ status: 500 },
+		);
+	}
 }

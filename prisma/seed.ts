@@ -26,12 +26,13 @@ async function main() {
 		await prisma.settings.deleteMany();
 		await prisma.settings.create({
 			data: {
-				currency_name: "yemeniRial",
+				currency_name: "YER",
 				app_lang: "ar",
 				per_page: 25,
 				notification_threshold: 100,
-				session_expiry_minutes: 30
-			}
+				session_expiry_minutes: 30,
+				force_client_order_session_passKey: false,
+			},
 		});
 	} else {
 		throw "check default username and password in .env file";

@@ -1,9 +1,14 @@
 import { AUTH_COOKIE_NAME } from "@/config/constants";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerTranslations } from "@/lib/i18n_server";
 
 /** Check if the session is valid and return user data */
 export async function GET(request: NextRequest) {
+	const appSettings = await prisma.settings.findFirst();
+	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
+	const { t } = getServerTranslations(locale);
+
 	const authSession = request.cookies.get(AUTH_COOKIE_NAME);
 	
 	if (!authSession) {
@@ -11,7 +16,7 @@ export async function GET(request: NextRequest) {
 			{
 				status: 401,
 				success: false,
-				message: "غير مصرح، يرجى تسجيل الدخول.",
+				message: t("apiMessages.error.unauthorized"),
 			},
 			{ status: 401 },
 		);
@@ -29,7 +34,7 @@ export async function GET(request: NextRequest) {
 				{
 					status: 401,
 					success: false,
-					message: "انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى.",
+					message: t("apiMessages.error.sessionExpired"),
 				},
 				{ status: 401 },
 			);
@@ -54,7 +59,7 @@ export async function GET(request: NextRequest) {
 			{
 				status: 500,
 				success: false,
-				message: "خطأ داخلي في الخادم.",
+				message: t("apiMessages.error.serverError"),
 			},
 			{ status: 500 },
 		);

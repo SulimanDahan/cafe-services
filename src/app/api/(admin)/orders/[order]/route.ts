@@ -1,40 +1,34 @@
-import ApiErrorModel from "@/models/app_models/api_error_model";
-import OrderModel from "@/models/data_models/order_model";
-import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export default async function handler(request: NextApiRequest, response: NextApiResponse<OrderModel | ApiErrorModel>) {
+type Params = { params: Promise<{ order: string }> };
+
+/** GET a specific order with item relation */
+export async function GET(_req: Request, { params }: Params) {
     try {
-        const order_id: string = request.query.order as string;
-        if (request.method === "GET") {
-            const data = await prisma.order.findFirst({
-                where: { id: order_id },
-            });
-            return response.status(200).json(data as OrderModel);
-        } else if (request.method === "PUT") {
-            const data = request.body;
-            const result = await prisma.order.update({
-                where: { id: order_id },
-                data: data,
-            });
-            return response.status(200).json(result as OrderModel);
-        // } else if (request.method === "PATCH") {
-        //     const data = request.body;
-        //     const result = await prisma.order.update({
-        //         where: { id: order_id },
-        //         data: { is_disable: data.is_disable },
-        //     });
-        //     return response.status(200).json(result);
-        } else if (request.method === "DELETE") {
-            const result = await prisma.order.delete({
-                where: { id: order_id },
-            });
-            return response.status(200).json(result as OrderModel);
-        }
-    } catch (error) {
-        console.error("Error handling order API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
+        const { order: id } = await params;
+        const order = await prisma.order.findUnique({
+            where: { id },
+            include: { item: true },
         });
+        if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        return NextResponse.json(order);
+    } catch (error) {
+        console.error("Error fetching order:", error);
+        return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
+    }
+}
+
+/** DELETE a specific order */
+export async function DELETE(_req: Request, { params }: Params) {
+    try {
+        const { order: id } = await params;
+        await prisma.order.delete({ where: { id } });
+        return NextResponse.json({ success: true });
+    } catch (error: unknown) {
+        console.error("Error deleting order:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        return NextResponse.json({ error: "Failed to delete order" }, { status: 500 });
     }
 }

@@ -3,7 +3,7 @@
 	"short_name": "اطلب الآن",
 	"description": "الطلب الذاتي المباشر من طاولة المقهى مع تحديثات الحجز والطلبات الفورية المباشرة.",
 	"start_url": "/",
-	"scope": "/order",
+	"scope": "/",
 	"display": "standalone",
 	"background_color": "#07080a",
 	"theme_color": "#07080a",

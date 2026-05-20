@@ -2,6 +2,8 @@ import UserHeader from "@/components/headers/user_header";
 import { prisma } from "@/lib/prisma";
 import { getServerTranslations } from "@/lib/i18n_server";
 
+import NavigationLoader from "@/hooks/NavigationLoader";
+
 const UserLayout = async ({ children }: { children: React.ReactNode }) => {
 	const appSettings = await prisma.settings.findFirst();
 	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
@@ -9,6 +11,7 @@ const UserLayout = async ({ children }: { children: React.ReactNode }) => {
 
 	return (
 		<div className="h-screen bg-[#07080a] text-zinc-100 font-sans flex flex-col selection:bg-amber-500 selection:text-black overflow-x-hidden">
+			<NavigationLoader />
 			<UserHeader />
 			{children}
 

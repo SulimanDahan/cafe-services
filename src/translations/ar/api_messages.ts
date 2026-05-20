@@ -1,4 +1,4 @@
-const apiMessages = {
+export const apiMessages = {
 	success: {
 		login: "تم تسجيل الدخول بنجاح",
 		logout: "تم تسجيل الخروج بنجاح",
@@ -6,12 +6,17 @@ const apiMessages = {
 		delete: "تم الحذف بنجاح",
 		add: "تم الإضافة بنجاح",
 		update: "تم التحديث بنجاح",
+		sessionRefreshed: "تم تحديث الجلسة بنجاح.",
+		notificationCreated: "تم إنشاء الإشعار وبثه بنجاح!",
 	},
 	error: {
 		dataError: "اسم المستخدم أو كلمة المرور غير صحيحة",
-		unauthorized: "غير مصرح",
+		unauthorized: "غير مصرح، يرجى تسجيل الدخول.",
+		sessionExpired: "انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى.",
 		notFound: "يرجى تسجيل الدخول مرة أخرى",
-		serverError: "يرجى تسجيل الدخول مرة أخرى",
+		serverError: "خطأ داخلي في الخادم.",
+		settingsNotFound: "لم يتم العثور على الإعدادات.",
+		missingFields: "العنوان أو نص الرسالة مفقود.",
 	},
 } as const;
 

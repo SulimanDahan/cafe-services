@@ -1,25 +1,55 @@
-import ApiErrorModel from "@/models/app_models/api_error_model";
-import OrderModel from "@/models/data_models/order_model";
-import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export default async function handler(
-    request: NextApiRequest,
-    response: NextApiResponse<OrderModel[] | OrderModel | ApiErrorModel>,
-) {
+/** GET all orders with item relation. Optionally filter by reservation_id via query param. */
+export async function GET(request: Request) {
     try {
-        if (request.method === "GET") {
-            const data = await prisma.order.findMany();
-            return response.status(200).json(data as OrderModel[]);
-        } else if (request.method === "POST") {
-            const data = request.body;
-            const result = await prisma.order.create({ data });
-            return response.status(200).json(result as OrderModel);
-        }
-    } catch (error) {
-        console.error("Error handling orders API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
+        const { searchParams } = new URL(request.url);
+        const reservationId = searchParams.get("reservation_id");
+
+        const orders = await prisma.order.findMany({
+            where: reservationId ? { reservation_id: reservationId } : undefined,
+            include: { item: true },
+            orderBy: { created_at: "desc" },
         });
+        return NextResponse.json(orders);
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
+    }
+}
+
+/** POST a new order */
+export async function POST(request: Request) {
+    try {
+        const data = await request.json();
+
+        if (!data.reservation_id || !data.item_id || !data.quantity) {
+            return NextResponse.json(
+                { error: "reservation_id, item_id, and quantity are required" },
+                { status: 400 }
+            );
+        }
+
+        // Fetch item price at time of order
+        const item = await prisma.item.findUnique({ where: { id: data.item_id } });
+        if (!item) {
+            return NextResponse.json({ error: "Item not found" }, { status: 404 });
+        }
+
+        const order = await prisma.order.create({
+            data: {
+                reservation_id: data.reservation_id,
+                item_id: data.item_id,
+                item_price: item.price,
+                quantity: data.quantity,
+            },
+            include: { item: true },
+        });
+
+        return NextResponse.json(order, { status: 201 });
+    } catch (error) {
+        console.error("Error creating order:", error);
+        return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
     }
 }

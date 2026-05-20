@@ -36,7 +36,8 @@ export async function GET(req: NextRequest) {
 			orderBy: { created_at: "desc" },
 			take: 20,
 		});
-		sendEvent("initial-notifications", recentNotifications);
+		const withTypes = recentNotifications.map(n => ({ ...n, type: "info" }));
+		sendEvent("initial-notifications", withTypes);
 	} catch (dbError) {
 		console.error(
 			"Failed to fetch initial notifications from DB:",
@@ -46,12 +47,15 @@ export async function GET(req: NextRequest) {
 		sendEvent("initial-notifications", []);
 	}
 
-	// 2. Event listener for real-time notifications
 	const onNotificationCreated = (notification: any) => {
 		sendEvent("new-notification", notification);
 	};
+	const onNewReservation = (res: any) => sendEvent("new-reservation", res);
+	const onNewOrder = (order: any) => sendEvent("new-order", order);
 
 	notificationEmitter.on("notification-created", onNotificationCreated);
+	notificationEmitter.on("new-reservation", onNewReservation);
+	notificationEmitter.on("new-order", onNewOrder);
 
 	// 3. Keep Connection Alive (Ping)
 	const pingInterval = setInterval(() => {
@@ -62,10 +66,11 @@ export async function GET(req: NextRequest) {
 		}
 	}, 20000); // Send ping every 20 seconds
 
-	// Clean up on client disconnect
 	const cleanup = () => {
 		clearInterval(pingInterval);
 		notificationEmitter.off("notification-created", onNotificationCreated);
+		notificationEmitter.off("new-reservation", onNewReservation);
+		notificationEmitter.off("new-order", onNewOrder);
 		try {
 			writer.close();
 		} catch {

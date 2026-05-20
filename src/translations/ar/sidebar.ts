@@ -7,5 +7,5 @@ export const sidebar = {
 	notifications: "الإشعارات والمنبهات",
 	users: "المستخدمين",
 	settings: "الإعدادات",
-	rooms: "إدارة الغرف والطاولات",
+	rooms: "إدارة الغرف",
 };

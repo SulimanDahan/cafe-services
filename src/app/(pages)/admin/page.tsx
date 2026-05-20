@@ -7,8 +7,9 @@ import Link from "next/link";
 import { useLanguage } from "@/config/i18n";
 import { defaultLoginData, LoginModel } from "@/models/data_models/login_model";
 import { LOGIN_API_ROUTE } from "@/config/api_routes";
-import { ADMIN_DASHBOARD_PAGE_ROUTE } from "@/config/page_routes";
+import { ADMIN_DASHBOARD_PAGE_ROUTE, MAIN_PAGE_ROUTE } from "@/config/page_routes";
 import { AUTH_COOKIE_NAME } from "@/config/constants";
+import { ServerIcon, WarningIcon, SpinnerIcon, ArrowIcon } from "@/components/icons";
 
 /**
  * Premium Admin Login Page Component.
@@ -83,32 +84,7 @@ export default function LoginPage() {
 					{/* Header / Logo */}
 					<div className="flex flex-col items-center mb-8">
 						<div className="h-16 w-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/5 mb-4 animate-pulse">
-							<svg
-								className="w-7 h-7"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M18 8H6a2 2 0 00-2 2v6a4 4 0 004 4h8a4 4 0 004-4v-6a2 2 0 00-2-2z"
-								/>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M22 10a2 2 0 01-2 2h-2V8h2a2 2 0 012 2z"
-								/>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M6 2v2M10 2v2M14 2v2"
-								/>
-							</svg>
+							<ServerIcon className="w-7 h-7" />
 						</div>
 						<h1 className="text-2xl font-black text-white tracking-wide">
 							{t("login.title")}
@@ -122,20 +98,7 @@ export default function LoginPage() {
 					<form onSubmit={handleSubmit} className="space-y-6">
 						{error && (
 							<div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold flex items-center gap-2 animate-bounce">
-								<svg
-									className="w-4 h-4 shrink-0"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth="2"
-										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-									/>
-								</svg>
+								<WarningIcon className="w-4 h-4 shrink-0" />
 								<span>{error}</span>
 							</div>
 						)}
@@ -196,26 +159,7 @@ export default function LoginPage() {
 						>
 							{isLoading ? (
 								<>
-									<svg
-										className="animate-spin h-5 w-5 text-[#07080a]"
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-									>
-										<circle
-											className="opacity-25"
-											cx="12"
-											cy="12"
-											r="10"
-											stroke="currentColor"
-											strokeWidth="4"
-										></circle>
-										<path
-											className="opacity-75"
-											fill="currentColor"
-											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-										></path>
-									</svg>
+									<SpinnerIcon className="animate-spin h-5 w-5 text-[#07080a]" />
 									<span>{t("login.verifying")}</span>
 								</>
 							) : (
@@ -227,23 +171,10 @@ export default function LoginPage() {
 					{/* Back Link */}
 					<div className="mt-8 text-center">
 						<Link
-							href="/"
+							href={MAIN_PAGE_ROUTE}
 							className="inline-flex items-center gap-2 text-xs text-zinc-400 hover:text-amber-300 transition-colors duration-200"
 						>
-							<svg
-								className={`w-3.5 h-3.5 transform ${isRtl ? "" : "rotate-180"}`}
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2.5"
-									d="M14 5l7 7m0 0l-7 7m7-7H3"
-								/>
-							</svg>
+							<ArrowIcon className={`w-3.5 h-3.5 transform ${isRtl ? "" : "rotate-180"}`} />
 							<span>{t("login.backHome")}</span>
 						</Link>
 					</div>

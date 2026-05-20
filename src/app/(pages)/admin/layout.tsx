@@ -3,66 +3,22 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, ReactNode } from "react";
 import { useLanguage } from "@/config/i18n";
-import { LogoutIcon } from "@/components/icons";
+import { LogoutIcon, LogoIcon, MenuIcon } from "@/components/icons";
 import NotificationCenter from "@/components/NotificationCenter";
 import PWAInstallBanner from "@/components/PWAInstallBanner";
 import { MAIN_ADMIN_ROUTE } from "@/config/page_routes";
 import { AdminDrawerLinks } from "@/components/partials/admin_drawer_links";
+import { LOGOUT_API_ROUTE } from "@/config/api_routes";
+import PageLoader from "@/components/partials/PageLoader";
+import { RoomProvider } from "@/context/room_context";
+import { OrderProvider } from "@/context/order_context";
+import { ItemProvider } from "@/context/item_context";
+import { ItemGroupProvider } from "@/context/item_group_context";
+import { ReservationProvider } from "@/context/reservation_context";
+import { UserProvider } from "@/context/user_context";
 
 interface LayoutProps {
 	children: ReactNode;
-}
-
-/**
- * Full Screen Page Transition Loader component.
- * Features ultra-premium coffee gold / amber visual assets, modern micro-animations,
- * and high-contrast glassmorphic overlay for visual wow factor.
- * Automatically translates text using our global i18n handler.
- */
-function PageLoader() {
-	const { t } = useLanguage();
-	return (
-		<div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-[#07080a]/90 backdrop-blur-md transition-all duration-300">
-			{/* Ambient Glowing Aura */}
-			<div className="absolute w-72 h-72 rounded-full bg-amber-500/10 blur-[100px] pointer-events-none" />
-
-			<div className="relative flex flex-col items-center gap-6">
-				{/* Modern Premium Loader Graphic */}
-				<div className="relative h-20 w-20">
-					{/* Outer Spinning Rim */}
-					<div className="absolute inset-0 rounded-full border-4 border-amber-500/10 border-t-amber-500 animate-spin" />
-
-					{/* Inner Pulse Circle with SVG Icon */}
-					<div className="absolute inset-4 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center animate-pulse">
-						<svg
-							className="w-6 h-6 text-amber-400"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2.5"
-								d="M12 3v1m0 16v1m9-9h-1M4 12H3"
-							/>
-						</svg>
-					</div>
-				</div>
-
-				{/* Bilingual Text Indicators */}
-				<div className="text-center space-y-1.5 z-10">
-					<h3 className="text-sm font-black text-white tracking-wide animate-pulse">
-						{t("common.loading")}
-					</h3>
-					<p className="text-[10px] text-zinc-400 font-bold tracking-widest uppercase">
-						{t("common.logoTitle")} • {t("common.logoSubtitle")}
-					</p>
-				</div>
-			</div>
-		</div>
-	);
 }
 
 /**
@@ -224,12 +180,14 @@ export default function AdminLayout({ children }: LayoutProps) {
 	}
 
 	const handleLogout = async () => {
+		setIsLoading(true);
 		try {
 			// The HttpOnly session cookie is sent automatically by the browser.
 			// The server reads and deletes it — no client-side cookie access needed.
-			await fetch("/api/auth/logout", { method: "POST" });
+			await fetch(LOGOUT_API_ROUTE, { method: "POST" });
 		} catch (err) {
 			console.error("Logout request failed:", err);
+			setIsLoading(false);
 		} finally {
 			// Always redirect to login — proxy will block re-entry without a valid session
 			router.push(MAIN_ADMIN_ROUTE);
@@ -242,20 +200,7 @@ export default function AdminLayout({ children }: LayoutProps) {
 			<div className="h-20 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
 				<div className="flex items-center gap-3">
 					<div className="h-9 w-9 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-lg shadow-md">
-						<svg
-							className="w-5 h-5"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2.5"
-								d="M12 3v1m0 16v1m9-9h-1M4 12H3"
-							/>
-						</svg>
+						<LogoIcon className="w-5 h-5" />
 					</div>
 					<div className="flex flex-col">
 						<span className="text-sm font-black text-white tracking-wide">
@@ -288,113 +233,100 @@ export default function AdminLayout({ children }: LayoutProps) {
 	);
 
 	return (
-		<div
-			className="h-screen max-h-screen overflow-hidden bg-[#07080a] text-zinc-100 font-sans flex flex-row"
-			dir={isRtl ? "rtl" : "ltr"}
-		>
-			{/* Persistent Desktop Sidebar Drawer on the Side (w-64) */}
-			<aside
-				className={`hidden lg:block w-64 shrink-0 sticky top-0 h-screen z-30 ${isRtl ? "border-l border-white/10" : "border-r border-white/10"}`}
-			>
-				{sidebarContent}
-			</aside>
+		<UserProvider>
+			<RoomProvider>
+				<OrderProvider>
+					<ItemGroupProvider>
+						<ItemProvider>
+							<ReservationProvider>
 
-			{/* Unified Top Header for Mobile & Desktop */}
-			<div className="flex-1 flex flex-col h-full max-h-full overflow-hidden min-w-0">
-				<header className="h-16 border-b border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-20">
-					<div className="flex items-center gap-3">
-						{/* Hamburger toggle button - Mobile Only */}
-						<button
-							onClick={() => setIsMobileOpen(!isMobileOpen)}
-							className="lg:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 active:scale-95 transition-all duration-150 focus:outline-none cursor-pointer"
-							aria-label="Toggle menu"
-						>
-							<svg
-								className="w-5 h-5"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
+								<div
+								className="h-screen max-h-screen overflow-hidden bg-[#07080a] text-zinc-100 font-sans flex flex-row"
+								dir={isRtl ? "rtl" : "ltr"}
 							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2.5"
-									d="M4 6h16M4 12h16M4 18h16"
-								/>
-							</svg>
-						</button>
-
-						{/* Brand Logo - Mobile Only */}
-						<div className="lg:hidden flex items-center gap-2">
-							<div className="h-8 w-8 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-base shadow-md">
-								<svg
-									className="w-4 h-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-									xmlns="http://www.w3.org/2000/svg"
+								{/* Persistent Desktop Sidebar Drawer on the Side (w-64) */}
+								<aside
+									className={`hidden lg:block w-64 shrink-0 sticky top-0 h-screen z-30 ${isRtl ? "border-l border-white/10" : "border-r border-white/10"}`}
 								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth="2.5"
-										d="M12 3v1m0 16v1m9-9h-1M4 12H3"
-									/>
-								</svg>
+									{sidebarContent}
+								</aside>
+
+								{/* Unified Top Header for Mobile & Desktop */}
+								<div className="flex-1 flex flex-col h-full max-h-full overflow-hidden min-w-0">
+									<header className="h-16 border-b border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-20">
+										<div className="flex items-center gap-3">
+											{/* Hamburger toggle button - Mobile Only */}
+											<button
+												onClick={() => setIsMobileOpen(!isMobileOpen)}
+												className="lg:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 active:scale-95 transition-all duration-150 focus:outline-none cursor-pointer"
+												aria-label="Toggle menu"
+											>
+												<MenuIcon className="w-5 h-5" />
+											</button>
+
+											{/* Brand Logo - Mobile Only */}
+											<div className="lg:hidden flex items-center gap-2">
+												<div className="h-8 w-8 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-base shadow-md">
+													<LogoIcon className="w-4 h-4" />
+												</div>
+												<span className="text-sm font-black text-white">
+													{t("common.logoTitle")}
+												</span>
+											</div>
+
+											{/* Desktop Admin Status - Desktop Only */}
+											<div className="hidden lg:flex items-center gap-2.5">
+												<span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+												<span className="text-xs font-black text-zinc-300 tracking-wider uppercase">
+													{t("common.adminStatus")}
+												</span>
+											</div>
+										</div>
+
+										{/* Notification Center Integration on top right/left */}
+										<div className="flex items-center gap-3.5">
+											<NotificationCenter />
+										</div>
+									</header>
+
+									{/* Mobile Drawer Slide-in Menu Backdrop */}
+									{isMobileOpen && (
+										<div
+											className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
+											onClick={() => setIsMobileOpen(false)}
+										/>
+									)}
+
+									{/* Mobile Drawer Menu Content */}
+									<aside
+										className={`lg:hidden fixed top-0 bottom-0 z-50 transition-transform duration-300 transform h-screen shrink-0 w-64 border-white/10 ${isRtl ? "right-0 border-l" : "left-0 border-r"
+											} ${isMobileOpen
+												? "translate-x-0"
+												: isRtl
+													? "translate-x-full"
+													: "-translate-x-full"
+											}`}
+									>
+										{sidebarContent}
+									</aside>
+
+									{/* Main Content Pane */}
+									<main className="flex-1 overflow-y-auto p-4 sm:p-8 min-w-0">
+										{children}
+									</main>
+								</div>
+
+								{/* Dynamic PWA Installation Promotion */}
+								<PWAInstallBanner appType="admin" />
+
+								{/* Full Screen Page Transition Overlay Loader */}
+								{isLoading && <PageLoader />}
 							</div>
-							<span className="text-sm font-black text-white">
-								{t("common.logoTitle")}
-							</span>
-						</div>
-
-						{/* Desktop Admin Status - Desktop Only */}
-						<div className="hidden lg:flex items-center gap-2.5">
-							<span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-							<span className="text-xs font-black text-zinc-300 tracking-wider uppercase">
-								{t("common.adminStatus")}
-							</span>
-						</div>
-					</div>
-
-					{/* Notification Center Integration on top right/left */}
-					<div className="flex items-center gap-3.5">
-						<NotificationCenter />
-					</div>
-				</header>
-
-				{/* Mobile Drawer Slide-in Menu Backdrop */}
-				{isMobileOpen && (
-					<div
-						className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
-						onClick={() => setIsMobileOpen(false)}
-					/>
-				)}
-
-				{/* Mobile Drawer Menu Content */}
-				<aside
-					className={`lg:hidden fixed top-0 bottom-0 z-50 transition-transform duration-300 transform h-screen shrink-0 w-64 border-white/10 ${isRtl ? "right-0 border-l" : "left-0 border-r"
-						} ${isMobileOpen
-							? "translate-x-0"
-							: isRtl
-								? "translate-x-full"
-								: "-translate-x-full"
-						}`}
-				>
-					{sidebarContent}
-				</aside>
-
-				{/* Main Content Pane */}
-				<main className="flex-1 overflow-y-auto p-4 sm:p-8 min-w-0">
-					{children}
-				</main>
-			</div>
-
-			{/* Dynamic PWA Installation Promotion */}
-			<PWAInstallBanner appType="admin" />
-
-			{/* Full Screen Page Transition Overlay Loader */}
-			{isLoading && <PageLoader />}
-		</div>
+						</ReservationProvider>
+					</ItemProvider>
+				</ItemGroupProvider>
+			</OrderProvider>
+		</RoomProvider>
+		</UserProvider>
 	);
 }

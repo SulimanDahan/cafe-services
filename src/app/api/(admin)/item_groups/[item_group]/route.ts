@@ -1,40 +1,69 @@
-import ApiErrorModel from "@/models/app_models/api_error_model";
-import ItemGroupModel from "@/models/data_models/item_group_model";
-import { NextApiRequest, NextApiResponse } from "next";
+import { itemGroupSchema } from "@/lib/validations/item_group";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export default async function handler(request: NextApiRequest, response: NextApiResponse<ItemGroupModel | ApiErrorModel>) {
+type Params = { params: Promise<{ item_group: string }> };
+
+/** GET a specific item group */
+export async function GET(_req: Request, { params }: Params) {
     try {
-        const item_group_id: string = request.query.item_group as string;
-        if (request.method === "GET") {
-            const data = await prisma.itemGroup.findFirst({
-                where: { id: item_group_id },
-            });
-            return response.status(200).json(data as ItemGroupModel);
-        } else if (request.method === "PUT") {
-            const data = request.body;
-            const result = await prisma.itemGroup.update({
-                where: { id: item_group_id },
-                data: data,
-            });
-            return response.status(200).json(result);
-        } else if (request.method === "PATCH") {
-            const data = request.body;
-            const result = await prisma.itemGroup.update({
-                where: { id: item_group_id },
-                data: { is_disable: data.is_disable },
-            });
-            return response.status(200).json(result);
-        } else if (request.method === "DELETE") {
-            const result = await prisma.itemGroup.delete({
-                where: { id: item_group_id },
-            });
-            return response.status(200).json(result);
-        }
-    } catch (error) {
-        console.error("Error handling item group API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
+        const { item_group: id } = await params;
+        const group = await prisma.itemGroup.findUnique({
+            where: { id },
+            include: { _count: { select: { items: true } } },
         });
+        if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
+        return NextResponse.json(group);
+    } catch (error) {
+        console.error("Error fetching item group:", error);
+        return NextResponse.json({ error: "Failed to fetch item group" }, { status: 500 });
+    }
+}
+
+/** PUT (full update) a specific item group */
+export async function PUT(request: Request, { params }: Params) {
+    try {
+        const { item_group: id } = await params;
+        const body = await request.json();
+        const validation = itemGroupSchema.partial().safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: "Validation failed", details: validation.error.format() },
+                { status: 422 }
+            );
+        }
+
+        const data = validation.data;
+
+        const updated = await prisma.itemGroup.update({
+            where: { id },
+            data: {
+                name: data.name,
+                is_disable: data.is_disable,
+            },
+        });
+
+        return NextResponse.json(updated);
+    } catch (error: unknown) {
+        console.error("Error updating item group:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Group not found" }, { status: 404 });
+        return NextResponse.json({ error: "Failed to update item group" }, { status: 500 });
+    }
+}
+
+/** DELETE a specific item group */
+export async function DELETE(_req: Request, { params }: Params) {
+    try {
+        const { item_group: id } = await params;
+        await prisma.itemGroup.delete({ where: { id } });
+        return NextResponse.json({ success: true });
+    } catch (error: unknown) {
+        console.error("Error deleting item group:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Group not found" }, { status: 404 });
+        if (err.code === "P2003") return NextResponse.json({ error: "Cannot delete group with existing items" }, { status: 409 });
+        return NextResponse.json({ error: "Failed to delete item group" }, { status: 500 });
     }
 }

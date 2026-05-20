@@ -6,6 +6,8 @@ import {
     type ReactNode,
     useState,
     useCallback,
+    useRef,
+    useEffect,
 } from "react";
 
 /**
@@ -14,13 +16,15 @@ import {
 export interface GenericContextType<T> {
     data: T | null;          // Active item (e.g., current session user or selected item)
     list: T[];               // List of all items
+    total: number;           // Total count of items across all pages (server-reported)
+    totalPages: number;      // Total number of pages (server-reported)
     isLoading: boolean;      // Loading state for single item/initialization
     isListLoading: boolean;  // Loading state for the list
     setData: (data: T | null) => void;
     setList: (list: T[]) => void;
     clear: () => void;
     refresh: () => Promise<T | null>;
-    fetchAll: () => Promise<void>;
+    fetchAll: (queryParams?: Record<string, string>) => Promise<void>;
     add: (itemData: Partial<T>) => Promise<boolean>;
     update: (id: string, itemData: Partial<T>) => Promise<boolean>;
     deleteItem: (id: string) => Promise<boolean>;
@@ -65,8 +69,16 @@ export function useGenericCrudLogic<T>({
 }: Omit<GenericProviderProps<T>, "children">) {
     const [data, setData] = useState<T | null>(null);
     const [list, setList] = useState<T[]>([]);
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isListLoading, setIsListLoading] = useState(false);
+
+    // Keep a stable ref to dataMapper to prevent infinite loops in hooks/effects
+    const dataMapperRef = useRef(dataMapper);
+    useEffect(() => {
+        dataMapperRef.current = dataMapper;
+    }, [dataMapper]);
 
     const refresh = useCallback(async () => {
         if (!refreshRoute) {
@@ -77,7 +89,7 @@ export function useGenericCrudLogic<T>({
             const response = await fetch(refreshRoute);
             if (response.ok) {
                 const result = await response.json();
-                const extracted = dataMapper(result);
+                const extracted = dataMapperRef.current(result);
                 setData(extracted);
                 return extracted;
             }
@@ -90,15 +102,32 @@ export function useGenericCrudLogic<T>({
         } finally {
             setIsLoading(false);
         }
-    }, [refreshRoute, dataMapper]);
+    }, [refreshRoute]);
 
-    const fetchAll = useCallback(async () => {
+    const fetchAll = useCallback(async (queryParams?: Record<string, string>) => {
         setIsListLoading(true);
         try {
-            const response = await fetch(apiRoute);
+            let url = apiRoute;
+            if (queryParams) {
+                const queryString = new URLSearchParams(queryParams).toString();
+                if (queryString) {
+                    url = `${apiRoute}?${queryString}`;
+                }
+            }
+            const response = await fetch(url);
             if (response.ok) {
                 const result = await response.json();
-                setList(result);
+                // Support paginated response shape { data, total, totalPages }
+                if (result && typeof result === "object" && "data" in result && "total" in result) {
+                    setList(result.data as T[]);
+                    setTotal(result.total as number);
+                    setTotalPages(result.totalPages as number);
+                } else {
+                    // Plain array fallback (non-paginated endpoints)
+                    setList(result as T[]);
+                    setTotal((result as T[]).length);
+                    setTotalPages(1);
+                }
             }
         } catch (error) {
             console.error(`Failed to fetch all:`, error);
@@ -166,6 +195,8 @@ export function useGenericCrudLogic<T>({
     return {
         data,
         list,
+        total,
+        totalPages,
         isLoading,
         isListLoading,
         setData,

@@ -1,27 +1,71 @@
-import ApiErrorModel from "@/models/app_models/api_error_model";
-import ItemGroupModel from "@/models/data_models/item_group_model";
-import { NextApiRequest, NextApiResponse } from "next";
+import { itemGroupSchema } from "@/lib/validations/item_group";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export default async function handler(
-    request: NextApiRequest,
-    response: NextApiResponse<
-        ItemGroupModel[] | ItemGroupModel | ApiErrorModel
-    >,
-) {
+/** GET paginated item groups with optional search */
+export async function GET(request: Request) {
     try {
-        if (request.method === "GET") {
-            const data = await prisma.itemGroup.findMany();
-            return response.status(200).json(data as ItemGroupModel[]);
-        } else if (request.method === "POST") {
-            const data = request.body;
-            const result = await prisma.itemGroup.create({ data });
-            return response.status(200).json(result as ItemGroupModel);
-        }
-    } catch (error) {
-        console.error("Error handling item groups API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
+        const { searchParams } = new URL(request.url);
+        const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+        const perPage = Math.max(1, parseInt(searchParams.get("per_page") || "10", 10));
+        const search = searchParams.get("search") || "";
+
+        const where = search
+            ? { name: { contains: search, mode: "insensitive" as const } }
+            : {};
+
+        const [groups, total] = await Promise.all([
+            prisma.itemGroup.findMany({
+                where,
+                orderBy: { created_at: "desc" },
+                include: { _count: { select: { items: true } } },
+                skip: (page - 1) * perPage,
+                take: perPage,
+            }),
+            prisma.itemGroup.count({ where }),
+        ]);
+
+        return NextResponse.json({
+            data: groups,
+            total,
+            page,
+            totalPages: Math.ceil(total / perPage),
         });
+    } catch (error) {
+        console.error("Error fetching item groups:", error);
+        return NextResponse.json({ error: "Failed to fetch item groups" }, { status: 500 });
+    }
+}
+
+/** POST a new item group */
+export async function POST(request: Request) {
+    try {
+        const body = await request.json();
+        const validation = itemGroupSchema.safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: "Validation failed", details: validation.error.format() },
+                { status: 422 }
+            );
+        }
+
+        const data = validation.data;
+
+        const group = await prisma.itemGroup.create({
+            data: {
+                name: data.name,
+                is_disable: data.is_disable ?? false,
+            },
+        });
+
+        return NextResponse.json(group, { status: 201 });
+    } catch (error: unknown) {
+        console.error("Error creating item group:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2002") {
+            return NextResponse.json({ error: "Group name already exists" }, { status: 409 });
+        }
+        return NextResponse.json({ error: "Failed to create item group" }, { status: 500 });
     }
 }

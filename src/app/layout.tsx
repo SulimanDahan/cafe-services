@@ -1,11 +1,15 @@
 import { Cairo, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/config/i18n";
-import { UserProvider } from "@/context/user_context";
+// import { UserProvider } from "@/context/user_context";
 import { prisma } from "@/lib/prisma";
 import { SettingsProvider } from "@/context/settings_context";
 import { SettingsModel } from "@/models/data_models/settings_model";
 import { getServerTranslations } from "@/lib/i18n_server";
+// import { ItemGroupProvider } from "@/context/item_group_context";
+// import { ItemProvider } from "@/context/item_context";
+// import { ReservationProvider } from "@/context/reservation_context";
+// import { OrderProvider } from "@/context/order_context";
 
 const cairo = Cairo({
 	variable: "--font-cairo",
@@ -45,7 +49,17 @@ export default async function RootLayout({
 			<body className="min-h-full flex flex-col">
 				<SettingsProvider initialData={appSettings as SettingsModel}>
 					<LanguageProvider initialLocale={locale}>
-						<UserProvider>{children}</UserProvider>
+						{/* <UserProvider> */}
+						{/* <ItemGroupProvider> */}
+						{/* <ItemProvider> */}
+						{/* <ReservationProvider> */}
+						{/* <OrderProvider> */}
+						{children}
+						{/* </OrderProvider>
+									</ReservationProvider>
+								</ItemProvider>
+							</ItemGroupProvider>
+						</UserProvider> */}
 					</LanguageProvider>
 				</SettingsProvider>
 			</body>

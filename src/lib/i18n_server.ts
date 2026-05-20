@@ -13,22 +13,22 @@ export function getServerTranslations(locale: "ar" | "en") {
      */
     const t = (keyPath: string): string => {
         const parts = keyPath.split(".");
-        let current: any = (TRANSLATIONS as any)[locale];
+        let current: unknown = TRANSLATIONS[locale];
 
         for (const part of parts) {
-            if (current && current[part] !== undefined) {
-                current = current[part];
+            if (current && typeof current === "object" && part in current) {
+                current = (current as Record<string, unknown>)[part];
             } else {
                 // Fallback to primary Arabic translation
-                let fallback: any = (TRANSLATIONS as any).ar;
+                let fallback: unknown = TRANSLATIONS.ar;
                 for (const fbPart of parts) {
-                    if (fallback && fallback[fbPart] !== undefined) {
-                        fallback = fallback[fbPart];
+                    if (fallback && typeof fallback === "object" && fbPart in fallback) {
+                        fallback = (fallback as Record<string, unknown>)[fbPart];
                     } else {
                         return keyPath; // fallback of fallback: return path name
                     }
                 }
-                return fallback;
+                return typeof fallback === "string" ? fallback : keyPath;
             }
         }
 

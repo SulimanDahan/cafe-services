@@ -24,6 +24,25 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 
+		// Dynamically inject the appropriate manifest link
+		const manifestFile = appType === "admin" ? "/admin-manifest.json" : "/customer-manifest.json";
+		let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+		if (link) {
+			link.href = manifestFile;
+		} else {
+			link = document.createElement("link");
+			link.rel = "manifest";
+			link.href = manifestFile;
+			document.head.appendChild(link);
+		}
+
+		// Register Service Worker to enable PWA support
+		if ("serviceWorker" in navigator) {
+			navigator.serviceWorker.register("/sw.js").catch((err) => {
+				console.error("Service Worker registration failed:", err);
+			});
+		}
+
 		// 1. If already running as installed standalone app, do not show prompt
 		const isStandalone =
 			window.matchMedia("(display-mode: standalone)").matches ||

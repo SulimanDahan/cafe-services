@@ -36,4 +36,8 @@ export const notifications = {
 	optionWarning: "تنبيه حرج (! - كهرماني)",
 	optionError: "عملية خاطئة (✕ - أحمر)",
 	btnBroadcastNow: "بث الإشعار الآن",
+	newBookingTitle: "حجز جديد",
+	newBookingMessage: "يوجد حجز جديد للغرفة رقم '{room}'",
+	newOrderTitle: "طلب جديد",
+	newOrderMessage: "يوجد طلب جديد للغرفة رقم '{room}'",
 };

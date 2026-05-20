@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/config/i18n";
 import { Badge } from "@/components/badge";
 import { Banner } from "@/components/banner";
 import { Card } from "@/components/card";
 import { BookingModal } from "@/components/partials/modals/reservation_modal";
+import { ROOM_API_ROUTE } from "@/config/api_routes";
 import { Toast, ToastType } from "@/components/toast";
 import { PrimaryButton } from "@/components/button/primary_button";
 import { CupIcon } from "@/components/icons/cup_icon";
@@ -21,27 +22,32 @@ export default function Home() {
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [isBookModalOpen, setIsBookModalOpen] = useState(false);
 
-    // البيانات الافتراضية للغرف
-    const DEFAULT_ROOMS = [
-        {
-            id: "rm1",
-            name: "طاولة VIP 1 (المنطقة الزجاجية)",
-            is_disable: false,
-        },
-        { id: "rm2", name: "طاولة عائلية 4 (الدور الثاني)", is_disable: false },
-        { id: "rm3", name: "طاولة ثنائية 2 (شرفة المقهى)", is_disable: false },
-    ];
+    interface Room {
+        id: string;
+        name: string;
+        is_disable: boolean;
+        qr_code?: string;
+    }
 
-    // جلب الغرف من localStorage أو القيم الافتراضية
-    const [rooms] = useState(() => {
-        if (typeof window === "undefined") return DEFAULT_ROOMS;
-        const stored = localStorage.getItem("cafe_rooms");
-        try {
-            return stored ? JSON.parse(stored) : DEFAULT_ROOMS;
-        } catch {
-            return DEFAULT_ROOMS;
-        }
-    });
+    const [rooms, setRooms] = useState<Room[]>([]);
+
+    useEffect(() => {
+        const fetchRooms = async () => {
+            try {
+                const res = await fetch(`${ROOM_API_ROUTE}?fetch_all=true`);
+                if (res.ok) {
+                    const resData = await res.json();
+                    const roomsList = Array.isArray(resData)
+                        ? resData
+                        : (resData.success && Array.isArray(resData.data) ? resData.data : []);
+                    setRooms(roomsList.filter((r: Room) => !r.is_disable));
+                }
+            } catch (err) {
+                console.error("Failed to fetch rooms", err);
+            }
+        };
+        fetchRooms();
+    }, []);
 
     // حالة الـ Toast
     const [toast, setToast] = useState({

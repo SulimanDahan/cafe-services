@@ -1,15 +1,21 @@
 import { AUTH_COOKIE_NAME } from "@/config/constants";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerTranslations } from "@/lib/i18n_server";
 
 /** Refresh session auth */
 export async function POST(request: NextRequest) {
+	const appSettings = await prisma.settings.findFirst();
+	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
+	const { t } = getServerTranslations(locale);
+
 	const authSession = request.cookies.get(AUTH_COOKIE_NAME);
 	if (!authSession) {
 		return NextResponse.json(
 			{
 				status: 401,
 				success: false,
-				message: "غير مصرح، يرجى تسجيل الدخول.",
+				message: t("apiMessages.error.unauthorized"),
 			},
 			{ status: 401 },
 		);
@@ -22,7 +28,7 @@ export async function POST(request: NextRequest) {
 	const response = NextResponse.json({
 		status: 200,
 		success: true,
-		message: "تم تحديث الجلسة بنجاح.",
+		message: t("apiMessages.success.sessionRefreshed"),
 	});
 
 	response.cookies.set(AUTH_COOKIE_NAME, authSession.value, {

@@ -1,21 +1,29 @@
-import { Decimal } from "@prisma/client/runtime/client";
+import ItemGroupModel from "./item_group_model";
 
+/**
+ * Represents a menu item (beverage, food, etc.).
+ * Matches the Prisma Item model.
+ */
 type ItemModel = {
-    name: string;
     id: string;
-    created_at: Date;
-    price: Decimal;
-    is_disable: boolean;
+    name: string;
+    price: number;
     group_id: string;
+    is_disable: boolean;
+    created_at: Date;
+    updated_at: Date;
+    /** Included via Prisma relation */
+    group?: ItemGroupModel;
 };
 
 export const initialItemState: ItemModel = {
-    name: "",
     id: "",
-    created_at: new Date(),
-    price: new Decimal(0),
-    is_disable: false,
+    name: "",
+    price: 0,
     group_id: "",
+    is_disable: false,
+    created_at: new Date(),
+    updated_at: new Date(),
 };
 
 export default ItemModel;

@@ -10,6 +10,8 @@ import { notifications } from "./notifications";
 import { users } from "./users";
 import { settings } from "./settings";
 import { home } from "./home";
+import { errors } from "./errors";
+import { apiMessages } from "./api_messages";
 
 const en = {
 	common,
@@ -24,6 +26,8 @@ const en = {
 	users,
 	settings,
 	home,
+	errors,
+	apiMessages,
 };
 
 export default en;

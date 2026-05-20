@@ -17,6 +17,8 @@ import { createGenericContext, useGenericCrudLogic, type GenericContextType } fr
 interface UserContextType {
     user: UserModel | null;
     users: UserModel[];
+    total: number;
+    totalPages: number;
     isAuthenticated: boolean;
     isAdmin: boolean;
     isLoading: boolean;
@@ -24,7 +26,7 @@ interface UserContextType {
     clearUser: () => void;
     refreshUser: () => Promise<UserModel | null>;
     logout: () => Promise<void>;
-    fetchAllUsers: () => Promise<void>;
+    fetchAllUsers: (queryParams?: Record<string, string>) => Promise<void>;
     addUser: (userData: Partial<UserModel>) => Promise<boolean>;
     updateUser: (id: string, userData: Partial<UserModel>) => Promise<boolean>;
     deleteUser: (id: string) => Promise<boolean>;
@@ -40,6 +42,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const {
         data: user,
         list: users,
+        total,
+        totalPages,
         isLoading,
         isListLoading: isUsersLoading,
         clear: clearUser,
@@ -82,6 +86,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         () => ({
             user,
             users,
+            total,
+            totalPages,
             isAuthenticated: !!user,
             isAdmin: user?.is_admin ?? false,
             isLoading,
@@ -97,6 +103,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         [
             user,
             users,
+            total,
+            totalPages,
             isLoading,
             isUsersLoading,
             clearUser,

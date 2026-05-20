@@ -1,42 +1,71 @@
-import ItemModel from "@/models/data_models/item_model";
-import { NextApiRequest, NextApiResponse } from "next";
+import { itemSchema } from "@/lib/validations/item";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export default async function handler(
-    request: NextApiRequest,
-    response: NextApiResponse<ItemModel | { error: string }>,
-) {
-    const item_id: string = request.query.item as string;
+type Params = { params: Promise<{ item: string }> };
+
+/** GET a specific item */
+export async function GET(_req: Request, { params }: Params) {
     try {
-        if (request.method === "GET") {
-            const data = await prisma.item.findFirst({
-                where: { id: item_id },
-            });
-            return response.status(200).json(data as ItemModel);
-        } else if (request.method === "PUT") {
-            const data = request.body;
-            const result = await prisma.item.update({
-                where: { id: item_id },
-                data: data,
-            });
-            return response.status(200).json(result);
-        } else if (request.method === "PATCH") {
-            const data = request.body;
-            const result = await prisma.item.update({
-                where: { id: item_id },
-                data: { is_disable: data.is_disable },
-            });
-            return response.status(200).json(result);
-        } else if (request.method === "DELETE") {
-            const result = await prisma.item.delete({
-                where: { id: item_id },
-            });
-            return response.status(200).json(result);
-        }
-    } catch (error) {
-        console.error("Error handling item API request:", error);
-        return response.status(500).json({
-            error: "An unexpected error occurred while processing the request.",
+        const { item: id } = await params;
+        const item = await prisma.item.findUnique({
+            where: { id },
+            include: { group: true },
         });
+        if (!item) return NextResponse.json({ error: "Item not found" }, { status: 404 });
+        return NextResponse.json(item);
+    } catch (error) {
+        console.error("Error fetching item:", error);
+        return NextResponse.json({ error: "Failed to fetch item" }, { status: 500 });
+    }
+}
+
+/** PUT (full update) a specific item */
+export async function PUT(request: Request, { params }: Params) {
+    try {
+        const { item: id } = await params;
+        const body = await request.json();
+        const validation = itemSchema.partial().safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: "Validation failed", details: validation.error.format() },
+                { status: 422 }
+            );
+        }
+
+        const data = validation.data;
+
+        const updated = await prisma.item.update({
+            where: { id },
+            data: {
+                name: data.name,
+                price: data.price,
+                group_id: data.group_id,
+                is_disable: data.is_disable,
+            },
+            include: { group: true },
+        });
+
+        return NextResponse.json(updated);
+    } catch (error: unknown) {
+        console.error("Error updating item:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Item not found" }, { status: 404 });
+        return NextResponse.json({ error: "Failed to update item" }, { status: 500 });
+    }
+}
+
+/** DELETE a specific item */
+export async function DELETE(_req: Request, { params }: Params) {
+    try {
+        const { item: id } = await params;
+        await prisma.item.delete({ where: { id } });
+        return NextResponse.json({ success: true });
+    } catch (error: unknown) {
+        console.error("Error deleting item:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Item not found" }, { status: 404 });
+        return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });
     }
 }

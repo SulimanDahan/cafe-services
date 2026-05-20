@@ -1,15 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+interface RouteContext {
+    params: Promise<{ user: string }>;
+}
+
 /**
  * GET a specific user
  */
 export async function GET(
     request: Request,
-    { params }: { params: { user: string } }
+    context: RouteContext
 ) {
     try {
-        const userId = params.user;
+        const { user: userId } = await context.params;
         const user = await prisma.user.findUnique({
             where: { id: userId },
         });
@@ -30,10 +34,10 @@ export async function GET(
  */
 export async function PUT(
     request: Request,
-    { params }: { params: { user: string } }
+    context: RouteContext
 ) {
     try {
-        const userId = params.user;
+        const { user: userId } = await context.params;
         const data = await request.json();
 
         const updatedUser = await prisma.user.update({
@@ -47,9 +51,9 @@ export async function PUT(
         });
 
         return NextResponse.json(updatedUser);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error updating user:", error);
-        if (error.code === "P2025") {
+        if (error && typeof error === "object" && "code" in error && error.code === "P2025") {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
         return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
@@ -61,21 +65,20 @@ export async function PUT(
  */
 export async function DELETE(
     request: Request,
-    { params }: { params: { user: string } }
+    context: RouteContext
 ) {
     try {
-        const userId = params.user;
+        const { user: userId } = await context.params;
         await prisma.user.delete({
             where: { id: userId },
         });
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error deleting user:", error);
-        if (error.code === "P2025") {
+        if (error && typeof error === "object" && "code" in error && error.code === "P2025") {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
         return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
     }
 }
-

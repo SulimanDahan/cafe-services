@@ -1,35 +1,66 @@
-import RoomModel from "@/models/data_models/room_model";
-import { NextApiRequest, NextApiResponse } from "next";
+import { roomSchema } from "@/lib/validations/room";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export default async function handler(
-    request: NextApiRequest,
-    response: NextApiResponse<RoomModel>,
-) {
-    const room_id: string = request.query.room as string;
-    if (request.method === "GET") {
-        const data = await prisma.room.findFirst({
-            where: { id: room_id },
+type Params = { params: Promise<{ room: string }> };
+
+/** GET a specific room */
+export async function GET(_req: Request, { params }: Params) {
+    try {
+        const { room: id } = await params;
+        const room = await prisma.room.findUnique({ where: { id } });
+        if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
+        return NextResponse.json(room);
+    } catch (error) {
+        console.error("Error fetching room:", error);
+        return NextResponse.json({ error: "Failed to fetch room" }, { status: 500 });
+    }
+}
+
+/** PUT (full update) a specific room */
+export async function PUT(request: Request, { params }: Params) {
+    try {
+        const { room: id } = await params;
+        const body = await request.json();
+        const validation = roomSchema.partial().safeParse(body);
+
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: "Validation failed", details: validation.error.format() },
+                { status: 422 }
+            );
+        }
+
+        const data = validation.data;
+
+        const updated = await prisma.room.update({
+            where: { id },
+            data: {
+                name: data.name,
+                qr_code: data.qr_code,
+                is_disable: data.is_disable,
+            },
         });
-        return response.status(200).json(data as RoomModel);
-    } else if (request.method === "PUT") {
-        const data = request.body;
-        const result = await prisma.room.update({
-            where: { id: room_id },
-            data: data,
-        });
-        return response.status(200).json(result);
-    } else if (request.method === "PATCH") {
-        const data = request.body;
-        const result = await prisma.room.update({
-            where: { id: room_id },
-            data: { is_disable: data.is_disable },
-        });
-        return response.status(200).json(result);
-    } else if (request.method === "DELETE") {
-        const result = await prisma.room.delete({
-            where: { id: room_id },
-        });
-        return response.status(200).json(result);
+
+        return NextResponse.json(updated);
+    } catch (error: unknown) {
+        console.error("Error updating room:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Room not found" }, { status: 404 });
+        return NextResponse.json({ error: "Failed to update room" }, { status: 500 });
+    }
+}
+
+/** DELETE a specific room */
+export async function DELETE(_req: Request, { params }: Params) {
+    try {
+        const { room: id } = await params;
+        await prisma.room.delete({ where: { id } });
+        return NextResponse.json({ success: true });
+    } catch (error: unknown) {
+        console.error("Error deleting room:", error);
+        const err = error as { code?: string };
+        if (err.code === "P2025") return NextResponse.json({ error: "Room not found" }, { status: 404 });
+        return NextResponse.json({ error: "Failed to delete room" }, { status: 500 });
     }
 }

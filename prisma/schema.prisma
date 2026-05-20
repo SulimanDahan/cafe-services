@@ -20,6 +20,7 @@ model Notification {
   id         String   @id @default(uuid())
   title      String
   message    String
+  read       Boolean  @default(false)
   created_at DateTime @default(now())
 }
 
@@ -66,18 +67,19 @@ model Item {
 }
 
 model Reservation {
-  id          String   @id @default(uuid())
-  number      Int      @unique @default(autoincrement())
-  date_time   DateTime @default(now())
-  client_name String
-  phone       String
-  room_id     String
-  accepted    Boolean  @default(false)
-  completed   Boolean  @default(false)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now()) @updatedAt
-  orders      Order[]
-  room        Room     @relation(fields: [room_id], references: [id])
+  id            String   @id @default(uuid())
+  number        Int      @unique @default(autoincrement())
+  date_time     DateTime @default(now())
+  client_name   String
+  phone         String
+  room_id       String
+  order_passkey Int      @unique
+  accepted      Boolean  @default(false)
+  completed     Boolean  @default(false)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+  orders        Order[]
+  room          Room     @relation(fields: [room_id], references: [id])
 }
 
 model Order {
@@ -93,12 +95,13 @@ model Order {
 }
 
 model Settings {
-  id                     String   @id @default(uuid())
-  currency_name          String   @default("yemeniRial")
-  notification_threshold Int      @default(100)
-  app_lang               String   @default("ar")
-  per_page               Int      @default(25)
-  session_expiry_minutes Int      @default(30)
-  created_at             DateTime @default(now())
-  updated_at             DateTime @default(now()) @updatedAt
+  id                                 String   @id @default(uuid())
+  currency_name                      String   @default("YER")
+  notification_threshold             Int      @default(100)
+  app_lang                           String   @default("ar")
+  per_page                           Int      @default(25)
+  session_expiry_minutes             Int      @default(30)
+  created_at                         DateTime @default(now())
+  updated_at                         DateTime @default(now()) @updatedAt
+  force_client_order_session_passKey Boolean  @default(false)
 }

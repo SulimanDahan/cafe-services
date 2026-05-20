@@ -1,8 +1,13 @@
 import { AUTH_COOKIE_NAME } from "@/config/constants";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerTranslations } from "@/lib/i18n_server";
 
 export async function POST(request: NextRequest) {
+	const appSettings = await prisma.settings.findFirst();
+	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
+	const { t } = getServerTranslations(locale);
+
 	try {
 		// Read the session ID directly from the HttpOnly cookie (not the body)
 		const sessionId = request.cookies.get(AUTH_COOKIE_NAME)?.value;
@@ -17,7 +22,7 @@ export async function POST(request: NextRequest) {
 		const isProduction = process.env.NODE_ENV === "production";
 
 		// Clear the HttpOnly session cookie regardless of whether session existed
-		const response = NextResponse.json({ message: "Logout successful" });
+		const response = NextResponse.json({ message: t("apiMessages.success.logout") });
 		response.cookies.set(AUTH_COOKIE_NAME, "", {
 			httpOnly: true,
 			secure: isProduction,
@@ -30,7 +35,7 @@ export async function POST(request: NextRequest) {
 	} catch (error) {
 		console.error("[AUTH] Logout error:", error);
 		return NextResponse.json(
-			{ error: "Internal Server Error" },
+			{ error: t("apiMessages.error.serverError") },
 			{ status: 500 },
 		);
 	}
