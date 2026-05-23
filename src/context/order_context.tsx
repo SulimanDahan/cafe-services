@@ -15,6 +15,7 @@ interface OrderContextType {
     isOrdersLoading: boolean;
     fetchAllOrders: () => Promise<void>;
     addOrder: (data: Partial<OrderModel>) => Promise<boolean>;
+    updateOrder: (id: string, data: Partial<OrderModel>) => Promise<boolean>;
     deleteOrder: (id: string) => Promise<boolean>;
 }
 
@@ -32,6 +33,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         isListLoading: isOrdersLoading,
         fetchAll: fetchAllOrders,
         add: addOrder,
+        update: updateOrder,
         deleteItem: deleteOrder,
         setList: setOrders,
     } = useGenericCrudLogic<OrderModel>({
@@ -77,10 +79,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
             refresh: async () => null,
             fetchAll: fetchAllOrders,
             add: addOrder,
-            update: async () => false, // Orders are immutable
+            update: updateOrder,
             deleteItem: deleteOrder,
         }),
-        [orders, total, totalPages, isOrdersLoading, fetchAllOrders, addOrder, deleteOrder]
+        [orders, total, totalPages, isOrdersLoading, fetchAllOrders, addOrder, updateOrder, deleteOrder]
     );
 
     return (
@@ -98,6 +100,7 @@ export function useOrder(): OrderContextType {
         isOrdersLoading: ctx.isListLoading,
         fetchAllOrders: ctx.fetchAll,
         addOrder: ctx.add,
+        updateOrder: ctx.update,
         deleteOrder: ctx.deleteItem,
     };
 }

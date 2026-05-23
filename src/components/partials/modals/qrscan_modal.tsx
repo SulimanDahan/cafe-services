@@ -10,7 +10,6 @@ interface QrScannerModalProps {
     scanErrorMsg: string;
     cameraStream: MediaStream | null;
     videoRef: RefObject<HTMLVideoElement | null>;
-    onSimulateScan: (roomId: string, tableName: string) => void;
     t: (key: string) => string;
     isRtl: boolean;
     forcePasskeySetting: boolean;
@@ -26,7 +25,6 @@ export default function QrScannerModal({
     scanErrorMsg,
     cameraStream,
     videoRef,
-    onSimulateScan,
     t,
     isRtl,
     forcePasskeySetting,
@@ -136,50 +134,7 @@ export default function QrScannerModal({
                         )}
                     </div>
 
-                    {/* خيارات محاكاة المسح للطاولات */}
-                    <div className="space-y-2.5">
-                        <span className="text-[10px] text-zinc-500 font-black uppercase tracking-wider block text-center">{t("orders.simulatedScanSub")}</span>
-                        <div className="grid grid-cols-1 gap-2">
-                            <button 
-                                type="button" 
-                                disabled={scanLoading} 
-                                onClick={() => onSimulateScan("rm1", "VIP 1")} 
-                                className="p-3.5 rounded-2xl bg-[#0d0f17] border border-white/10 hover:border-amber-500/40 text-left transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-between gap-3 group cursor-pointer"
-                            >
-                                <div className="space-y-1">
-                                    <p className="text-xs font-black text-white group-hover:text-amber-300">{t("orders.qrVip1")}</p>
-                                    <p className="text-[10px] text-green-400 font-bold">{t("orders.qrVip1Desc")}</p>
-                                </div>
-                                <span className="text-xs font-black text-zinc-400 uppercase font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">{t("orders.btnScanCode")}</span>
-                            </button>
 
-                            <button 
-                                type="button" 
-                                disabled={scanLoading} 
-                                onClick={() => onSimulateScan("rm2", isRtl ? "طاولة عائلية 4" : "Family Table 4")} 
-                                className="p-3.5 rounded-2xl bg-[#0d0f17] border border-white/10 hover:border-amber-500/40 text-left transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-between gap-3 group cursor-pointer"
-                            >
-                                <div className="space-y-1">
-                                    <p className="text-xs font-black text-white group-hover:text-amber-300">{t("orders.qrTable4")}</p>
-                                    <p className="text-[10px] text-zinc-400 font-semibold">{t("orders.qrTable4Desc")}</p>
-                                </div>
-                                <span className="text-xs font-black text-zinc-400 uppercase font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">{t("orders.btnScanCode")}</span>
-                            </button>
-
-                            <button 
-                                type="button" 
-                                disabled={scanLoading} 
-                                onClick={() => onSimulateScan("rm3", isRtl ? "طاولة ثنائية 2" : "Double Table 2")} 
-                                className="p-3.5 rounded-2xl bg-[#0d0f17] border border-white/10 hover:border-amber-500/40 text-left transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-between gap-3 group cursor-pointer"
-                            >
-                                <div className="space-y-1">
-                                    <p className="text-xs font-black text-white group-hover:text-amber-300">{t("orders.qrTable2")}</p>
-                                    <p className="text-[10px] text-zinc-400 font-semibold">{t("orders.qrTable2Desc")}</p>
-                                </div>
-                                <span className="text-xs font-black text-zinc-400 uppercase font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">{t("orders.btnScanCode")}</span>
-                            </button>
-                        </div>
-                    </div>
 
                     {/* رسائل التنبيه والخطأ */}
                     {scanErrorMsg && (

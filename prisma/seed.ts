@@ -30,7 +30,7 @@ async function main() {
 				app_lang: "ar",
 				per_page: 25,
 				notification_threshold: 100,
-				session_expiry_minutes: 30,
+				session_expiry_minutes: 30	,
 				force_client_order_session_passKey: false,
 			},
 		});

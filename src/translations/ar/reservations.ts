@@ -66,7 +66,7 @@ export const reservations = {
 	btnSaveTable: "إضافة وحفظ",
 	stickerTitle: "ملصق رمز الـ QR للغرفة",
 	stickerSub: "معاينة الملصق المادي وبدء عملية الطباعة المباشرة.",
-	stickerCafe: "مقهى الخدمات الفاخرة",
+	stickerCafe: "رواق كافيه",
 	stickerId: "المعرّف:",
 	stickerScan: "وجه كاميرتك للمسح والطلب",
 	stickerScanDesc: "يتطلب وجود حجز معتمد وساري المفعول لتاريخ اليوم لبدء الطلب.",

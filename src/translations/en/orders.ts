@@ -110,4 +110,10 @@ export const orders = {
 	cancelledSuccessfully: "Cancelled ({name}).",
 	inputPasskeyLabel: "Order Passkey (6-digits)",
 	inputPasskeyPlaceholder: "Enter 6-digit passkey",
+	statusApproved: "Approved",
+	btnApprove: "Approve",
+	msgOrderApproveSuccess: "Order approved successfully",
+	msgOrderApproveFailed: "Failed to approve order",
+	errPasskeyRequired: "Please enter the 6-digit passkey first.",
+	errCancelOrder: "Failed to cancel order.",
 };

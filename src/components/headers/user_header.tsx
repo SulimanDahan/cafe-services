@@ -3,6 +3,8 @@ import { useLanguage } from "@/config/i18n";
 import { MAIN_PAGE_ROUTE, ORDER_PAGE_ROUTE } from "@/config/page_routes";
 import LinkButton from "../button/link_button";
 
+import { LogoIcon } from "@/components/icons";
+
 /** High-Contrast Glassmorphic AppBar */
 const UserHeader = () => {
     const { t } = useLanguage();
@@ -12,22 +14,7 @@ const UserHeader = () => {
             <div className="px-6 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-6">
                     {/* Logo */}
-                    <div className="h-9.5 w-9.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center font-black text-lg shadow-lg">
-                        <svg
-                            className="w-5.5 h-5.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2.5"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3"
-                            />
-                        </svg>
-                    </div>
+                    <LogoIcon className="w-12 h-12 shrink-0 drop-shadow-lg text-amber-500" />
                     <span className="text-sm sm:text-base md:text-lg font-black tracking-wide text-white whitespace-nowrap hidden sm:inline">
                         {t("home.title")}
                     </span>

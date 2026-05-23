@@ -1,10 +1,13 @@
 "use client";
 
+import { useLanguage } from "@/config/i18n";
+
 interface Order {
     id: string;
     item_name: string;
     item_price: number;
     quantity: number;
+    accepted?: boolean;
     created_at?: string;
     createdAt?: string; // Fallback for older data
 }
@@ -26,6 +29,8 @@ export default function ActiveOrdersList({
     btnCancelTitle,
     onCancelOrder,
 }: ActiveOrdersListProps) {
+    const { t } = useLanguage();
+
     return (
         <div className="rounded-[28px] border border-white/10 bg-[#131522] p-5.5 shadow-xl space-y-4">
             <h3 className="text-sm font-black text-white border-b border-white/5 pb-3 flex items-center justify-between">
@@ -61,30 +66,44 @@ export default function ActiveOrdersList({
                                 </div>
 
                                 <div className="flex items-center gap-2">
+                                    {o.accepted ? (
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black bg-green-500/10 border border-green-500/20 text-green-400">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                            {t("orders.statusApproved")}
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                            {t("orders.statusPending")}
+                                        </span>
+                                    )}
+
                                     <span className="text-xs font-black text-amber-400 shrink-0">
                                         {(o.item_price * o.quantity).toLocaleString("en-US")} {currencyLabel}
                                     </span>
 
-                                    <button
-                                        onClick={() => onCancelOrder(o.id, o.item_name)}
-                                        className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all shrink-0 active:scale-95"
-                                        title={btnCancelTitle}
-                                    >
-                                        <svg
-                                            className="w-3.5 h-3.5"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                            xmlns="http://www.w3.org/2000/svg"
+                                    {!o.accepted && (
+                                        <button
+                                            onClick={() => onCancelOrder(o.id, o.item_name)}
+                                            className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all shrink-0 active:scale-95 cursor-pointer"
+                                            title={btnCancelTitle}
                                         >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2.5"
-                                                d="M6 18L18 6M6 6l12 12"
-                                            />
-                                        </svg>
-                                    </button>
+                                            <svg
+                                                className="w-3.5 h-3.5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2.5"
+                                                    d="M6 18L18 6M6 6l12 12"
+                                                />
+                                            </svg>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         );

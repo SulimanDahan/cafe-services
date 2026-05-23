@@ -12,11 +12,11 @@ export async function GET(_req: Request, { params }: Params) {
             where: { id },
             include: { _count: { select: { items: true } } },
         });
-        if (!group) return NextResponse.json({ error: "Group not found" }, { status: 404 });
+        if (!group) return NextResponse.json({ error: "apiMessages.error.notFound" }, { status: 404 });
         return NextResponse.json(group);
     } catch (error) {
         console.error("Error fetching item group:", error);
-        return NextResponse.json({ error: "Failed to fetch item group" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }
 
@@ -29,7 +29,7 @@ export async function PUT(request: Request, { params }: Params) {
 
         if (!validation.success) {
             return NextResponse.json(
-                { error: "Validation failed", details: validation.error.format() },
+                { error: "apiMessages.error.validationFailed", details: validation.error.format() },
                 { status: 422 }
             );
         }
@@ -48,8 +48,8 @@ export async function PUT(request: Request, { params }: Params) {
     } catch (error: unknown) {
         console.error("Error updating item group:", error);
         const err = error as { code?: string };
-        if (err.code === "P2025") return NextResponse.json({ error: "Group not found" }, { status: 404 });
-        return NextResponse.json({ error: "Failed to update item group" }, { status: 500 });
+        if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.notFound" }, { status: 404 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }
 
@@ -62,8 +62,8 @@ export async function DELETE(_req: Request, { params }: Params) {
     } catch (error: unknown) {
         console.error("Error deleting item group:", error);
         const err = error as { code?: string };
-        if (err.code === "P2025") return NextResponse.json({ error: "Group not found" }, { status: 404 });
-        if (err.code === "P2003") return NextResponse.json({ error: "Cannot delete group with existing items" }, { status: 409 });
-        return NextResponse.json({ error: "Failed to delete item group" }, { status: 500 });
+        if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.notFound" }, { status: 404 });
+        if (err.code === "P2003") return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 409 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }

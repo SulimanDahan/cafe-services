@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notificationEmitter } from "@/lib/emitter";
 import { getServerTranslations } from "@/lib/i18n_server";
+import { getSystemSettings } from "@/lib/settings";
 
 export async function POST(req: NextRequest) {
     try {
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
         const { client_name, phone, room_id, date_time } = body;
 
         if (!client_name || !phone || !room_id) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+            return NextResponse.json({ error: "apiMessages.error.missingFieldsGeneral" }, { status: 400 });
         }
 
         let order_passkey = Math.floor(100000 + Math.random() * 900000);
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
             }
         });
 
-        const settings = await prisma.settings.findFirst();
+        const settings = await getSystemSettings();
         const appLang = (settings?.app_lang === "ar" || !settings?.app_lang) ? "ar" : "en";
         const { t } = getServerTranslations(appLang);
 
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
                 message,
             }
         });
-        notificationEmitter.emit("notification-created", { ...notification, type: "info" });
+        notificationEmitter.emit("notification-created", notification);
         notificationEmitter.emit("new-reservation", result);
 
         return NextResponse.json({ success: true, reservation: result });

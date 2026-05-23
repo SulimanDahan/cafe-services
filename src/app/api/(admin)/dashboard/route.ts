@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
  * GET dashboard summary stats.
  * Returns aggregated metrics + recent reservations with room relation.
  */
+export const dynamic = "force-dynamic";
+
 export async function GET() {
     try {
         const [
@@ -54,6 +56,6 @@ export async function GET() {
         });
     } catch (error) {
         console.error("Error fetching dashboard data:", error);
-        return NextResponse.json({ error: "Failed to fetch dashboard data" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }

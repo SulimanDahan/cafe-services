@@ -66,7 +66,7 @@ export const reservations = {
 	btnSaveTable: "Save Room",
 	stickerTitle: "Room QR Code Sticker",
 	stickerSub: "Preview physical label sticker and trigger printing.",
-	stickerCafe: "Premium Cafe",
+	stickerCafe: "Rowaq Cafe",
 	stickerId: "ID:",
 	stickerScan: "Scan QR to view menu & order",
 	stickerScanDesc: "Requires an active, accepted booking for today's date to proceed.",

@@ -2,9 +2,10 @@ import { AUTH_COOKIE_NAME } from "@/config/constants";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerTranslations } from "@/lib/i18n_server";
+import { getSystemSettings } from "@/lib/settings";
 
 export async function POST(request: NextRequest) {
-	const appSettings = await prisma.settings.findFirst();
+	const appSettings = await getSystemSettings();
 	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
 	const { t } = getServerTranslations(locale);
 

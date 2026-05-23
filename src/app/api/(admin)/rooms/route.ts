@@ -44,7 +44,7 @@ export async function GET(request: Request) {
         });
     } catch (error) {
         console.error("Error fetching rooms:", error);
-        return NextResponse.json({ error: "Failed to fetch rooms" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.fetchRoomsFailed" }, { status: 500 });
     }
 }
 
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
         if (!validation.success) {
             return NextResponse.json(
-                { error: "Validation failed", details: validation.error.format() },
+                { error: "apiMessages.error.validationFailed", details: validation.error.format() },
                 { status: 422 }
             );
         }
@@ -77,10 +77,10 @@ export async function POST(request: Request) {
         const err = error as { code?: string };
         if (err.code === "P2002") {
             return NextResponse.json(
-                { error: "Room name or QR code already exists" },
+                { error: "apiMessages.error.roomExists" },
                 { status: 409 }
             );
         }
-        return NextResponse.json({ error: "Failed to create room" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.createRoomFailed" }, { status: 500 });
     }
 }

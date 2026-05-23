@@ -29,9 +29,8 @@ export async function GET(request: Request) {
             page,
             totalPages: Math.ceil(total / perPage),
         });
-    } catch (error) {
-        console.error("Error fetching users:", error);
-        return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
+    } catch {
+        return NextResponse.json({ error: "apiMessages.error.fetchUsersFailed" }, { status: 500 });
     }
 }
 
@@ -42,7 +41,7 @@ export async function POST(request: Request) {
 
         if (!data.username || !data.password) {
             return NextResponse.json(
-                { error: "Username and password are required" },
+                { error: "apiMessages.error.userPassRequired" },
                 { status: 400 }
             );
         }
@@ -60,8 +59,8 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error("Error creating user:", error);
         if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
-            return NextResponse.json({ error: "Username already exists" }, { status: 409 });
+            return NextResponse.json({ error: "apiMessages.error.usernameExists" }, { status: 409 });
         }
-        return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.createUserFailed" }, { status: 500 });
     }
 }

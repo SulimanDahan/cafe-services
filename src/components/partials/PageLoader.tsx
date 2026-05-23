@@ -2,6 +2,8 @@
 
 import { useLanguage } from "@/config/i18n";
 
+import { LogoIcon } from "@/components/icons";
+
 /**
  * Full Screen Page Transition Loader component.
  * Features ultra-premium coffee gold / amber visual assets, modern micro-animations,
@@ -23,20 +25,7 @@ export default function PageLoader() {
 
 					{/* Inner Pulse Circle with SVG Icon */}
 					<div className="absolute inset-4 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center animate-pulse">
-						<svg
-							className="w-6 h-6 text-amber-400"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2.5"
-								d="M12 3v1m0 16v1m9-9h-1M4 12H3"
-							/>
-						</svg>
+						<LogoIcon className="w-8 h-8 text-amber-500" />
 					</div>
 				</div>
 

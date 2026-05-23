@@ -1,11 +1,13 @@
 import UserHeader from "@/components/headers/user_header";
-import { prisma } from "@/lib/prisma";
 import { getServerTranslations } from "@/lib/i18n_server";
+import { getSystemSettings } from "@/lib/settings";
+
+export const dynamic = "force-dynamic";
 
 import NavigationLoader from "@/hooks/NavigationLoader";
 
 const UserLayout = async ({ children }: { children: React.ReactNode }) => {
-	const appSettings = await prisma.settings.findFirst();
+	const appSettings = await getSystemSettings();
 	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
 	const { t } = getServerTranslations(locale);
 

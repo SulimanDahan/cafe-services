@@ -19,13 +19,13 @@ export async function GET(
         });
 
         if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return NextResponse.json({ error: "apiMessages.error.userNotFound" }, { status: 404 });
         }
 
         return NextResponse.json(user);
     } catch (error) {
         console.error("Error fetching user:", error);
-        return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.fetchUserFailed" }, { status: 500 });
     }
 }
 
@@ -54,9 +54,9 @@ export async function PUT(
     } catch (error) {
         console.error("Error updating user:", error);
         if (error && typeof error === "object" && "code" in error && error.code === "P2025") {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return NextResponse.json({ error: "apiMessages.error.userNotFound" }, { status: 404 });
         }
-        return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.updateUserFailed" }, { status: 500 });
     }
 }
 
@@ -77,8 +77,8 @@ export async function DELETE(
     } catch (error) {
         console.error("Error deleting user:", error);
         if (error && typeof error === "object" && "code" in error && error.code === "P2025") {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return NextResponse.json({ error: "apiMessages.error.userNotFound" }, { status: 404 });
         }
-        return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.deleteUserFailed" }, { status: 500 });
     }
 }

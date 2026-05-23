@@ -110,4 +110,10 @@ export const orders = {
 	cancelledSuccessfully: "تم إلغاء طلب ({name}) بنجاح.",
 	inputPasskeyLabel: "رمز التحقق للحجز (Passkey)",
 	inputPasskeyPlaceholder: "أدخل الرمز المكون من 6 أرقام",
+	statusApproved: "معتمد",
+	btnApprove: "موافقة",
+	msgOrderApproveSuccess: "تمت الموافقة على الطلب بنجاح",
+	msgOrderApproveFailed: "فشل في الموافقة على الطلب",
+	errPasskeyRequired: "يرجى إدخال رمز التحقق المكون من 6 أرقام أولاً.",
+	errCancelOrder: "فشل إلغاء الطلب.",
 };

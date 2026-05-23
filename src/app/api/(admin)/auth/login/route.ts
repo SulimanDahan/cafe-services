@@ -6,6 +6,7 @@ import enApiMessages from "@/translations/en/api_messages";
 import appLanguages from "@/config/app_languages";
 import { SessionModel } from "@/models/data_models/session_model";
 import { AUTH_COOKIE_NAME } from "@/config/constants";
+import { getSystemSettings } from "@/lib/settings";
 
 export async function POST(request: NextRequest) {
 	try {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
 		console.log(`[AUTH] Login attempt for user: ${username}`);
 
 		// Fetch settings for language and expiry
-		const settings = await prisma.settings.findFirst();
+		const settings = await getSystemSettings();
 		const messages =
 			settings?.app_lang === appLanguages.en ? enApiMessages : arApiMessages;
 
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
 	} catch (error) {
 		console.error("[AUTH] Login error:", error);
 		return NextResponse.json(
-			{ error: "Internal Server Error" },
+			{ error: "apiMessages.error.serverError" },
 			{ status: 500 },
 		);
 	}

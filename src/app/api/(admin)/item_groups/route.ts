@@ -33,7 +33,7 @@ export async function GET(request: Request) {
         });
     } catch (error) {
         console.error("Error fetching item groups:", error);
-        return NextResponse.json({ error: "Failed to fetch item groups" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }
 
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
         if (!validation.success) {
             return NextResponse.json(
-                { error: "Validation failed", details: validation.error.format() },
+                { error: "apiMessages.error.validationFailed", details: validation.error.format() },
                 { status: 422 }
             );
         }
@@ -64,8 +64,8 @@ export async function POST(request: Request) {
         console.error("Error creating item group:", error);
         const err = error as { code?: string };
         if (err.code === "P2002") {
-            return NextResponse.json({ error: "Group name already exists" }, { status: 409 });
+            return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 409 });
         }
-        return NextResponse.json({ error: "Failed to create item group" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }

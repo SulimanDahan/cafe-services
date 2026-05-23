@@ -35,7 +35,7 @@ export async function GET(request: Request) {
             totalPages: Math.ceil(total / perPage),
         });
     } catch {
-        return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.fetchNotificationsFailed" }, { status: 500 });
     }
 }
 
@@ -44,6 +44,33 @@ export async function DELETE() {
         await prisma.notification.deleteMany();
         return NextResponse.json({ success: true });
     } catch {
-        return NextResponse.json({ error: "Failed to delete notifications" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.deleteNotificationsFailed" }, { status: 500 });
+    }
+}
+
+export async function PUT() {
+    try {
+        await prisma.notification.updateMany({
+            data: { read: true },
+        });
+        return NextResponse.json({ success: true });
+    } catch {
+        return NextResponse.json({ error: "apiMessages.error.updateNotificationsFailed" }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const body = await request.json();
+        if (!body.id) {
+            return NextResponse.json({ error: "apiMessages.error.notificationIdRequired" }, { status: 400 });
+        }
+        await prisma.notification.update({
+            where: { id: body.id },
+            data: { read: true },
+        });
+        return NextResponse.json({ success: true });
+    } catch {
+        return NextResponse.json({ error: "apiMessages.error.updateNotificationsFailed" }, { status: 500 });
     }
 }

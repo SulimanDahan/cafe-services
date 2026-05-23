@@ -54,7 +54,7 @@ export async function GET(request: Request) {
         });
     } catch (error) {
         console.error("Error fetching reservations:", error);
-        return NextResponse.json({ error: "Failed to fetch reservations" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.fetchReservationsFailed" }, { status: 500 });
     }
 }
 
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
 
         if (!validation.success) {
             return NextResponse.json(
-                { error: "Validation failed", details: validation.error.format() },
+                { error: "apiMessages.error.validationFailed", details: validation.error.format() },
                 { status: 422 }
             );
         }
@@ -100,6 +100,6 @@ export async function POST(request: Request) {
         return NextResponse.json(reservation, { status: 201 });
     } catch (error) {
         console.error("Error creating reservation:", error);
-        return NextResponse.json({ error: "Failed to create reservation" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.createReservationFailed" }, { status: 500 });
     }
 }

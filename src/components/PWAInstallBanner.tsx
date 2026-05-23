@@ -14,7 +14,7 @@ interface PWAInstallBannerProps {
  * Complies with Material Design 3 guidelines: rounded-3xl, glassmorphism, and smooth slide-up animations.
  */
 export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
-	const { isRtl } = useLanguage();
+	const { isRtl, t } = useLanguage();
 	const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
 	const [isVisible, setIsVisible] = useState(false);
 	const [platform, setPlatform] = useState<"standard" | "ios" | "other">(
@@ -39,7 +39,17 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 		// Register Service Worker to enable PWA support
 		if ("serviceWorker" in navigator) {
 			navigator.serviceWorker.register("/sw.js").catch((err) => {
-				console.error("Service Worker registration failed:", err);
+				if (err instanceof Error && err.name === "SecurityError") {
+					console.warn(
+						"PWA Service Worker registration failed due to security/SSL constraints. " +
+						"If you are developing locally on an IP (e.g. 192.168.x.x) with a self-signed certificate, " +
+						"you can bypass this in Chrome by visiting chrome://flags/#unsafely-treat-insecure-origin-as-secure, " +
+						"enabling the flag, and adding 'https://192.168.92.249:3000' (or your target address) to the text list.",
+						err
+					);
+				} else {
+					console.error("Service Worker registration failed:", err);
+				}
 			});
 		}
 
@@ -175,28 +185,19 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 						)}
 					</div>
 
-					{/* Title and Description */}
 					<div
 						className="flex-1 space-y-1"
 						dir={isRtl ? "rtl" : "ltr"}
 					>
 						<h4 className="text-sm font-black text-white">
 							{appType === "admin"
-								? isRtl
-									? "تثبيت لوحة الإدارة المثبتة"
-									: "Install Admin Dashboard"
-								: isRtl
-									? "تثبيت تطبيق الطلبات السريع"
-									: "Install Order Application"}
+								? t("common.pwaAdminTitle")
+								: t("common.pwaCustomerTitle")}
 						</h4>
 						<p className="text-[11px] text-zinc-400 leading-relaxed font-semibold">
 							{appType === "admin"
-								? isRtl
-									? "قم بتثبيت لوحة التحكم كبرنامج مستقل لمتابعة الطلبات والحجوزات وإصدار فواتير الطاولات أسرع بـ 3 مرات!"
-									: "Install the dashboard to track orders, reservations, and print stickers up to 3x faster than the browser!"
-								: isRtl
-									? "تثبيت التطبيق على شاشتك يمنحك سرعة فائقة في استعراض الأصناف وتصفح الوجبات وإجراء الطلب بثوانٍ!"
-									: "Install the menu application to your device for an ultra-fast ordering experience, smoother animations, and instant receipt tracking!"}
+								? t("common.pwaAdminDesc")
+								: t("common.pwaCustomerDesc")}
 						</p>
 					</div>
 				</div>
@@ -209,31 +210,15 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 					>
 						<span className="text-lg">💡</span>
 						<p className="text-[10px] text-zinc-300 leading-normal font-bold">
-							{isRtl ? (
-								<>
-									للتثبيت على الآيفون: اضغط على زر المشاركة{" "}
-									<span className="inline-block px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-xs mx-0.5 text-center font-bold">
-										📤
-									</span>{" "}
-									أسفل الشاشة ثم اختر{" "}
-									<span className="text-amber-400 font-extrabold">
-										إضافة للشاشة الرئيسية ➕
-									</span>
-									.
-								</>
-							) : (
-								<>
-									To install on iOS: Tap the Share button{" "}
-									<span className="inline-block px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-xs mx-0.5 text-center font-bold">
-										📤
-									</span>{" "}
-									at the bottom then select{" "}
-									<span className="text-amber-400 font-extrabold">
-										Add to Home Screen ➕
-									</span>
-									.
-								</>
-							)}
+							{t("common.pwaIosInstructAdmin")}{" "}
+							<span className="inline-block px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-xs mx-0.5 text-center font-bold">
+								📤
+							</span>{" "}
+							{t("common.pwaIosInstructCustomer")}{" "}
+							<span className="text-amber-400 font-extrabold">
+								{t("common.pwaIosAddBtn")}
+							</span>
+							.
 						</p>
 					</div>
 				) : null}
@@ -262,7 +247,7 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 									d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
 								/>
 							</svg>
-							{isRtl ? "تثبيت الآن" : "Install Now"}
+							{t("common.pwaInstallBtn")}
 						</button>
 					) : null}
 					<button
@@ -273,7 +258,7 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 								: "px-6"
 						}`}
 					>
-						{isRtl ? "ليس الآن" : "Dismiss"}
+						{t("common.pwaDismissBtn")}
 					</button>
 				</div>
 			</div>

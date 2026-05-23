@@ -18,7 +18,7 @@ export const notifications = {
 	columnType: "نوع الإشعار",
 	columnCreated: "وقت البث والتحذير",
 	simulateText: "محاكاة فورية:",
-	btnClearLogs: "مسح كامل السجل",
+	btnClearLogs: "حذف كافة الاشعارات",
 	confirmClearLogs: "هل أنت متأكد من حذف كامل سجل الإشعارات؟ لا يمكن التراجع عن هذا الإجراء.",
 	searchPlaceholder: "بحث في سجل الإشعارات...",
 	filterAll: "جميع أنواع الإشعارات",
@@ -40,4 +40,6 @@ export const notifications = {
 	newBookingMessage: "يوجد حجز جديد للغرفة رقم '{room}'",
 	newOrderTitle: "طلب جديد",
 	newOrderMessage: "يوجد طلب جديد للغرفة رقم '{room}'",
+	orderCancelledTitle: "إلغاء طلب",
+	orderCancelledMessage: "تم إلغاء طلب '{item}' للغرفة '{room}'",
 };

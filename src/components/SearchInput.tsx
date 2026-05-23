@@ -1,6 +1,7 @@
 "use client";
 
 import { SearchIcon } from "./icons";
+import { useLanguage } from "@/config/i18n";
 
 interface SearchInputProps {
 	/** Current search string value */
@@ -19,16 +20,19 @@ interface SearchInputProps {
 export default function SearchInput({
 	value,
 	onChange,
-	placeholder = "البحث...",
+	placeholder,
 	className = "w-full sm:max-w-xs",
 }: SearchInputProps) {
+	const { t } = useLanguage();
+	const defaultPlaceholder = placeholder || t("common.searchPlaceholder");
+
 	return (
 		<div className={`relative ${className}`}>
 			<input
 				type="text"
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
-				placeholder={placeholder}
+				placeholder={defaultPlaceholder}
 				className="w-full bg-[#07080a] border border-white/10 text-white placeholder-zinc-500 rounded-full pl-4 pr-10 py-2.5 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
 			/>
 			<div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">

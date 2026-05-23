@@ -39,19 +39,21 @@ export function SettingsProvider({
 	);
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Sync from DB on first client mount to catch any drift since SSR
+	// Sync from DB on first client mount to catch any drift since SSR or load if SSR returned null
 	useEffect(() => {
-		if (!initialData) return; // No SSR data — skip background sync
-		fetch(SETTINGS_API_ROUTE)
+		fetch(SETTINGS_API_ROUTE, { cache: "no-store" })
 			.then((res) => res.ok ? res.json() : null)
 			.then((data) => {
 				if (data) {
-					const actualSettings = data.success && data.data ? data.data : data;
-					setSettings(actualSettings);
+					if (data.success && data.data && data.data.id) {
+						setSettings(data.data);
+					} else if (data.id) {
+						setSettings(data);
+					}
 				}
 			})
-			.catch(() => null); // Best-effort — SSR data still shown on error
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+			.catch(() => null);
+	}, []);
 
 	const updateSettingsState = useCallback(
 		(newSettings: Partial<SettingsModel>) => {
@@ -63,18 +65,22 @@ export function SettingsProvider({
 	/** Save changes to DB, then sync context with the persisted result */
 	const saveSettings = useCallback(
 		async (newSettings: Partial<SettingsModel>): Promise<boolean> => {
-			if (!settings.id) return false;
+			const targetId = settings.id || "singleton";
 			setIsLoading(true);
 			try {
-				const res = await fetch(`${SETTINGS_API_ROUTE}/${settings.id}`, {
+				const res = await fetch(`${SETTINGS_API_ROUTE}/${targetId}`, {
 					method: "PUT",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(newSettings),
+					cache: "no-store",
 				});
 				if (!res.ok) return false;
 				const saved: SettingsModel = await res.json();
-				setSettings(saved); // Sync with what DB actually stored
-				return true;
+				if (saved && saved.id) {
+					setSettings(saved); // Sync with what DB actually stored
+					return true;
+				}
+				return false;
 			} catch {
 				return false;
 			} finally {

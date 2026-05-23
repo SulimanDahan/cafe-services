@@ -1,8 +1,9 @@
 import { Cairo, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/config/i18n";
-// import { UserProvider } from "@/context/user_context";
-import { prisma } from "@/lib/prisma";
+import { getSystemSettings } from "@/lib/settings";
+
+export const dynamic = "force-dynamic";
 import { SettingsProvider } from "@/context/settings_context";
 import { SettingsModel } from "@/models/data_models/settings_model";
 import { getServerTranslations } from "@/lib/i18n_server";
@@ -22,7 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata() {
-	const appSettings = await prisma.settings.findFirst();
+	const appSettings = await getSystemSettings();
 	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
 	const { t } = getServerTranslations(locale);
 
@@ -37,7 +38,7 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const appSettings = await prisma.settings.findFirst();
+	const appSettings = await getSystemSettings();
 	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
 
 	return (

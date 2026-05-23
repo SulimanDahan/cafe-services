@@ -5,7 +5,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	/* config options here */
-	reactCompiler: true,
+	reactCompiler: false,
 	output: "standalone",
 
 	// webpack: (config) => {
@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
 	// 	}
 	// 	return config;
 	// },
+	allowedDevOrigins: ['192.168.92.249', '192.168.0.153'],
 };
 
 export default nextConfig;

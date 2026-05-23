@@ -12,11 +12,11 @@ export async function GET(_req: Request, { params }: Params) {
             where: { id },
             include: { room: true, orders: { include: { item: true } } },
         });
-        if (!reservation) return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+        if (!reservation) return NextResponse.json({ error: "apiMessages.error.reservationNotFound" }, { status: 404 });
         return NextResponse.json(reservation);
     } catch (error) {
         console.error("Error fetching reservation:", error);
-        return NextResponse.json({ error: "Failed to fetch reservation" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.fetchReservationFailed" }, { status: 500 });
     }
 }
 
@@ -29,7 +29,7 @@ export async function PUT(request: Request, { params }: Params) {
 
         if (!validation.success) {
             return NextResponse.json(
-                { error: "Validation failed", details: validation.error.format() },
+                { error: "apiMessages.error.validationFailed", details: validation.error.format() },
                 { status: 422 }
             );
         }
@@ -53,8 +53,8 @@ export async function PUT(request: Request, { params }: Params) {
     } catch (error: unknown) {
         console.error("Error updating reservation:", error);
         const err = error as { code?: string };
-        if (err.code === "P2025") return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
-        return NextResponse.json({ error: "Failed to update reservation" }, { status: 500 });
+        if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.reservationNotFound" }, { status: 404 });
+        return NextResponse.json({ error: "apiMessages.error.updateReservationFailed" }, { status: 500 });
     }
 }
 
@@ -71,7 +71,7 @@ export async function DELETE(_req: Request, { params }: Params) {
     } catch (error: unknown) {
         console.error("Error deleting reservation:", error);
         const err = error as { code?: string };
-        if (err.code === "P2025") return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
-        return NextResponse.json({ error: "Failed to delete reservation" }, { status: 500 });
+        if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.reservationNotFound" }, { status: 404 });
+        return NextResponse.json({ error: "apiMessages.error.deleteReservationFailed" }, { status: 500 });
     }
 }

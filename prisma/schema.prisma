@@ -75,6 +75,7 @@ model Reservation {
   room_id       String
   order_passkey Int      @unique
   accepted      Boolean  @default(false)
+  activated     Boolean  @default(false)
   completed     Boolean  @default(false)
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now()) @updatedAt
@@ -88,6 +89,7 @@ model Order {
   item_id        String
   item_price     Decimal     @default(0)
   quantity       Int         @default(1)
+  accepted       Boolean     @default(false)
   created_at     DateTime    @default(now())
   updated_at     DateTime    @default(now()) @updatedAt
   item           Item        @relation(fields: [item_id], references: [id])

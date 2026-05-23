@@ -49,6 +49,7 @@ export async function proxy(req: NextRequest) {
 		const [session, settings] = await Promise.all([
 			prisma.userSession.findUnique({ where: { id: authCookie.value } }),
 			prisma.settings.findFirst({
+				orderBy: { created_at: "asc" },
 				select: { session_expiry_minutes: true },
 			}),
 		]);

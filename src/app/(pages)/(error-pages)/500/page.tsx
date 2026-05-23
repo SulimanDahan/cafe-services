@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { MAIN_PAGE_ROUTE } from "@/config/page_routes";
 import { HomeIcon } from "@/components/icons";
-import { prisma } from "@/lib/prisma";
 import { getServerTranslations } from "@/lib/i18n_server";
+import { getSystemSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  * Dynamically queries settings from the database at request-time to load system locale.
  */
 export default async function InternalServerErrorPage() {
-	const settings = await prisma.settings.findFirst();
+	const settings = await getSystemSettings();
 	const locale = settings?.app_lang === "en" ? "en" : "ar";
 	const { t } = getServerTranslations(locale);
 

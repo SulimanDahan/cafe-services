@@ -13,6 +13,7 @@ type ReservationModel = {
 	room_id: string;
 	order_passkey: number;
 	accepted: boolean;
+	activated: boolean;
 	completed: boolean;
 	created_at: Date;
 	updated_at: Date;
@@ -29,6 +30,7 @@ export const initialReservationState: ReservationModel = {
 	date_time: new Date(),
 	room_id: "",
 	accepted: false,
+	activated: false,
 	completed: false,
 	created_at: new Date(),
 	updated_at: new Date(),

@@ -40,4 +40,6 @@ export const notifications = {
 	newBookingMessage: "There is a new reservation for room '{room}'",
 	newOrderTitle: "New Order",
 	newOrderMessage: "There is a new order for room '{room}'",
+	orderCancelledTitle: "Order Cancelled",
+	orderCancelledMessage: "An order for '{item}' in room '{room}' has been cancelled",
 };

@@ -36,8 +36,7 @@ export async function GET(req: NextRequest) {
 			orderBy: { created_at: "desc" },
 			take: 20,
 		});
-		const withTypes = recentNotifications.map(n => ({ ...n, type: "info" }));
-		sendEvent("initial-notifications", withTypes);
+		sendEvent("initial-notifications", recentNotifications);
 	} catch (dbError) {
 		console.error(
 			"Failed to fetch initial notifications from DB:",

@@ -12,11 +12,11 @@ export async function GET(_req: Request, { params }: Params) {
             where: { id },
             include: { group: true },
         });
-        if (!item) return NextResponse.json({ error: "Item not found" }, { status: 404 });
+        if (!item) return NextResponse.json({ error: "apiMessages.error.itemNotFound" }, { status: 404 });
         return NextResponse.json(item);
     } catch (error) {
         console.error("Error fetching item:", error);
-        return NextResponse.json({ error: "Failed to fetch item" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }
 
@@ -29,7 +29,7 @@ export async function PUT(request: Request, { params }: Params) {
 
         if (!validation.success) {
             return NextResponse.json(
-                { error: "Validation failed", details: validation.error.format() },
+                { error: "apiMessages.error.validationFailed", details: validation.error.format() },
                 { status: 422 }
             );
         }
@@ -51,8 +51,8 @@ export async function PUT(request: Request, { params }: Params) {
     } catch (error: unknown) {
         console.error("Error updating item:", error);
         const err = error as { code?: string };
-        if (err.code === "P2025") return NextResponse.json({ error: "Item not found" }, { status: 404 });
-        return NextResponse.json({ error: "Failed to update item" }, { status: 500 });
+        if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.itemNotFound" }, { status: 404 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }
 
@@ -65,7 +65,7 @@ export async function DELETE(_req: Request, { params }: Params) {
     } catch (error: unknown) {
         console.error("Error deleting item:", error);
         const err = error as { code?: string };
-        if (err.code === "P2025") return NextResponse.json({ error: "Item not found" }, { status: 404 });
-        return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });
+        if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.itemNotFound" }, { status: 404 });
+        return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
     }
 }

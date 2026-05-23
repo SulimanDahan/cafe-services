@@ -9,11 +9,11 @@ export async function GET(_req: Request, { params }: Params) {
     try {
         const { room: id } = await params;
         const room = await prisma.room.findUnique({ where: { id } });
-        if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
+        if (!room) return NextResponse.json({ error: "apiMessages.error.roomNotFound" }, { status: 404 });
         return NextResponse.json(room);
     } catch (error) {
         console.error("Error fetching room:", error);
-        return NextResponse.json({ error: "Failed to fetch room" }, { status: 500 });
+        return NextResponse.json({ error: "apiMessages.error.fetchRoomFailed" }, { status: 500 });
     }
 }
 
@@ -26,7 +26,7 @@ export async function PUT(request: Request, { params }: Params) {
 
         if (!validation.success) {
             return NextResponse.json(
-                { error: "Validation failed", details: validation.error.format() },
+                { error: "apiMessages.error.validationFailed", details: validation.error.format() },
                 { status: 422 }
             );
         }
@@ -46,8 +46,8 @@ export async function PUT(request: Request, { params }: Params) {
     } catch (error: unknown) {
         console.error("Error updating room:", error);
         const err = error as { code?: string };
-        if (err.code === "P2025") return NextResponse.json({ error: "Room not found" }, { status: 404 });
-        return NextResponse.json({ error: "Failed to update room" }, { status: 500 });
+        if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.roomNotFound" }, { status: 404 });
+        return NextResponse.json({ error: "apiMessages.error.updateRoomFailed" }, { status: 500 });
     }
 }
 
@@ -60,7 +60,7 @@ export async function DELETE(_req: Request, { params }: Params) {
     } catch (error: unknown) {
         console.error("Error deleting room:", error);
         const err = error as { code?: string };
-        if (err.code === "P2025") return NextResponse.json({ error: "Room not found" }, { status: 404 });
-        return NextResponse.json({ error: "Failed to delete room" }, { status: 500 });
+        if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.roomNotFound" }, { status: 404 });
+        return NextResponse.json({ error: "apiMessages.error.deleteRoomFailed" }, { status: 500 });
     }
 }
