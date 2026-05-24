@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSystemSettings } from "@/lib/settings";
+import { settingsSchema } from "@/lib/validations/settings";
 
 /** PUT /api/settings/[setting] — update a settings record by ID */
 export async function PUT(
@@ -14,14 +15,15 @@ export async function PUT(
 
 		console.log("[SETTINGS] PUT received body:", JSON.stringify(body));
 
-		// Build the update payload — only include recognised fields that are actually present
-		const data: Record<string, unknown> = {};
-		if (body.currency_name !== undefined) data.currency_name = String(body.currency_name);
-		if (body.app_lang !== undefined) data.app_lang = String(body.app_lang);
-		if (body.per_page !== undefined) data.per_page = Number(body.per_page);
-		if (body.notification_threshold !== undefined) data.notification_threshold = Number(body.notification_threshold);
-		if (body.session_expiry_minutes !== undefined) data.session_expiry_minutes = Number(body.session_expiry_minutes);
-		if (body.force_client_order_session_passKey !== undefined) data.force_client_order_session_passKey = Boolean(body.force_client_order_session_passKey);
+		const validation = settingsSchema.partial().safeParse(body);
+		if (!validation.success) {
+			return NextResponse.json(
+				{ error: validation.error.issues[0].message },
+				{ status: 400 }
+			);
+		}
+
+		const data = validation.data;
 
 		if (Object.keys(data).length === 0) {
 			return NextResponse.json(

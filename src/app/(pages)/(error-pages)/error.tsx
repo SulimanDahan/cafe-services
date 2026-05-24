@@ -15,8 +15,8 @@ export default function ErrorBoundary() {
 	}, []);
 
 	return (
-		<div className="min-h-screen bg-[#07080a] flex items-center justify-center">
-			<div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+		<div className="min-h-screen bg-background flex items-center justify-center">
+			<div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
 		</div>
 	);
 }

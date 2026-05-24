@@ -18,7 +18,7 @@ export const PrimaryButton = ({
 	...props
 }: PrimaryButtonProps) => {
 	const baseStyles =
-		"rounded-full font-extrabold transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+		"rounded-full font-extrabold transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 
 	const sizes = {
 		sm: "px-4 py-2 text-xs",
@@ -28,11 +28,11 @@ export const PrimaryButton = ({
 
 	const variants = {
 		primary:
-			"bg-amber-500 hover:bg-amber-400 text-[#07080a] shadow-amber-500/20",
+			"bg-primary hover:bg-primary-hover text-background shadow-primary/20",
 		secondary:
 			"bg-zinc-800 hover:bg-zinc-700 text-white border border-white/10 hover:text-white",
 		outline:
-			"bg-transparent border border-amber-500/50 text-amber-500 hover:bg-amber-500/10",
+			"bg-transparent border border-primary/50 text-primary hover:bg-primary/10",
 	};
 
 	return (

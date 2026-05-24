@@ -90,7 +90,7 @@ export default function Table({
 						<tr>
 							<td colSpan={columns.length} className="py-10 text-center">
 								<div className="flex flex-col items-center gap-3">
-									<div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+									<div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
 									<span className="text-xs text-zinc-500 font-bold">{resolvedLoadingText}</span>
 								</div>
 							</td>

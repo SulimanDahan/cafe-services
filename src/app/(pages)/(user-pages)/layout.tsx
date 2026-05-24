@@ -12,13 +12,13 @@ const UserLayout = async ({ children }: { children: React.ReactNode }) => {
 	const { t } = getServerTranslations(locale);
 
 	return (
-		<div className="h-screen bg-[#07080a] text-zinc-100 font-sans flex flex-col selection:bg-amber-500 selection:text-black overflow-x-hidden">
+		<div className="min-h-screen bg-background text-zinc-100 font-sans flex flex-col selection:bg-primary selection:text-black overflow-x-hidden">
 			<NavigationLoader />
 			<UserHeader />
 			{children}
 
 			{/* Footer */}
-			<footer className="py-8 h-auto border-t border-white/10 text-center text-xs text-zinc-500 bg-[#07080a]">
+			<footer className="mt-auto py-8 h-auto border-t border-white/10 text-center text-xs text-zinc-500 bg-background">
 				<p className="max-w-7xl mx-auto px-6">{t("home.footer")}</p>
 			</footer>
 		</div>

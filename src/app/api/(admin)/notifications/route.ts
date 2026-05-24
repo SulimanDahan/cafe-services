@@ -3,74 +3,74 @@ import { prisma } from "@/lib/prisma";
 
 /** GET paginated notifications with optional search */
 export async function GET(request: Request) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-        const perPage = Math.max(1, parseInt(searchParams.get("per_page") || "10", 10));
-        const search = searchParams.get("search") || "";
+ try {
+ const { searchParams } = new URL(request.url);
+ const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+ const perPage = Math.max(1, parseInt(searchParams.get("per_page") || "10", 10));
+ const search = searchParams.get("search") || "";
 
-        const where = search
-            ? {
-                  OR: [
-                      { title: { contains: search, mode: "insensitive" as const } },
-                      { message: { contains: search, mode: "insensitive" as const } },
-                  ],
-              }
-            : {};
+ const where = search
+ ? {
+ OR: [
+ { title: { contains: search, mode: "insensitive" as const } },
+ { message: { contains: search, mode: "insensitive" as const } },
+ ],
+ }
+ : {};
 
-        const [notifications, total] = await Promise.all([
-            prisma.notification.findMany({
-                where,
-                orderBy: { created_at: "desc" },
-                skip: (page - 1) * perPage,
-                take: perPage,
-            }),
-            prisma.notification.count({ where }),
-        ]);
+ const [notifications, total] = await Promise.all([
+ prisma.notification.findMany({
+ where,
+ orderBy: { created_at: "desc" },
+ skip: (page - 1) * perPage,
+ take: perPage,
+ }),
+ prisma.notification.count({ where }),
+ ]);
 
-        return NextResponse.json({
-            data: notifications,
-            total,
-            page,
-            totalPages: Math.ceil(total / perPage),
-        });
-    } catch {
-        return NextResponse.json({ error: "apiMessages.error.fetchNotificationsFailed" }, { status: 500 });
-    }
+ return NextResponse.json({
+ data: notifications,
+ total,
+ page,
+ totalPages: Math.ceil(total / perPage),
+ });
+ } catch {
+ return NextResponse.json({ error: "apiMessages.error.fetchNotificationsFailed" }, { status: 500 });
+ }
 }
 
 export async function DELETE() {
-    try {
-        await prisma.notification.deleteMany();
-        return NextResponse.json({ success: true });
-    } catch {
-        return NextResponse.json({ error: "apiMessages.error.deleteNotificationsFailed" }, { status: 500 });
-    }
+ try {
+ await prisma.notification.deleteMany();
+ return NextResponse.json({ success: true });
+ } catch {
+ return NextResponse.json({ error: "apiMessages.error.deleteNotificationsFailed" }, { status: 500 });
+ }
 }
 
 export async function PUT() {
-    try {
-        await prisma.notification.updateMany({
-            data: { read: true },
-        });
-        return NextResponse.json({ success: true });
-    } catch {
-        return NextResponse.json({ error: "apiMessages.error.updateNotificationsFailed" }, { status: 500 });
-    }
+ try {
+ await prisma.notification.updateMany({
+ data: { read: true },
+ });
+ return NextResponse.json({ success: true });
+ } catch {
+ return NextResponse.json({ error: "apiMessages.error.updateNotificationsFailed" }, { status: 500 });
+ }
 }
 
 export async function PATCH(request: Request) {
-    try {
-        const body = await request.json();
-        if (!body.id) {
-            return NextResponse.json({ error: "apiMessages.error.notificationIdRequired" }, { status: 400 });
-        }
-        await prisma.notification.update({
-            where: { id: body.id },
-            data: { read: true },
-        });
-        return NextResponse.json({ success: true });
-    } catch {
-        return NextResponse.json({ error: "apiMessages.error.updateNotificationsFailed" }, { status: 500 });
-    }
+ try {
+ const body = await request.json();
+ if (!body.id) {
+ return NextResponse.json({ error: "apiMessages.error.notificationIdRequired" }, { status: 400 });
+ }
+ await prisma.notification.update({
+ where: { id: body.id },
+ data: { read: true },
+ });
+ return NextResponse.json({ success: true });
+ } catch {
+ return NextResponse.json({ error: "apiMessages.error.updateNotificationsFailed" }, { status: 500 });
+ }
 }

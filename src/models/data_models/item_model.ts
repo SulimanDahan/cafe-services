@@ -5,25 +5,25 @@ import ItemGroupModel from "./item_group_model";
  * Matches the Prisma Item model.
  */
 type ItemModel = {
-    id: string;
-    name: string;
-    price: number;
-    group_id: string;
-    is_disable: boolean;
-    created_at: Date;
-    updated_at: Date;
-    /** Included via Prisma relation */
-    group?: ItemGroupModel;
+ id: string;
+ name: string;
+ price: number;
+ group_id: string;
+ is_disable: boolean;
+ created_at: Date;
+ updated_at: Date;
+ /** Included via Prisma relation */
+ group?: ItemGroupModel;
 };
 
 export const initialItemState: ItemModel = {
-    id: "",
-    name: "",
-    price: 0,
-    group_id: "",
-    is_disable: false,
-    created_at: new Date(),
-    updated_at: new Date(),
+ id: "",
+ name: "",
+ price: 0,
+ group_id: "",
+ is_disable: false,
+ created_at: new Date(),
+ updated_at: new Date(),
 };
 
 export default ItemModel;

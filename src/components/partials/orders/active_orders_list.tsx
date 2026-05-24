@@ -1,119 +1,107 @@
 "use client";
 
 import { useLanguage } from "@/config/i18n";
+import CancelIcon from "../../icons/CancelIcon";
 
 interface Order {
-    id: string;
-    item_name: string;
-    item_price: number;
-    quantity: number;
-    accepted?: boolean;
-    created_at?: string;
-    createdAt?: string; // Fallback for older data
+ id: string;
+ item_name: string;
+ item_price: number;
+ quantity: number;
+ accepted?: boolean;
+ created_at?: string;
+ createdAt?: string; // Fallback for older data
 }
 
 interface ActiveOrdersListProps {
-    title: string;
-    orders: Order[];
-    currencyLabel: string;
-    noItemsLabel: string;
-    btnCancelTitle: string;
-    onCancelOrder: (id: string, name: string) => void;
+ title: string;
+ orders: Order[];
+ currencyLabel: string;
+ noItemsLabel: string;
+ btnCancelTitle: string;
+ onCancelOrder: (id: string, name: string) => void;
 }
 
 export default function ActiveOrdersList({
-    title,
-    orders,
-    currencyLabel,
-    noItemsLabel,
-    btnCancelTitle,
-    onCancelOrder,
+ title,
+ orders,
+ currencyLabel,
+ noItemsLabel,
+ btnCancelTitle,
+ onCancelOrder,
 }: ActiveOrdersListProps) {
-    const { t } = useLanguage();
+ const { t } = useLanguage();
 
-    return (
-        <div className="rounded-[28px] border border-white/10 bg-[#131522] p-5.5 shadow-xl space-y-4">
-            <h3 className="text-sm font-black text-white border-b border-white/5 pb-3 flex items-center justify-between">
-                <span>{title}</span>
-                <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#0d0f17] text-zinc-400 border border-white/5">
-                    {orders.length}
-                </span>
-            </h3>
+ return (
+ <div className="rounded-card border border-white/10 bg-surface p-5.5 shadow-xl space-y-4">
+ <h3 className="text-sm font-black text-white border-b border-white/5 pb-3 flex items-center justify-between">
+ <span>{title}</span>
+ <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#0d0f17] text-zinc-400 border border-white/5">
+ {orders.length}
+ </span>
+ </h3>
 
-            <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                {orders.length > 0 ? (
-                    orders.map((o) => {
-                        const dateStr = o.created_at || o.createdAt || "";
-                        const timeStr = dateStr.includes(" ")
-                            ? dateStr.split(" ").slice(2).join(" ")
-                            : dateStr;
+ <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+ {orders.length > 0 ? (
+ orders.map((o) => {
+ const dateStr = o.created_at || o.createdAt || "";
+ const timeStr = dateStr.includes(" ")
+ ? dateStr.split(" ").slice(2).join(" ")
+ : dateStr;
 
-                        return (
-                            <div
-                                key={o.id}
-                                className="p-3 rounded-2xl bg-[#0d0f17]/60 border border-white/5 flex items-center justify-between gap-3 group/item hover:border-white/10 transition-all"
-                            >
-                                <div className="space-y-1">
-                                    <p className="text-xs font-black text-white group-hover/item:text-amber-300 transition-colors leading-snug">
-                                        {o.item_name}
-                                    </p>
-                                    <p className="text-[10px] text-zinc-400 font-bold">
-                                        {o.quantity} × {o.item_price.toLocaleString("en-US")} {currencyLabel}
-                                    </p>
-                                    <p className="text-[9px] text-zinc-500 font-medium font-mono">
-                                        {timeStr}
-                                    </p>
-                                </div>
+ return (
+ <div
+ key={o.id}
+ className="p-3 rounded-2xl bg-[#0d0f17]/60 border border-white/5 flex items-center justify-between gap-3 group/item hover:border-white/10 transition-all"
+ >
+ <div className="space-y-1">
+ <p className="text-xs font-black text-white group-hover/item:text-primary-light transition-colors leading-snug">
+ {o.item_name}
+ </p>
+ <p className="text-[10px] text-zinc-400 font-bold">
+ {o.quantity} × {o.item_price.toLocaleString("en-US")} {currencyLabel}
+ </p>
+ <p className="text-[9px] text-zinc-500 font-medium font-mono">
+ {timeStr}
+ </p>
+ </div>
 
-                                <div className="flex items-center gap-2">
-                                    {o.accepted ? (
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black bg-green-500/10 border border-green-500/20 text-green-400">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                                            {t("orders.statusApproved")}
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                                            {t("orders.statusPending")}
-                                        </span>
-                                    )}
+ <div className="flex items-center gap-2">
+ {o.accepted ? (
+ <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black bg-green-500/10 border border-green-500/20 text-green-400">
+ <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+ {t("orders.statusApproved")}
+ </span>
+ ) : (
+ <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black bg-primary/10 border border-primary/20 text-primary-hover">
+ <span className="w-1.5 h-1.5 rounded-full bg-primary-hover animate-pulse" />
+ {t("orders.statusPending")}
+ </span>
+ )}
 
-                                    <span className="text-xs font-black text-amber-400 shrink-0">
-                                        {(o.item_price * o.quantity).toLocaleString("en-US")} {currencyLabel}
-                                    </span>
+ <span className="text-xs font-black text-primary-hover shrink-0">
+ {(o.item_price * o.quantity).toLocaleString("en-US")} {currencyLabel}
+ </span>
 
-                                    {!o.accepted && (
-                                        <button
-                                            onClick={() => onCancelOrder(o.id, o.item_name)}
-                                            className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all shrink-0 active:scale-95 cursor-pointer"
-                                            title={btnCancelTitle}
-                                        >
-                                            <svg
-                                                className="w-3.5 h-3.5"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2.5"
-                                                    d="M6 18L18 6M6 6l12 12"
-                                                />
-                                            </svg>
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })
-                ) : (
-                    <div className="py-10 text-center text-zinc-600 font-medium text-xs italic">
-                        {noItemsLabel}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+ {!o.accepted && (
+ <button
+ onClick={() => onCancelOrder(o.id, o.item_name)}
+ className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all shrink-0 cursor-pointer"
+ title={btnCancelTitle}
+ >
+ <CancelIcon className="w-3.5 h-3.5" />
+ </button>
+ )}
+ </div>
+ </div>
+ );
+ })
+ ) : (
+ <div className="py-10 text-center text-zinc-600 font-medium text-xs italic">
+ {noItemsLabel}
+ </div>
+ )}
+ </div>
+ </div>
+ );
 }

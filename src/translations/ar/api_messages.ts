@@ -59,6 +59,8 @@ export const apiMessages = {
 		deleteNotificationsFailed: "فشل في حذف الإشعارات",
 		updateNotificationsFailed: "فشل في تحديث الإشعارات",
 		notificationIdRequired: "رقم الإشعار مطلوب",
+		roomAlreadyActive: "الغرفة تمتلك حجزاً نشطاً بالفعل. يرجى إنهاء الحجز السابق أولاً.",
+		itemHasOrders: "لا يمكن حذف الصنف لوجود طلبات مرتبطة به",
 	},
 } as const;
 

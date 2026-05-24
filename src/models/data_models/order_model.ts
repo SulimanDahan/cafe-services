@@ -5,29 +5,29 @@ import ReservationModel from "./reservation_model";
  * Matches the Prisma Order model.
  */
 type OrderModel = {
-    id: string;
-    reservation_id: string;
-    item_id: string;
-    item_price: number;
-    quantity: number;
-    accepted: boolean;
-    created_at: Date;
-    updated_at: Date;
-    /** Included via Prisma relation */
-    item?: { id: string; name: string; price: number };
-    /** Included via Prisma relation */
-    reservation?: ReservationModel;
+ id: string;
+ reservation_id: string;
+ item_id: string;
+ item_price: number;
+ quantity: number;
+ accepted: boolean;
+ created_at: Date;
+ updated_at: Date;
+ /** Included via Prisma relation */
+ item?: { id: string; name: string; price: number };
+ /** Included via Prisma relation */
+ reservation?: ReservationModel;
 };
 
 export const initialOrderState: OrderModel = {
-    id: "",
-    item_id: "",
-    quantity: 0,
-    item_price: 0,
-    reservation_id: "",
-    accepted: false,
-    created_at: new Date(),
-    updated_at: new Date(),
+ id: "",
+ item_id: "",
+ quantity: 0,
+ item_price: 0,
+ reservation_id: "",
+ accepted: false,
+ created_at: new Date(),
+ updated_at: new Date(),
 };
 
 export default OrderModel;

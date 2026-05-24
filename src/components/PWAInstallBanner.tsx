@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/config/i18n";
+import AdminAppIcon from "./icons/AdminAppIcon";
+import CustomerAppIcon from "./icons/CustomerAppIcon";
+import DownloadIcon from "./icons/DownloadIcon";
 
 interface PWAInstallBannerProps {
 	appType: "customer" | "admin";
@@ -139,49 +142,17 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 
 	return (
 		<div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9999 w-[calc(100vw-2rem)] sm:w-120 max-w-lg select-none pointer-events-auto">
-			<div className="rounded-3xl border border-amber-500/30 bg-[#131522]/90 backdrop-blur-xl p-5 shadow-[0_16px_40px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col gap-4 animate-slide-up text-right">
+			<div className="rounded-3xl border border-primary/30 bg-surface/90 backdrop-blur-xl p-5 shadow-[0_16px_40px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col gap-4 animate-slide-up text-right">
 				{/* Background Glowing Aura */}
-				<div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+				<div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
 
 				<div className="flex items-start gap-4">
 					{/* App/Scope Icon */}
-					<div className="h-12 w-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl shrink-0">
+					<div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary-hover text-xl shrink-0">
 						{appType === "admin" ? (
-							<svg
-								className="w-6 h-6"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2.5"
-									d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-								/>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2.5"
-									d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-								/>
-							</svg>
+							<AdminAppIcon className="w-6 h-6" />
 						) : (
-							<svg
-								className="w-6 h-6"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707"
-								/>
-							</svg>
+							<CustomerAppIcon className="w-6 h-6" />
 						)}
 					</div>
 
@@ -215,7 +186,7 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 								📤
 							</span>{" "}
 							{t("common.pwaIosInstructCustomer")}{" "}
-							<span className="text-amber-400 font-extrabold">
+							<span className="text-primary-hover font-extrabold">
 								{t("common.pwaIosAddBtn")}
 							</span>
 							.
@@ -231,28 +202,15 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 					{platform === "standard" && deferredPrompt ? (
 						<button
 							onClick={handleInstallClick}
-							className="flex-1 py-2.5 rounded-full bg-amber-500 text-black font-extrabold text-[11px] tracking-wide hover:bg-amber-400 transition-colors cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+							className="flex-1 py-2.5 rounded-full bg-primary text-black font-extrabold text-[11px] tracking-wide hover:bg-primary-hover transition-colors cursor-pointer flex items-center justify-center gap-1.5"
 						>
-							<svg
-								className="w-3.5 h-3.5"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2.5"
-									d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-								/>
-							</svg>
+							<DownloadIcon className="w-3.5 h-3.5" />
 							{t("common.pwaInstallBtn")}
 						</button>
 					) : null}
 					<button
 						onClick={handleDismissClick}
-						className={`py-2.5 rounded-full bg-white/5 border border-white/10 text-zinc-300 font-bold text-[11px] hover:bg-white/10 transition-colors cursor-pointer active:scale-95 ${
+						className={`py-2.5 rounded-full bg-white/5 border border-white/10 text-zinc-300 font-bold text-[11px] hover:bg-white/10 transition-colors cursor-pointer ${
 							platform === "ios" || !deferredPrompt
 								? "flex-1"
 								: "px-6"

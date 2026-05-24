@@ -25,8 +25,8 @@ function cookieOptions(maxAge: number) {
  * On every /admin/* request:
  * 1. No cookie → redirect to login (unless already on login page).
  * 2. Cookie exists → verify session in DB:
- *    - Expired/missing → clear cookie + redirect to login.
- *    - Valid → extend cookie maxAge AND update DB expires_at (sliding window).
+ * - Expired/missing → clear cookie + redirect to login.
+ * - Valid → extend cookie maxAge AND update DB expires_at (sliding window).
  * 3. Logged-in user on login page → redirect to dashboard.
  */
 export async function proxy(req: NextRequest) {

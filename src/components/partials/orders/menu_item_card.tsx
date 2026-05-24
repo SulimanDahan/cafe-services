@@ -44,17 +44,17 @@ export default function MenuItemCard({
 	addOrderLabel,
 }: MenuItemCardProps) {
 	return (
-		<div className="rounded-3xl border border-white/10 bg-[#131522] p-5.5 hover:border-amber-500/30 transition-all duration-300 flex flex-col justify-between gap-4 group shadow-md">
+		<div className="rounded-3xl border border-white/10 bg-surface p-5.5 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between gap-4 group shadow-md">
 			<div className="space-y-2">
 				<div className="flex justify-between items-start gap-2">
-					<span className="px-2.5 py-1 rounded-full text-[9px] font-black bg-[#0d0f17] text-amber-400/90 border border-white/5">
+					<span className="px-2.5 py-1 rounded-full text-[9px] font-black bg-[#0d0f17] text-primary-hover/90 border border-white/5">
 						{item.group?.name}
 					</span>
-					<span className="text-xs font-black text-amber-400">
+					<span className="text-xs font-black text-primary-hover">
 						{Number(item.price).toLocaleString("en-US")} {currencyLabel}
 					</span>
 				</div>
-				<h3 className="text-sm font-black text-white group-hover:text-amber-300 transition-colors">
+				<h3 className="text-sm font-black text-white group-hover:text-primary-light transition-colors">
 					{item.name}
 				</h3>
 			</div>
@@ -80,7 +80,7 @@ export default function MenuItemCard({
 				</div>
 				<button
 					onClick={onPlaceOrder}
-					className="flex-1 py-2.5 px-4 rounded-full bg-amber-500 hover:bg-amber-400 text-[#07080a] font-black text-xs transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+					className="flex-1 py-2.5 px-4 rounded-full bg-primary hover:bg-primary-hover text-background font-black text-xs transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
 				>
 					<PlusIcon className="w-3.5 h-3.5" />
 					<span>{addOrderLabel}</span>

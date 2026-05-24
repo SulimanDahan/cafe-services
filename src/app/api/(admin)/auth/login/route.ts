@@ -7,20 +7,30 @@ import appLanguages from "@/config/app_languages";
 import { SessionModel } from "@/models/data_models/session_model";
 import { AUTH_COOKIE_NAME } from "@/config/constants";
 import { getSystemSettings } from "@/lib/settings";
+import { loginSchema } from "@/lib/validations/auth";
 
 export async function POST(request: NextRequest) {
 	try {
-		const { username, password } = await request.json();
-		console.log(`[AUTH] Login attempt for user: ${username}`);
-
+		const body = await request.json();
+		const validation = loginSchema.safeParse(body);
+		
 		// Fetch settings for language and expiry
 		const settings = await getSystemSettings();
 		const messages =
 			settings?.app_lang === appLanguages.en ? enApiMessages : arApiMessages;
 
-		if (username && password) {
-			const hashedPassword = encryptPassword(password);
-			console.log(`[AUTH] Hashed password attempt: ${hashedPassword}`);
+		if (!validation.success) {
+			return NextResponse.json(
+				{ error: messages.error.dataError },
+				{ status: 401 },
+			);
+		}
+
+		const { username, password } = validation.data;
+		console.log(`[AUTH] Login attempt for user: ${username}`);
+
+		const hashedPassword = encryptPassword(password);
+		console.log(`[AUTH] Hashed password attempt: ${hashedPassword}`);
 
 			const user = await prisma.user.findFirst({
 				where: {
@@ -71,12 +81,6 @@ export async function POST(request: NextRequest) {
 			});
 
 			return response;
-		} else {
-			return NextResponse.json(
-				{ error: messages.error.dataError },
-				{ status: 401 },
-			);
-		}
 	} catch (error) {
 		console.error("[AUTH] Login error:", error);
 		return NextResponse.json(

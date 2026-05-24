@@ -16,8 +16,8 @@ const DrawerButton = ({ link, setIsMobileOpen, isActive }: LinkType) => {
 			key={link.path}
 			href={link.path}
 			onClick={() => setIsMobileOpen(false)}
-			className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all duration-200 relative group active:scale-[0.98] ${isActive
-				? "bg-amber-500/10 text-amber-300 border-s-4 border-s-amber-500"
+			className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all duration-200 relative group ${isActive
+				? "bg-primary/10 text-primary-light border-s-4 border-s-primary"
 				: "text-zinc-400 hover:text-white hover:bg-white/5"
 				}`}
 		>

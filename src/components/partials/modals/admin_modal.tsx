@@ -40,7 +40,7 @@ export default function AdminModal({
 		>
 			<div className="flex min-h-full items-center justify-center p-4">
 				<div
-					className={`${maxWidth} w-full rounded-3xl border border-white/10 bg-[#131522]/95 backdrop-blur-xl p-6 shadow-2xl relative text-start`}
+					className={`${maxWidth} w-full rounded-3xl border border-white/10 bg-surface/95 backdrop-blur-xl p-6 shadow-2xl relative text-start`}
 				>
 					{/* Close Button */}
 					<button

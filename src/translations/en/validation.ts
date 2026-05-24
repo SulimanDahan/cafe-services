@@ -1,0 +1,28 @@
+export const validation = {
+ usernameRequired: "Username is required",
+ passwordRequired: "Password is required",
+ passwordMinLength: "Password must be at least 6 characters",
+ roomIdRequired: "Invalid Room ID",
+ passkeyMustBeNumber: "Passkey must be a number",
+ itemNameRequired: "Item name is required",
+ priceRequired: "Price is required",
+ priceMinZero: "Price must be greater than or equal to 0",
+ categoryIdRequired: "Invalid Category ID",
+ categoryNameRequired: "Category name is required",
+ reservationIdRequired: "Invalid Reservation ID",
+ itemIdRequired: "Invalid Item ID",
+ quantityMinOne: "Quantity must be at least 1",
+ atLeastOneItem: "At least one item is required",
+ clientNameRequired: "Client name is required",
+ phoneRequired: "Phone number is required",
+ bookingDateRequired: "Booking date and time is required",
+ roomNameRequired: "Room name is required",
+ qrCodeRequired: "QR Code token is required",
+ currencyNameRequired: "Currency name is required",
+ thresholdMinOne: "Threshold must be at least 1",
+ languageInvalid: "Language must be English or Arabic",
+ perPageMinOne: "Per page must be at least 1",
+ expiryMinOne: "Expiry minutes must be at least 1",
+} as const;
+
+export default validation;

@@ -15,8 +15,8 @@ export const Badge = ({
 	...rest
 }: BadgeProps) => {
 	const styles = {
-		amber: "bg-amber-500/10 border-amber-500/30 text-amber-300",
-		warning: "bg-amber-500/10 border-amber-500/25 text-amber-300",
+		amber: "bg-primary/10 border-primary/30 text-primary-light",
+		warning: "bg-primary/10 border-primary/25 text-primary-light",
 		zinc: "bg-zinc-800 text-zinc-400 border-white/10",
 		success: "bg-green-500/10 border-green-500/20 text-green-400",
 		error: "bg-red-500/10 border-red-500/20 text-red-400",
@@ -24,8 +24,8 @@ export const Badge = ({
 	};
 
 	const dotColors = {
-		amber: "bg-amber-400",
-		warning: "bg-amber-400 animate-pulse",
+		amber: "bg-primary-hover",
+		warning: "bg-primary-hover animate-pulse",
 		zinc: "bg-zinc-400",
 		success: "bg-green-400",
 		error: "bg-red-400",

@@ -1,7 +1,7 @@
 {
-	"name": "لوحة تحكم مقهى الخدمات الفاخرة",
-	"short_name": "إدارة المقهى",
-	"description": "لوحة تحكم إدارية مخصصة للموظفين والـ Admin لإدارة الطاولات، الحجوزات، والطلبات الفورية.",
+	"name": "إدارة مقهى الرواق | Rowaq Cafe Admin",
+	"short_name": "إدارة الرواق",
+	"description": "لوحة تحكم إدارة مقهى الرواق للطلبات والحجوزات | Rowaq Cafe management dashboard for orders and reservations.",
 	"start_url": "/admin",
 	"scope": "/admin",
 	"display": "standalone",

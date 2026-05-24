@@ -1,0 +1,28 @@
+export const validation = {
+ usernameRequired: "اسم المستخدم مطلوب",
+ passwordRequired: "كلمة المرور مطلوبة",
+ passwordMinLength: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+ roomIdRequired: "معرف الغرفة غير صالح",
+ passkeyMustBeNumber: "رمز المرور يجب أن يكون رقماً",
+ itemNameRequired: "اسم العنصر مطلوب",
+ priceRequired: "السعر مطلوب",
+ priceMinZero: "يجب أن يكون السعر 0 أو أكثر",
+ categoryIdRequired: "معرف القسم غير صالح",
+ categoryNameRequired: "اسم القسم مطلوب",
+ reservationIdRequired: "معرف الحجز غير صالح",
+ itemIdRequired: "معرف العنصر غير صالح",
+ quantityMinOne: "يجب أن تكون الكمية 1 على الأقل",
+ atLeastOneItem: "مطلوب عنصر واحد على الأقل",
+ clientNameRequired: "اسم العميل مطلوب",
+ phoneRequired: "رقم الهاتف مطلوب",
+ bookingDateRequired: "تاريخ ووقت الحجز مطلوبان",
+ roomNameRequired: "اسم الغرفة مطلوب",
+ qrCodeRequired: "رمز الـ QR مطلوب",
+ currencyNameRequired: "اسم العملة مطلوب",
+ thresholdMinOne: "الحد الأدنى يجب أن يكون 1 على الأقل",
+ languageInvalid: "اللغة يجب أن تكون إنجليزية أو عربية",
+ perPageMinOne: "عدد العناصر في الصفحة يجب أن يكون 1 على الأقل",
+ expiryMinOne: "مدة الجلسة يجب أن تكون دقيقة واحدة على الأقل",
+} as const;
+
+export default validation;

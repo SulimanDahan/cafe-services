@@ -72,19 +72,19 @@ export default function LoginPage() {
 	};
 
 	return (
-		<div className="h-dvh w-dvw bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden">
+		<div className="h-dvh w-dvw bg-background text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-primary selection:text-black relative overflow-hidden">
 			{/* Ambient Amber Glow Background */}
-			<div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-amber-500/5 blur-[120px] pointer-events-none" />
+			<div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
 			<div className="w-full max-w-md relative z-10">
 				{/* Main Login Card - Glassmorphism & High-Contrast M3 Container */}
-				<div className="rounded-[28px] border border-white/10 bg-[#131522]/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl relative">
+				<div className="rounded-card border border-white/10 bg-surface/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl relative">
 					{/* Accent Top Border/Line */}
-					<div className="absolute top-0 left-10 right-10 h-0.5 bg-linear-to-r from-transparent via-amber-500/50 to-transparent" />
+					<div className="absolute top-0 left-10 right-10 h-0.5 bg-linear-to-r from-transparent via-primary/50 to-transparent" />
 
 					{/* Header / Logo */}
 					<div className="flex flex-col items-center mb-8">
-						<LogoIcon className="w-24 h-24 mb-4 drop-shadow-2xl animate-pulse text-amber-500" />
+						<LogoIcon className="w-24 h-24 mb-4 drop-shadow-2xl animate-pulse text-primary" />
 						<h1 className="text-2xl font-black text-white tracking-wide">
 							{t("login.title")}
 						</h1>
@@ -134,11 +134,11 @@ export default function LoginPage() {
 						<button
 							type="submit"
 							disabled={isLoading}
-							className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-amber-600/50 disabled:cursor-not-allowed text-[#07080a] font-bold py-3.5 px-6 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20 active:scale-[0.98] flex items-center justify-center gap-2 mt-8 text-lg"
+							className="w-full bg-primary hover:bg-primary-hover disabled:bg-amber-600/50 disabled:cursor-not-allowed text-background font-bold py-3.5 px-6 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 mt-8 text-lg"
 						>
 							{isLoading ? (
 								<>
-									<SpinnerIcon className="animate-spin h-5 w-5 text-[#07080a]" />
+									<SpinnerIcon className="animate-spin h-5 w-5 text-background" />
 									<span>{t("login.verifying")}</span>
 								</>
 							) : (
@@ -151,9 +151,9 @@ export default function LoginPage() {
 					<div className="mt-8 text-center">
 						<Link
 							href={MAIN_PAGE_ROUTE}
-							className="inline-flex items-center gap-2 text-xs text-zinc-400 hover:text-amber-300 transition-colors duration-200"
+							className="inline-flex items-center gap-2 text-xs text-zinc-400 hover:text-primary-light transition-colors duration-200"
 						>
-							<ArrowIcon className={`w-3.5 h-3.5 transform ${isRtl ? "" : "rotate-180"}`} />
+							<ArrowIcon className={`w-3.5 h-3.5 ${isRtl ? "" : "rotate-180"}`} />
 							<span>{t("login.backHome")}</span>
 						</Link>
 					</div>

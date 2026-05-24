@@ -59,6 +59,8 @@ export const apiMessages = {
 		deleteNotificationsFailed: "Failed to delete notifications",
 		updateNotificationsFailed: "Failed to update notifications",
 		notificationIdRequired: "Notification ID is required",
+		roomAlreadyActive: "This room already has an active reservation. Please complete the previous reservation first.",
+		itemHasOrders: "Cannot delete item because there are orders associated with it",
 	},
 } as const;
 

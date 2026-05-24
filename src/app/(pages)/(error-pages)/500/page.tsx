@@ -18,7 +18,7 @@ export default async function InternalServerErrorPage() {
 
 	return (
 		<div 
-			className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden"
+			className="min-h-screen bg-background text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-primary selection:text-black relative overflow-hidden"
 			dir={locale === "ar" ? "rtl" : "ltr"}
 		>
 			{/* Ambient Glowing Graphics */}
@@ -48,7 +48,7 @@ export default async function InternalServerErrorPage() {
 				<div className="pt-4 flex items-center justify-center">
 					<Link
 						href={MAIN_PAGE_ROUTE}
-						className="inline-flex items-center gap-2.5 bg-amber-500 hover:bg-amber-400 text-[#07080a] font-bold px-8 py-3.5 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20 active:scale-[0.98] text-sm cursor-pointer"
+						className="inline-flex items-center gap-2.5 bg-primary hover:bg-primary-hover text-background font-bold px-8 py-3.5 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 text-sm cursor-pointer"
 					>
 						<HomeIcon className="w-4 h-4" />
 						<span>{t("errors.serverError.btnHome")}</span>

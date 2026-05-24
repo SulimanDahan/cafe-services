@@ -1,7 +1,7 @@
 {
-	"name": "مقهى الخدمات الفاخرة - اطلب الآن",
-	"short_name": "اطلب الآن",
-	"description": "الطلب الذاتي المباشر من طاولة المقهى مع تحديثات الحجز والطلبات الفورية المباشرة.",
+	"name": "مقهى الرواق | Rowaq Cafe",
+	"short_name": "مقهى الرواق",
+	"description": "الطلب الذاتي المباشر من المقهى | Direct self-ordering from the cafe.",
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",

@@ -13,19 +13,19 @@ import { LogoIcon } from "@/components/icons";
 export default function PageLoader() {
 	const { t } = useLanguage();
 	return (
-		<div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-[#07080a]/90 backdrop-blur-md transition-all duration-300">
+		<div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-background/90 backdrop-blur-md transition-all duration-300">
 			{/* Ambient Glowing Aura */}
-			<div className="absolute w-72 h-72 rounded-full bg-amber-500/10 blur-[100px] pointer-events-none" />
+			<div className="absolute w-72 h-72 rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
 
 			<div className="relative flex flex-col items-center gap-6">
 				{/* Modern Premium Loader Graphic */}
 				<div className="relative h-20 w-20">
 					{/* Outer Spinning Rim */}
-					<div className="absolute inset-0 rounded-full border-4 border-amber-500/10 border-t-amber-500 animate-spin" />
+					<div className="absolute inset-0 rounded-full border-4 border-primary/10 border-t-primary animate-spin" />
 
 					{/* Inner Pulse Circle with SVG Icon */}
-					<div className="absolute inset-4 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center animate-pulse">
-						<LogoIcon className="w-8 h-8 text-amber-500" />
+					<div className="absolute inset-4 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center animate-pulse">
+						<LogoIcon className="w-8 h-8 text-primary" />
 					</div>
 				</div>
 

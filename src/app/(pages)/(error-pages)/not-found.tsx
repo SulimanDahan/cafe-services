@@ -18,21 +18,21 @@ export default async function NotFound() {
 
 	return (
 		<div 
-			className="min-h-screen bg-[#07080a] text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-amber-500 selection:text-black relative overflow-hidden" 
+			className="min-h-screen bg-background text-zinc-100 font-sans flex items-center justify-center p-4 selection:bg-primary selection:text-black relative overflow-hidden" 
 			dir={locale === "ar" ? "rtl" : "ltr"}
 		>
 			{/* Ambient Glowing Graphics */}
-			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-amber-500/5 blur-[120px] pointer-events-none" />
+			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
 			<div className="w-full max-w-md text-center relative z-10 space-y-8 animate-fadeIn">
 
 				{/* 404 Glowing Number Graphic */}
 				<div className="relative inline-block">
-					<span className="text-8xl font-black text-transparent bg-clip-text bg-linear-to-b from-amber-400 to-amber-600 drop-shadow-lg tracking-widest block select-none">
+					<span className="text-8xl font-black text-transparent bg-clip-text bg-linear-to-b from-primary-hover to-amber-600 drop-shadow-lg tracking-widest block select-none">
 						404
 					</span>
 					{/* Underline styling */}
-					<div className="h-1.5 w-16 bg-amber-500 rounded-full mx-auto mt-2" />
+					<div className="h-1.5 w-16 bg-primary rounded-full mx-auto mt-2" />
 				</div>
 
 				{/* Error text block */}
@@ -49,9 +49,9 @@ export default async function NotFound() {
 				<div className="pt-4">
 					<Link
 						href={MAIN_PAGE_ROUTE}
-						className="inline-flex items-center gap-3 bg-amber-500 hover:bg-amber-400 text-[#07080a] font-bold px-8 py-3.5 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20 active:scale-[0.98] text-sm"
+						className="inline-flex items-center gap-3 bg-primary hover:bg-primary-hover text-background font-bold px-8 py-3.5 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 text-sm"
 					>
-						<ArrowIcon className={`w-4 h-4 transform ${locale === "ar" ? "rotate-0" : "rotate-180"}`} />
+						<ArrowIcon className={`w-4 h-4 ${locale === "ar" ? "rotate-0" : "rotate-180"}`} />
 						<span>{t("errors.notFound.btnHome")}</span>
 					</Link>
 				</div>

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const roomSchema = z.object({
-	name: z.string().trim().min(1, { message: "Name is required" }),
-	qr_code: z.string().trim().min(1, { message: "QR Code token is required" }),
+	name: z.string().trim().min(1, { message: "validation.roomNameRequired" }),
+	qr_code: z.string().trim().min(1, { message: "validation.qrCodeRequired" }),
 	is_disable: z.boolean().optional(),
 });
 

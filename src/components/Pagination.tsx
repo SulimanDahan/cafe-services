@@ -1,6 +1,8 @@
 "use client";
 
 import { useLanguage } from "@/config/i18n";
+import ChevronLeftIcon from "./icons/ChevronLeftIcon";
+import ChevronRightIcon from "./icons/ChevronRightIcon";
 
 interface PaginationProps {
 	/** Current active 1-based page index */
@@ -77,8 +79,8 @@ export default function Pagination({
 		<div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5 text-zinc-400">
 			{/* Showing info */}
 			<div className="text-xs font-bold select-none order-2 sm:order-1">
-				{t("common.showing")} <span className="text-amber-400">{startItem}</span> {t("common.to")}{" "}
-				<span className="text-amber-400">{endItem}</span> {t("common.of")}{" "}
+				{t("common.showing")} <span className="text-primary-hover">{startItem}</span> {t("common.to")}{" "}
+				<span className="text-primary-hover">{endItem}</span> {t("common.of")}{" "}
 				<span className="text-white font-black">{totalItems}</span> {t("common.entries")}
 			</div>
 
@@ -92,18 +94,11 @@ export default function Pagination({
 					className={`flex items-center justify-center p-2 rounded-full border border-white/5 transition-all duration-300 cursor-pointer ${
 						currentPage === 1
 							? "opacity-40 cursor-not-allowed"
-							: "bg-[#131522]/50 hover:bg-white/5 hover:text-white active:scale-95"
+							: "bg-surface/50 hover:bg-white/5 hover:text-white"
 					}`}
 					title={t("common.previous")}
 				>
-					<svg
-						className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`}
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
-					</svg>
+					<ChevronLeftIcon className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
 				</button>
 
 				{/* Page Numbers */}
@@ -128,8 +123,8 @@ export default function Pagination({
 								onClick={() => onPageChange(Number(page))}
 								className={`min-w-8 h-8 px-2 rounded-full text-xs font-black transition-all duration-300 cursor-pointer flex items-center justify-center ${
 									isSelected
-										? "bg-amber-500 text-[#07080a] shadow-lg shadow-amber-500/20 scale-105"
-										: "bg-white/5 border border-white/5 hover:bg-white/10 hover:text-white active:scale-95"
+										? "bg-primary text-background shadow-lg shadow-primary/20"
+										: "bg-white/5 border border-white/5 hover:bg-white/10 hover:text-white"
 								}`}
 							>
 								{page}
@@ -146,18 +141,11 @@ export default function Pagination({
 					className={`flex items-center justify-center p-2 rounded-full border border-white/5 transition-all duration-300 cursor-pointer ${
 						currentPage === totalPages
 							? "opacity-40 cursor-not-allowed"
-							: "bg-[#131522]/50 hover:bg-white/5 hover:text-white active:scale-95"
+							: "bg-surface/50 hover:bg-white/5 hover:text-white"
 					}`}
 					title={t("common.next")}
 				>
-					<svg
-						className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`}
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-					</svg>
+					<ChevronRightIcon className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
 				</button>
 			</div>
 		</div>

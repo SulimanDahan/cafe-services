@@ -1,5 +1,5 @@
 type ApiSuccessModel = {
-    message: string;
+ message: string;
 };
 
 export default ApiSuccessModel;

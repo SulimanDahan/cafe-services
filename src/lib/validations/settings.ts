@@ -4,24 +4,24 @@ export const settingsSchema = z.object({
 	currency_name: z
 		.string()
 		.trim()
-		.min(1, { message: "Currency name is required" }),
+		.min(1, { message: "validation.currencyNameRequired" }),
 	notification_threshold: z.preprocess(
 		(val) => (typeof val === "string" ? parseInt(val) : val),
-		z.number().int().min(1, { message: "Threshold must be at least 1" }),
+		z.number().int().min(1, { message: "validation.thresholdMinOne" }),
 	),
 	app_lang: z.enum(["ar", "en"], {
-		message: "Language must be English or Arabic",
+		message: "validation.languageInvalid",
 	}),
 	per_page: z.preprocess(
 		(val) => (typeof val === "string" ? parseInt(val) : val),
-		z.number().int().min(1, { message: "Per page must be at least 1" }),
+		z.number().int().min(1, { message: "validation.perPageMinOne" }),
 	),
 	session_expiry_minutes: z.preprocess(
 		(val) => (typeof val === "string" ? parseInt(val) : val),
 		z
 			.number()
 			.int()
-			.min(1, { message: "Expiry minutes must be at least 1" }),
+			.min(1, { message: "validation.expiryMinOne" }),
 	),
 	force_client_order_session_passKey: z.boolean().optional(),
 });

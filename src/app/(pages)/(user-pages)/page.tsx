@@ -39,7 +39,9 @@ export default function Home() {
                     const resData = await res.json();
                     const roomsList = Array.isArray(resData)
                         ? resData
-                        : (resData.success && Array.isArray(resData.data) ? resData.data : []);
+                        : resData.success && Array.isArray(resData.data)
+                          ? resData.data
+                          : [];
                     setRooms(roomsList.filter((r: Room) => !r.is_disable));
                 }
             } catch (err) {
@@ -70,7 +72,7 @@ export default function Home() {
             price: t("home.service1Price"),
             status: t("home.statusActive"),
             rating: "4.9",
-            icon: <CupIcon className="w-6 h-6 text-amber-400" />,
+            icon: <CupIcon className="w-6 h-6 text-primary-hover" />,
         },
         {
             id: "s2",
@@ -79,7 +81,7 @@ export default function Home() {
             price: t("home.service2Price"),
             status: t("home.statusActive"),
             rating: "5.0",
-            icon: <SunIcon className="w-6 h-6 text-amber-400" />,
+            icon: <SunIcon className="w-6 h-6 text-primary-hover" />,
         },
         {
             id: "s3",
@@ -88,7 +90,7 @@ export default function Home() {
             price: t("home.service3Price"),
             status: t("home.statusActive"),
             rating: "4.8",
-            icon: <UserIcon className="w-6 h-6 text-amber-400" />,
+            icon: <UserIcon className="w-6 h-6 text-primary-hover" />,
         },
         {
             id: "s4",
@@ -97,7 +99,7 @@ export default function Home() {
             price: t("home.service4Price"),
             status: t("home.statusScheduled"),
             rating: "5.0",
-            icon: <CheckIcon className="w-6 h-6 text-amber-400" />,
+            icon: <CheckIcon className="w-6 h-6 text-primary-hover" />,
         },
     ];
 
@@ -106,8 +108,8 @@ export default function Home() {
             <PWAInstallBanner appType="customer" />
             <main className="flex-1 max-w-7xl w-[calc(100%-2rem)] mx-auto md:px-4 lg:px-6 py-10 flex flex-col gap-10">
                 {/* Hero Panel */}
-                <div className="relative rounded-[28px] overflow-hidden border border-white/10 bg-[#131522]/40 p-6 sm:p-10 md:p-14 shadow-2xl">
-                    <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-amber-500/10 blur-[130px] pointer-events-none" />
+                <div className="relative rounded-card overflow-hidden border border-white/10 bg-surface/40 p-6 sm:p-10 md:p-14 shadow-2xl">
+                    <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-primary/10 blur-[130px] pointer-events-none" />
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
                         <div className="lg:col-span-7 space-y-6">
@@ -128,11 +130,11 @@ export default function Home() {
                                 </PrimaryButton>
                                 <div className="flex flex-wrap gap-3">
                                     <Badge variant="zinc">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                                         {t("home.tagDocker")}
                                     </Badge>
                                     <Badge variant="zinc">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                                         {t("home.tagSse")}
                                     </Badge>
                                 </div>

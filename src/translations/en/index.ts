@@ -12,22 +12,24 @@ import { settings } from "./settings";
 import { home } from "./home";
 import { errors } from "./errors";
 import { apiMessages } from "./api_messages";
+import { validation } from "./validation";
 
 const en = {
-	common,
-	sidebar,
-	login,
-	dashboard,
-	reservations,
-	orders,
-	itemGroup,
-	item,
-	notifications,
-	users,
-	settings,
-	home,
-	errors,
-	apiMessages,
+ common,
+ sidebar,
+ login,
+ dashboard,
+ reservations,
+ orders,
+ itemGroup,
+ item,
+ notifications,
+ users,
+ settings,
+ home,
+ errors,
+ apiMessages,
+ validation,
 };
 
 export default en;
