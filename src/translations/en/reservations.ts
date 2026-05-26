@@ -5,6 +5,7 @@ export const reservations = {
 	columnId: "Booking ID",
 	columnClient: "Client Name",
 	columnPhone: "Phone Number",
+	columnPasskey: "Booking Passkey",
 	columnRoom: "Room",
 	columnDateTime: "Booking Date & Time",
 	columnPrice: "Total Amount",

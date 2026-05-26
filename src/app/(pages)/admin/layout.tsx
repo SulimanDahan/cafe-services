@@ -102,6 +102,11 @@ export default function AdminLayout({ children }: LayoutProps) {
         setIsLoading(false);
     }
 
+    // Effect hook to ensure loading state is cleared when component mounts/pathname changes
+    useEffect(() => {
+        (() => setIsLoading(false))();
+    }, [pathname]);
+
     // Setup navigation progress listeners for clicks, history navigation, and programmatic changes
     useEffect(() => {
         const handleAnchorClick = (event: MouseEvent) => {

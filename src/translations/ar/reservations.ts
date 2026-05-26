@@ -5,6 +5,7 @@ export const reservations = {
 	columnId: "معرف الحجز",
 	columnClient: "العميل",
 	columnPhone: "رقم الهاتف",
+	columnPasskey: "رمز مرور الحجز",
 	columnRoom: "الغرفة",
 	columnDateTime: "تاريخ ووقت الحجز",
 	columnPrice: "المجموع الكلي",
