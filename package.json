@@ -7,6 +7,7 @@
 		"dev:win": "next dev --webpack",
 		"dev:https": "npx next dev --experimental-https",
 		"build": "next build",
+		"build:db": "npx prisma generate && next build",
 		"start": "next start",
 		"lint": "eslint",
 		"seed": "npx tsx prisma/seed.ts",
