@@ -1,5 +1,5 @@
 import { reservationSchema } from "@/lib/validations/reservation";
-import { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
@@ -22,7 +22,8 @@ export async function GET(request: Request) {
         const status = searchParams.get("status") || "all"; // all | pending | confirmed
         const all = searchParams.get("all") === "true"; // include past reservations
 
-        const where: Prisma.ReservationWhereInput = {};
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const where: any = {};
 
         if (!all) {
             const todayStart = new Date();
@@ -58,7 +59,8 @@ export async function GET(request: Request) {
         }
 
         if (search) {
-            const searchOR: Prisma.ReservationWhereInput[] = [
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const searchOR: any[] = [
                 { client_name: { contains: search, mode: "insensitive" } },
                 { phone: { contains: search } },
                 { room: { name: { contains: search, mode: "insensitive" } } },
