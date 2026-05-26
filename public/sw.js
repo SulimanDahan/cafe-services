@@ -3,6 +3,7 @@ const CACHE_NAME = "cafe-services-cache-v2";
 // Core static assets to cache on installation
 const STATIC_ASSETS = [
     "/",
+    "/admin",
     "/customer-manifest.json?v=2",
     "/admin-manifest.json?v=2",
     "/icon.svg",
@@ -13,14 +14,19 @@ const STATIC_ASSETS = [
 // Install Event: cache static resources
 self.addEventListener("install", (event) => {
     event.waitUntil(
-        caches
-            .open(CACHE_NAME)
-            .then((cache) => {
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .then(() => {
-                return self.skipWaiting();
-            }),
+        caches.open(CACHE_NAME).then((cache) => {
+            return Promise.allSettled(
+                STATIC_ASSETS.map(url => 
+                    fetch(url).then(response => {
+                        if (response.ok) {
+                            return cache.put(url, response);
+                        }
+                    }).catch(err => console.warn("Failed to cache asset:", url, err))
+                )
+            );
+        }).then(() => {
+            return self.skipWaiting();
+        })
     );
 });
 
