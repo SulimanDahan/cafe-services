@@ -12,6 +12,7 @@ import {
     TrashIcon,
     UndoCircleIcon,
     EnableCircleIcon,
+    EditIcon,
 } from "@/components/icons";
 import ReservationModel from "@/models/data_models/reservation_model";
 import ErrorModal from "@/components/partials/modals/error_modal";
@@ -38,6 +39,7 @@ export default function ReservationsAdmin() {
         isReservationsLoading,
         fetchAllReservations,
         addReservation,
+        updateReservation,
         acceptReservation,
         activateReservation,
         rejectReservation,
@@ -54,6 +56,14 @@ export default function ReservationsAdmin() {
     const columns: TableColumn[] = [
         { key: "client_name", label: t("reservations.columnClient") },
         { key: "phone", label: t("reservations.columnPhone") },
+        ...(settings.force_client_order_session_passKey
+            ? [
+                  {
+                      key: "order_passkey",
+                      label: t("reservations.columnPasskey") || "Passkey",
+                  },
+              ]
+            : []),
         { key: "date_time", label: t("reservations.columnDateTime") },
         { key: "room", label: t("reservations.columnRoom") },
         {
@@ -66,6 +76,7 @@ export default function ReservationsAdmin() {
 
     // Form Modal Toggles
     const [isResOpen, setIsResOpen] = useState(false);
+    const [editingRes, setEditingRes] = useState<ReservationModel | null>(null);
     const [errorModalMsg, setErrorModalMsg] = useState<string | null>(null);
 
     // React Hook Form values interface
@@ -103,23 +114,40 @@ export default function ReservationsAdmin() {
     }, [fetchAllRooms]);
 
     const handleOpenAddForm = () => {
+        setEditingRes(null);
         setIsResOpen(true);
     };
 
-    const handleAddReservation = async (
+    const handleOpenEditForm = (res: ReservationModel) => {
+        setEditingRes(res);
+        setIsResOpen(true);
+    };
+
+    const handleSaveReservation = async (
         data: ReservationFormValues,
     ): Promise<boolean> => {
-        const todayStr = new Date().toISOString().split("T")[0];
-        const isToday = data.date_time.startsWith(todayStr);
+        let success = false;
+        if (editingRes) {
+            success = await updateReservation(editingRes.id, {
+                client_name: data.client_name,
+                phone: data.phone,
+                room_id: data.room_id,
+                date_time: new Date(data.date_time),
+            });
+        } else {
+            const todayStr = new Date().toISOString().split("T")[0];
+            const resDate = new Date(data.date_time);
+            const isToday = resDate.toISOString().split("T")[0] === todayStr;
 
-        const success = await addReservation({
-            client_name: data.client_name,
-            phone: data.phone,
-            room_id: data.room_id,
-            date_time: new Date(data.date_time),
-            accepted: isToday,
-            completed: false,
-        });
+            success = await addReservation({
+                client_name: data.client_name,
+                phone: data.phone,
+                room_id: data.room_id,
+                date_time: new Date(data.date_time),
+                accepted: isToday,
+                completed: false,
+            });
+        }
 
         if (!success) {
             setErrorModalMsg(t("common.errorOccurred"));
@@ -279,6 +307,13 @@ export default function ReservationsAdmin() {
                                 >
                                     {res.phone}
                                 </td>
+                                {settings.force_client_order_session_passKey && (
+                                    <td
+                                        className={`py-4 px-4 font-black text-amber-500 text-sm tracking-wider whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
+                                    >
+                                        {res.order_passkey}
+                                    </td>
+                                )}
                                 <td
                                     className={`py-4 px-4 text-zinc-400 text-xs font-semibold whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
                                 >
@@ -389,40 +424,68 @@ export default function ReservationsAdmin() {
                                                     )}
                                                 />
                                             )}
-                                        {!res.accepted &&
-                                            !res.activated &&
+                                        {!res.activated &&
                                             !res.completed &&
                                             !res.rejected && (
-                                                <ActionIconButton
-                                                    variant="delete"
-                                                    icon={
-                                                        <TrashIcon className="w-4 h-4" />
-                                                    }
-                                                    onClick={() =>
-                                                        handleDelete(res.id)
-                                                    }
-                                                    title={t("common.delete")}
-                                                />
+                                                <>
+                                                    <ActionIconButton
+                                                        variant="edit"
+                                                        icon={
+                                                            <EditIcon className="w-4 h-4" />
+                                                        }
+                                                        onClick={() =>
+                                                            handleOpenEditForm(
+                                                                res,
+                                                            )
+                                                        }
+                                                        title={t("common.edit")}
+                                                    />
+                                                    <ActionIconButton
+                                                        variant="delete"
+                                                        icon={
+                                                            <TrashIcon className="w-4 h-4" />
+                                                        }
+                                                        onClick={() =>
+                                                            handleDelete(res.id)
+                                                        }
+                                                        title={t(
+                                                            "common.delete",
+                                                        )}
+                                                    />
+                                                </>
                                             )}
-                                        {res.accepted &&
-                                            !res.activated &&
+                                        {!res.activated &&
                                             !res.completed &&
                                             !res.rejected && (
-                                                <ActionIconButton
-                                                    variant="edit"
-                                                    icon={
-                                                        <UndoCircleIcon className="w-4 h-4" />
-                                                    }
-                                                    onClick={() =>
-                                                        handleUndoAction(
-                                                            res.id,
-                                                            "accept",
-                                                        )
-                                                    }
-                                                    title={t(
-                                                        "reservations.btnUndoAccept",
-                                                    )}
-                                                />
+                                                <>
+                                                    <ActionIconButton
+                                                        variant="edit"
+                                                        icon={
+                                                            <EditIcon className="w-4 h-4" />
+                                                        }
+                                                        onClick={() =>
+                                                            handleOpenEditForm(
+                                                                res,
+                                                            )
+                                                        }
+                                                        title={t("common.edit")}
+                                                    />
+                                                    <ActionIconButton
+                                                        variant="edit"
+                                                        icon={
+                                                            <UndoCircleIcon className="w-4 h-4" />
+                                                        }
+                                                        onClick={() =>
+                                                            handleUndoAction(
+                                                                res.id,
+                                                                "accept",
+                                                            )
+                                                        }
+                                                        title={t(
+                                                            "reservations.btnUndoAccept",
+                                                        )}
+                                                    />
+                                                </>
                                             )}
                                         {res.activated &&
                                             !res.completed &&
@@ -502,9 +565,24 @@ export default function ReservationsAdmin() {
 
             <AdminReservationModal
                 isOpen={isResOpen}
-                onClose={() => setIsResOpen(false)}
-                onSave={handleAddReservation}
+                onClose={() => {
+                    setIsResOpen(false);
+                    setEditingRes(null);
+                }}
+                onSave={handleSaveReservation}
                 rooms={rooms}
+                initialData={
+                    editingRes
+                        ? {
+                              client_name: editingRes.client_name,
+                              phone: editingRes.phone,
+                              room_id: editingRes.room_id,
+                              date_time: new Date(
+                                  editingRes.date_time,
+                              ).toISOString(),
+                          }
+                        : null
+                }
             />
 
             {/* Error Modal */}

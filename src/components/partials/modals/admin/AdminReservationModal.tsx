@@ -21,6 +21,7 @@ interface AdminReservationModalProps {
     onClose: () => void;
     onSave: (data: ReservationFormValues) => Promise<boolean>;
     rooms: { id: string; name: string; is_disable: boolean }[];
+    initialData?: ReservationFormValues | null;
 }
 
 export default function AdminReservationModal({
@@ -28,6 +29,7 @@ export default function AdminReservationModal({
     onClose,
     onSave,
     rooms,
+    initialData,
 }: AdminReservationModalProps) {
     const { t } = useLanguage();
 
@@ -50,15 +52,24 @@ export default function AdminReservationModal({
 
     useEffect(() => {
         if (isOpen) {
-            const today = new Date().toISOString().split("T")[0];
-            reset({
-                client_name: "",
-                phone: "",
-                room_id: rooms.find((r) => !r.is_disable)?.id ?? "",
-                date_time: today,
-            });
+            if (initialData) {
+                reset({
+                    client_name: initialData.client_name,
+                    phone: initialData.phone,
+                    room_id: initialData.room_id,
+                    date_time: initialData.date_time.split("T")[0],
+                });
+            } else {
+                const today = new Date().toISOString().split("T")[0];
+                reset({
+                    client_name: "",
+                    phone: "",
+                    room_id: rooms.find((r) => !r.is_disable)?.id ?? "",
+                    date_time: today,
+                });
+            }
         }
-    }, [isOpen, reset, rooms]);
+    }, [isOpen, reset, rooms, initialData]);
 
     const handleFormSubmit = async (data: ReservationFormValues) => {
         const success = await onSave(data);
@@ -70,7 +81,7 @@ export default function AdminReservationModal({
     return (
         <AdminModal isOpen={isOpen} onClose={onClose}>
             <h2 className="text-xl font-black text-white mb-6 pr-6">
-                {t("reservations.modalAddTitle")}
+                {initialData ? t("reservations.modalEditTitle") || t("common.edit") : t("reservations.modalAddTitle")}
             </h2>
             <form
                 onSubmit={handleSubmit(handleFormSubmit)}
