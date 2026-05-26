@@ -25,28 +25,45 @@ export async function getSystemSettings() {
 		console.error("Failed to cleanup duplicate settings:", err);
 	}
 
-	let appSettings = await prisma.settings.findFirst({
-		orderBy: { created_at: "asc" }
-	});
+	let appSettings;
 
-	if (!appSettings) {
-		try {
-			appSettings = await prisma.settings.create({
-				data: {
-					currency_name: "YER",
-					app_lang: "ar",
-					per_page: 25,
-					notification_threshold: 100,
-					session_expiry_minutes: 30,
-					force_client_order_session_passKey: false,
-				},
-			});
-		} catch {
-			// In case of a concurrent create race, fetch the created row
-			appSettings = await prisma.settings.findFirst({
-				orderBy: { created_at: "asc" }
-			});
+	try {
+		appSettings = await prisma.settings.findFirst({
+			orderBy: { created_at: "asc" }
+		});
+
+		if (!appSettings) {
+			try {
+				appSettings = await prisma.settings.create({
+					data: {
+						currency_name: "YER",
+						app_lang: "ar",
+						per_page: 25,
+						notification_threshold: 100,
+						session_expiry_minutes: 30,
+						force_client_order_session_passKey: false,
+					},
+				});
+			} catch {
+				// In case of a concurrent create race, fetch the created row
+				appSettings = await prisma.settings.findFirst({
+					orderBy: { created_at: "asc" }
+				});
+			}
 		}
+	} catch (dbError) {
+		console.warn("Database connection failed, using default settings fallback:", dbError);
+		return {
+			id: "default",
+			currency_name: "YER",
+			app_lang: "ar",
+			per_page: 25,
+			notification_threshold: 100,
+			session_expiry_minutes: 30,
+			force_client_order_session_passKey: false,
+			created_at: new Date(),
+			updated_at: new Date(),
+		};
 	}
 
 	return appSettings;
