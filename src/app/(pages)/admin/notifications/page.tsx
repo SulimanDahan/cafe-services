@@ -7,17 +7,17 @@ import { TrashIcon } from "@/components/icons";
 import { useLanguage } from "@/config/i18n";
 import { useSettings } from "@/context/settings_context";
 import {
- NOTIFICATION_API_ROUTE,
- NOTIFICATION_STREAM_API_ROUTE,
+    NOTIFICATION_API_ROUTE,
+    NOTIFICATION_STREAM_API_ROUTE,
 } from "@/config/api_routes";
 import Table, { TableColumn } from "@/components/table";
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/Pagination";
 
 interface NotificationLog {
- id: string;
- title: string;
- message: string;
- created_at: string;
+    id: string;
+    title: string;
+    message: string;
+    created_at: string;
 }
 
 /**
@@ -26,189 +26,189 @@ interface NotificationLog {
  * and allows administrators to broadcast simulated notifications to users.
  */
 export default function NotificationsAdmin() {
- const { t, isRtl } = useLanguage();
- const { settings } = useSettings();
+    const { t, isRtl } = useLanguage();
+    const { settings } = useSettings();
 
- const columns: TableColumn[] = [
- { key: "title", label: t("notifications.columnTitle") },
- { key: "message", label: t("notifications.columnMessage") },
- { key: "created", label: t("notifications.columnCreated") },
- { key: "actions", label: t("common.actions"), align: "center" },
- ];
+    const columns: TableColumn[] = [
+        { key: "title", label: t("notifications.columnTitle") },
+        { key: "message", label: t("notifications.columnMessage") },
+        { key: "created", label: t("notifications.columnCreated") },
+        { key: "actions", label: t("common.actions"), align: "center" },
+    ];
 
- const [logs, setLogs] = useState<NotificationLog[]>([]);
- const [isLogsLoading, setIsLogsLoading] = useState(false);
- const [searchQuery, setSearchQuery] = useState("");
- const [currentPage, setCurrentPage] = useState(1);
- const [total, setTotal] = useState(0);
- const [totalPages, setTotalPages] = useState(0);
+    const [logs, setLogs] = useState<NotificationLog[]>([]);
+    const [isLogsLoading, setIsLogsLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
- const perPage = settings.per_page || 10;
+    const perPage = settings.per_page || 10;
 
- const fetchLogs = async (page: number, search: string) => {
- setIsLogsLoading(true);
- try {
- const params = new URLSearchParams({
- page: String(page),
- per_page: String(perPage),
- });
- if (search) params.set("search", search);
- const res = await fetch(
- `${NOTIFICATION_API_ROUTE}?${params.toString()}`,
- );
- if (res.ok) {
- const data = await res.json();
- setLogs(data.data || []);
- setTotal(data.total || 0);
- setTotalPages(data.totalPages || 0);
- }
- } catch (err) {
- console.error("Failed to fetch notifications:", err);
- } finally {
- setIsLogsLoading(false);
- }
- };
+    const fetchLogs = async (page: number, search: string) => {
+        setIsLogsLoading(true);
+        try {
+            const params = new URLSearchParams({
+                page: String(page),
+                per_page: String(perPage),
+            });
+            if (search) params.set("search", search);
+            const res = await fetch(
+                `${NOTIFICATION_API_ROUTE}?${params.toString()}`,
+            );
+            if (res.ok) {
+                const data = await res.json();
+                setLogs(data.data || []);
+                setTotal(data.total || 0);
+                setTotalPages(data.totalPages || 0);
+            }
+        } catch (err) {
+            console.error("Failed to fetch notifications:", err);
+        } finally {
+            setIsLogsLoading(false);
+        }
+    };
 
- useEffect(() => {
- (() => fetchLogs(currentPage, searchQuery))();
- // eslint-disable-next-line react-hooks/exhaustive-deps
- }, [currentPage, perPage]);
+    useEffect(() => {
+        (() => fetchLogs(currentPage, searchQuery))();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentPage, perPage]);
 
- useEffect(() => {
- // Listen for real-time updates via SSE — refresh first page on new notification
- const eventSource = new EventSource(NOTIFICATION_STREAM_API_ROUTE);
- eventSource.addEventListener("notification-created", () => {
- setCurrentPage(1);
- fetchLogs(1, searchQuery);
- });
- return () => {
- eventSource.close();
- };
- // eslint-disable-next-line react-hooks/exhaustive-deps
- }, []);
+    useEffect(() => {
+        // Listen for real-time updates via SSE — refresh first page on new notification
+        const eventSource = new EventSource(NOTIFICATION_STREAM_API_ROUTE);
+        eventSource.addEventListener("notification-created", () => {
+            setCurrentPage(1);
+            fetchLogs(1, searchQuery);
+        });
+        return () => {
+            eventSource.close();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
- const handleDeleteLog = async (id: string) => {
- try {
- await fetch(`${NOTIFICATION_API_ROUTE}/${id}`, {
- method: "DELETE",
- });
- fetchLogs(currentPage, searchQuery);
- } catch (err) {
- console.error("Failed to delete notification:", err);
- }
- };
+    const handleDeleteLog = async (id: string) => {
+        try {
+            await fetch(`${NOTIFICATION_API_ROUTE}/${id}`, {
+                method: "DELETE",
+            });
+            fetchLogs(currentPage, searchQuery);
+        } catch (err) {
+            console.error("Failed to delete notification:", err);
+        }
+    };
 
- const handleClearAllLogs = async () => {
- const warningMsg = t("notifications.confirmClearLogs");
- if (confirm(warningMsg)) {
- try {
- await fetch(NOTIFICATION_API_ROUTE, { method: "DELETE" });
- setLogs([]);
- setTotal(0);
- setTotalPages(0);
- setCurrentPage(1);
- } catch (err) {
- console.error("Failed to clear notifications:", err);
- }
- }
- };
+    const handleClearAllLogs = async () => {
+        const warningMsg = t("notifications.confirmClearLogs");
+        if (confirm(warningMsg)) {
+            try {
+                await fetch(NOTIFICATION_API_ROUTE, { method: "DELETE" });
+                setLogs([]);
+                setTotal(0);
+                setTotalPages(0);
+                setCurrentPage(1);
+            } catch (err) {
+                console.error("Failed to clear notifications:", err);
+            }
+        }
+    };
 
- return (
- <div className="space-y-6">
- {/* Top Header */}
- <AdminHeader
- title={t("notifications.title")}
- subtitle={t("notifications.subtitle")}
- >
- <div className="flex items-center gap-2 w-full sm:w-auto">
- {logs.length > 0 && (
- <button
- onClick={handleClearAllLogs}
- className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white text-xs font-bold transition-all w-full sm:w-auto"
- >
- <TrashIcon className="w-4 h-4" />
- {t("notifications.btnClearLogs")}
- </button>
- )}
- </div>
- </AdminHeader>
+    return (
+        <div className="space-y-6">
+            {/* Top Header */}
+            <AdminHeader
+                title={t("notifications.title")}
+                subtitle={t("notifications.subtitle")}
+            >
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    {logs.length > 0 && (
+                        <button
+                            onClick={handleClearAllLogs}
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white text-xs font-bold transition-all w-full sm:w-auto"
+                        >
+                            <TrashIcon className="w-4 h-4" />
+                            {t("notifications.btnClearLogs")}
+                        </button>
+                    )}
+                </div>
+            </AdminHeader>
 
- {/* Filters Panel (High-contrast glassmorphism) */}
- <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
- <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
- <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:max-w-xl">
- <SearchInput
- value={searchQuery}
- onChange={(v) => {
- setSearchQuery(v);
- setCurrentPage(1);
- }}
- placeholder={t("notifications.searchPlaceholder")}
- />
- </div>
+            {/* Filters Panel (High-contrast glassmorphism) */}
+            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:max-w-xl">
+                        <SearchInput
+                            value={searchQuery}
+                            onChange={(v) => {
+                                setSearchQuery(v);
+                                setCurrentPage(1);
+                            }}
+                            placeholder={t("notifications.searchPlaceholder")}
+                        />
+                    </div>
 
- <span className="text-xs text-zinc-400 font-bold">
- {t("notifications.totalLogs")} {total}
- </span>
- </div>
+                    <span className="text-xs text-zinc-400 font-bold">
+                        {t("notifications.totalLogs")} {total}
+                    </span>
+                </div>
 
- <Table
- columns={columns}
- isLoading={isLogsLoading}
- dataLength={total}
- >
- {logs.map((log) => (
- <tr
- key={log.id}
- className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200"
- >
- <td
- className={`py-4 px-4 font-bold text-white group-hover:text-primary-light transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
- >
- {log.title}
- </td>
- <td
- className={`py-4 px-4 text-zinc-300 font-semibold text-xs whitespace-normal max-w-sm ${isRtl ? "text-right" : "text-left"}`}
- >
- {log.message}
- </td>
+                <Table
+                    columns={columns}
+                    isLoading={isLogsLoading}
+                    dataLength={total}
+                >
+                    {logs.map((log) => (
+                        <tr
+                            key={log.id}
+                            className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200"
+                        >
+                            <td
+                                className={`py-4 px-4 font-bold text-white group-hover:text-primary-light transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
+                            >
+                                {log.title}
+                            </td>
+                            <td
+                                className={`py-4 px-4 text-zinc-300 font-semibold text-xs whitespace-normal max-w-sm ${isRtl ? "text-right" : "text-left"}`}
+                            >
+                                {log.message}
+                            </td>
 
- <td
- className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
- >
- {new Date(log.created_at).toLocaleString(
- isRtl ? "ar-SA" : "en-US",
- {
- day: "numeric",
- month: "long",
- year: "numeric",
- hour: "2-digit",
- minute: "2-digit",
- },
- )}
- </td>
- <td className="py-4 px-4 text-center whitespace-nowrap">
- <div className="flex items-center justify-center">
- <button
- onClick={() => handleDeleteLog(log.id)}
- className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
- title={t("common.delete")}
- >
- <TrashIcon className="w-4 h-4" />
- </button>
- </div>
- </td>
- </tr>
- ))}
- </Table>
- <Pagination
- currentPage={currentPage}
- totalPages={totalPages}
- totalItems={total}
- itemsPerPage={perPage}
- onPageChange={setCurrentPage}
- />
- </div>
- </div>
- );
+                            <td
+                                className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
+                            >
+                                {new Date(log.created_at).toLocaleString(
+                                    isRtl ? "ar-SA" : "en-US",
+                                    {
+                                        day: "numeric",
+                                        month: "long",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    },
+                                )}
+                            </td>
+                            <td className="py-4 px-4 text-center whitespace-nowrap">
+                                <div className="flex items-center justify-center">
+                                    <button
+                                        onClick={() => handleDeleteLog(log.id)}
+                                        className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
+                                        title={t("common.delete")}
+                                    >
+                                        <TrashIcon className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                </Table>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={total}
+                    itemsPerPage={perPage}
+                    onPageChange={setCurrentPage}
+                />
+            </div>
+        </div>
+    );
 }

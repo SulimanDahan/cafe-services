@@ -18,7 +18,7 @@ import ErrorModal from "@/components/partials/modals/error_modal";
 import AdminReservationModal from "@/components/partials/modals/admin/AdminReservationModal";
 import { PrimaryButton } from "@/components/button/primary_button";
 import { Badge } from "@/components/badge";
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/Pagination";
 import TabBar from "@/components/tab_bar";
 import Table, { TableColumn } from "@/components/table";
 import { ActionIconButton } from "@/components/button/action_icon_button";

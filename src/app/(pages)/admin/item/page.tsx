@@ -19,7 +19,7 @@ import Table, { TableColumn } from "@/components/table";
 import ErrorModal from "@/components/partials/modals/error_modal";
 import ItemModal from "@/components/partials/modals/admin/ItemModal";
 import { ActionIconButton } from "@/components/button/action_icon_button";
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/Pagination";
 import PlusIcon from "@/components/icons/PlusIcon";
 import { PrimaryButton } from "@/components/button/primary_button";
 import { Badge } from "@/components/badge";

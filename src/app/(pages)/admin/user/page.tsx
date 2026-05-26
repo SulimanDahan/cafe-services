@@ -18,7 +18,7 @@ import Table, { TableColumn } from "@/components/table";
 import ErrorModal from "@/components/partials/modals/error_modal";
 import { PrimaryButton } from "@/components/button/primary_button";
 import { Badge } from "@/components/badge";
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/Pagination";
 import { ActionIconButton } from "@/components/button/action_icon_button";
 import UserModal from "@/components/partials/modals/admin/UserModal";
 

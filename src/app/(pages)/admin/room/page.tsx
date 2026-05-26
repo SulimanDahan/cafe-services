@@ -22,7 +22,7 @@ import RoomModal from "@/components/partials/modals/admin/RoomModal";
 import PrintQrModal from "@/components/partials/modals/admin/PrintQrModal";
 import { PrimaryButton } from "@/components/button/primary_button";
 import { Badge } from "@/components/badge";
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/Pagination";
 import { ActionIconButton } from "@/components/button/action_icon_button";
 import PlusIcon from "@/components/icons/PlusIcon";
 
@@ -374,15 +374,21 @@ export default function AdminRoomsPage() {
                                         }
                                         title={
                                             !room.is_disable
-                                                ? t("reservations.actionDeactivate")
-                                                : t("reservations.actionActivate")
+                                                ? t(
+                                                      "reservations.actionDeactivate",
+                                                  )
+                                                : t(
+                                                      "reservations.actionActivate",
+                                                  )
                                         }
                                     />
 
                                     <ActionIconButton
                                         variant="edit"
                                         icon={<EditIcon className="w-4 h-4" />}
-                                        onClick={() => handleOpenEditModal(room)}
+                                        onClick={() =>
+                                            handleOpenEditModal(room)
+                                        }
                                         title={t("common.edit")}
                                     />
 
