@@ -22,5 +22,7 @@ export const USER_API_ROUTE: string = `${MAIN_API_ROUTE}/users`;
 export const SETTINGS_API_ROUTE: string = `${MAIN_API_ROUTE}/settings`;
 export const ROOM_API_ROUTE: string = `${MAIN_API_ROUTE}/rooms`;
 export const RESERVATION_USER_API_ROUTE: string = `${MAIN_API_ROUTE}/reservation`;
+export const ROOMS_USER_API_ROUTE: string = `${MAIN_API_ROUTE}/reservation/rooms`;
 export const ORDER_USER_API_ROUTE: string = `${MAIN_API_ROUTE}/order`;
+export const ORDER_ITEMS_USER_API_ROUTE: string = `${ORDER_USER_API_ROUTE}/items`;
 export const ORDER_LOGIN_API_ROUTE: string = `${ORDER_USER_API_ROUTE}/login`;

@@ -17,7 +17,7 @@ Welcome to the **Cafe Services** codebase. This document outlines the absolute d
 *   **Host-Container Isolation:**
     *   Do not mix host package installations with Docker container cache. If you install dependencies locally on the host, always restart docker containers with `--build` to regenerate dependencies inside the Linux Alpine environment.
     *   Never hardcode local host IP addresses. Use the service names (e.g., `postgres`) as the hostnames inside the Docker virtual network.
-*   **Port Conflicts:** Always verify that port `3000` (development) or `3001` (production) are not being allocated by standard host processes before launching containers.
+*   **Port Conflicts:** Always verify that port `3001` (development) or `3000` (production) are not being allocated by standard host processes before launching containers.
 
 ---
 

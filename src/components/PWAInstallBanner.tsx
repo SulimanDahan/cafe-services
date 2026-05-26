@@ -27,6 +27,13 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 
+		// If the context is not secure (e.g. self-signed IP address without flags),
+		// PWA features (like service workers) will be blocked by the browser.
+		// So we silently abort to avoid confusing errors or un-installable banners.
+		if (!window.isSecureContext) {
+			return;
+		}
+
 		// Dynamically inject the appropriate manifest link
 		const manifestFile = appType === "admin" ? "/admin-manifest.json" : "/customer-manifest.json";
 		let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;

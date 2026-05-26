@@ -7,6 +7,7 @@ export const validation = {
  itemNameRequired: "Item name is required",
  priceRequired: "Price is required",
  priceMinZero: "Price must be greater than or equal to 0",
+ priceMinOne: "Price must be 1 or more",
  categoryIdRequired: "Invalid Category ID",
  categoryNameRequired: "Category name is required",
  reservationIdRequired: "Invalid Reservation ID",

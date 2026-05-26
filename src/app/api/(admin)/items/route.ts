@@ -1,9 +1,11 @@
 import { itemSchema } from "@/lib/validations/item";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
 
 /** GET paginated items with optional search and group filter */
 export async function GET(request: Request) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const { searchParams } = new URL(request.url);
  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
@@ -41,6 +43,7 @@ export async function GET(request: Request) {
 
 /** POST a new item */
 export async function POST(request: Request) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const body = await request.json();
  const validation = itemSchema.safeParse(body);

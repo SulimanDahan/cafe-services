@@ -57,10 +57,21 @@ export function OrderProvider({ children }: { children: ReactNode }) {
  }
  };
 
+ const onOrderDeleted = (event: MessageEvent) => {
+ try {
+ const deletedOrderId = JSON.parse(event.data);
+ setOrders((prev) => prev.filter((o) => o.id !== deletedOrderId));
+ } catch (e) {
+ console.error("Error parsing deleted order from SSE:", e);
+ }
+ };
+
  eventSource.addEventListener("new-order", onNewOrder);
+ eventSource.addEventListener("order-deleted", onOrderDeleted);
 
  return () => {
  eventSource.removeEventListener("new-order", onNewOrder);
+ eventSource.removeEventListener("order-deleted", onOrderDeleted);
  eventSource.close();
  };
  }, [fetchAllOrders, setOrders]);

@@ -7,6 +7,7 @@ export const validation = {
  itemNameRequired: "اسم العنصر مطلوب",
  priceRequired: "السعر مطلوب",
  priceMinZero: "يجب أن يكون السعر 0 أو أكثر",
+ priceMinOne: "يجب أن يكون السعر 1 أو أكثر",
  categoryIdRequired: "معرف القسم غير صالح",
  categoryNameRequired: "اسم القسم مطلوب",
  reservationIdRequired: "معرف الحجز غير صالح",

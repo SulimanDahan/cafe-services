@@ -2,6 +2,7 @@
 import { NextRequest } from "next/server";
 import { notificationEmitter } from "@/lib/emitter";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export const dynamic = "force-dynamic";
  * @returns A streaming HTTP Response with appropriate SSE headers.
  */
 export async function GET(req: NextRequest) {
+    if (!(await requireAuth())) return new Response("Unauthorized", { status: 401 });
 	const responseStream = new TransformStream();
 	const writer = responseStream.writable.getWriter();
 	const encoder = new TextEncoder();
@@ -51,10 +53,12 @@ export async function GET(req: NextRequest) {
 	};
 	const onNewReservation = (res: any) => sendEvent("new-reservation", res);
 	const onNewOrder = (order: any) => sendEvent("new-order", order);
+	const onOrderDeleted = (orderId: any) => sendEvent("order-deleted", orderId);
 
 	notificationEmitter.on("notification-created", onNotificationCreated);
 	notificationEmitter.on("new-reservation", onNewReservation);
 	notificationEmitter.on("new-order", onNewOrder);
+	notificationEmitter.on("order-deleted", onOrderDeleted);
 
 	// 3. Keep Connection Alive (Ping)
 	const pingInterval = setInterval(() => {
@@ -70,6 +74,7 @@ export async function GET(req: NextRequest) {
 		notificationEmitter.off("notification-created", onNotificationCreated);
 		notificationEmitter.off("new-reservation", onNewReservation);
 		notificationEmitter.off("new-order", onNewOrder);
+		notificationEmitter.off("order-deleted", onOrderDeleted);
 		try {
 			writer.close();
 		} catch {

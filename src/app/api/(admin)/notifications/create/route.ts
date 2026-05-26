@@ -4,9 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { notificationEmitter } from "@/lib/emitter";
 import { getServerTranslations } from "@/lib/i18n_server";
 import { getSystemSettings } from "@/lib/settings";
+import { requireAuth } from "@/lib/auth";
 
 // Add GET handler for easy testing from a browser URL!
 export async function GET(req: NextRequest) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
 	const appSettings = await getSystemSettings();
 	const locale = appSettings?.app_lang === "en" ? "en" : "ar";
 	const { t } = getServerTranslations(locale);

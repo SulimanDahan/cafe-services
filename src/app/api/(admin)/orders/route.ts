@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { orderSchema } from "@/lib/validations/order";
+import { requireAuth } from "@/lib/auth";
 
 /** GET all orders with item relation. Optionally filter by reservation_id via query param. */
 export async function GET(request: Request) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const { searchParams } = new URL(request.url);
  const reservationId = searchParams.get("reservation_id");
@@ -22,6 +24,7 @@ export async function GET(request: Request) {
 
 /** POST a new order */
 export async function POST(request: Request) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const data = await request.json();
  const validation = orderSchema.safeParse(data);

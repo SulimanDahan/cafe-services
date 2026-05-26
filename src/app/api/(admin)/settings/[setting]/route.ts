@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSystemSettings } from "@/lib/settings";
 import { settingsSchema } from "@/lib/validations/settings";
+import { requireAuth } from "@/lib/auth";
 
 /** PUT /api/settings/[setting] — update a settings record by ID */
 export async function PUT(
 	request: NextRequest,
 	{ params }: { params: Promise<{ setting: string }> },
 ) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
 	try {
 		await params;
 		const body = await request.json();

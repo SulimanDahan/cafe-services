@@ -200,6 +200,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ r
 			});
 		}
 
+		notificationEmitter.emit("order-deleted", orderId);
+
 		return NextResponse.json({ success: true });
 	} catch (error: unknown) {
 		const err = error as { message?: string };

@@ -9,31 +9,40 @@ async function main() {
 
 	if (name && password) {
 		const hashedPassword = encryptPassword(password);
-		await prisma.user.upsert({
+		const existingUser = await prisma.user.findUnique({
 			where: { username: name },
-			update: {
-				password: hashedPassword,
-				is_admin: true,
-			},
-			create: {
-				username: name,
-				password: hashedPassword,
-				is_admin: true,
-			},
 		});
+		
+		if (!existingUser) {
+			await prisma.user.create({
+				data: {
+					username: name,
+					password: hashedPassword,
+					is_admin: true,
+				},
+			});
+			console.log(`Created default user: ${name}`);
+		} else {
+			console.log(`User ${name} already exists. Skipping creation.`);
+		}
 
-		// Initialize default settings (clear old ones first to avoid duplicates)
-		await prisma.settings.deleteMany();
-		await prisma.settings.create({
-			data: {
-				currency_name: "YER",
-				app_lang: "ar",
-				per_page: 25,
-				notification_threshold: 100,
-				session_expiry_minutes: 30	,
-				force_client_order_session_passKey: false,
-			},
-		});
+		// Initialize default settings only if none exist
+		const existingSettings = await prisma.settings.findFirst();
+		if (!existingSettings) {
+			await prisma.settings.create({
+				data: {
+					currency_name: "YER",
+					app_lang: "ar",
+					per_page: 25,
+					notification_threshold: 100,
+					session_expiry_minutes: 30,
+					force_client_order_session_passKey: false,
+				},
+			});
+			console.log("Created default settings.");
+		} else {
+			console.log("Settings already exist. Skipping creation.");
+		}
 	} else {
 		throw "check default username and password in .env file";
 	}

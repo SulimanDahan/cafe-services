@@ -61,6 +61,12 @@ export const apiMessages = {
 		notificationIdRequired: "رقم الإشعار مطلوب",
 		roomAlreadyActive: "الغرفة تمتلك حجزاً نشطاً بالفعل. يرجى إنهاء الحجز السابق أولاً.",
 		itemHasOrders: "لا يمكن حذف الصنف لوجود طلبات مرتبطة به",
+		roomHasReservations: "لا يمكن حذف الغرفة لوجود حجوزات مرتبطة بها",
+		cannotDeleteActiveReservation: "لا يمكن حذف أو تعديل حجز تم قبوله أو تنشيطه أو إكماله أو رفضه",
+		cannotDeleteAdmin: "لا يمكن حذف أو تعطيل حساب بصلاحية مشرف",
+		cannotUndoActivateWithOrders: "لا يمكن التراجع عن التنشيط لوجود طلبات مرتبطة بهذا الحجز",
+		cannotEditProcessedReservation: "لا يمكن تعديل بيانات الحجز إذا كان مكتملاً، نشطاً، أو مرفوضاً.",
+		cannotModifyRejectedReservation: "لا يمكن تعديل حجز مرفوض.",
 	},
 } as const;
 

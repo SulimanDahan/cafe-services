@@ -1,3 +1,4 @@
+import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
@@ -7,7 +8,8 @@ declare global {
 
 const datasourceUrl = process.env.DATABASE_URL;
 
-const pgAdapter = new PrismaPg({ connectionString: datasourceUrl });
+const pool = new Pool({ connectionString: datasourceUrl });
+const pgAdapter = new PrismaPg(pool);
 
 export const prisma =
 	globalThis.prisma ||

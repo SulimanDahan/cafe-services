@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { orderSchema } from "@/lib/validations/order";
+import { requireAuth } from "@/lib/auth";
 
 type Params = { params: Promise<{ order: string }> };
 
 /** GET a specific order with item relation */
 export async function GET(_req: Request, { params }: Params) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const { order: id } = await params;
  const order = await prisma.order.findUnique({
@@ -22,6 +24,7 @@ export async function GET(_req: Request, { params }: Params) {
 
 /** DELETE a specific order */
 export async function DELETE(_req: Request, { params }: Params) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const { order: id } = await params;
  await prisma.order.delete({ where: { id } });
@@ -36,6 +39,7 @@ export async function DELETE(_req: Request, { params }: Params) {
 
 /** PATCH/PUT to update an order (e.g., mark as accepted) */
 export async function PATCH(request: Request, { params }: Params) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const { order: id } = await params;
  const body = await request.json();

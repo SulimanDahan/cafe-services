@@ -2,7 +2,7 @@ services:
     postgres:
         image: postgres:16-alpine
         container_name: cafe-postgres-dev
-        restart: always
+        # restart: always
         environment:
             POSTGRES_USER: cafe_admin
             POSTGRES_PASSWORD: cafe_secure_pass
@@ -22,9 +22,10 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         container_name: cafe-services-dev
-        restart: always
+        # restart: always
+        env_file: .env.development
         ports:
-            - "3000:3000"
+            - "3001:3000"
         depends_on:
             postgres:
                 condition: service_healthy

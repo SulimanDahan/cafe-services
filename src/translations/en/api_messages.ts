@@ -60,7 +60,13 @@ export const apiMessages = {
 		updateNotificationsFailed: "Failed to update notifications",
 		notificationIdRequired: "Notification ID is required",
 		roomAlreadyActive: "This room already has an active reservation. Please complete the previous reservation first.",
-		itemHasOrders: "Cannot delete item because there are orders associated with it",
+		itemHasOrders: "Cannot delete item because there are orders linked to it",
+		roomHasReservations: "Cannot delete room because there are reservations linked to it",
+		cannotDeleteActiveReservation: "Cannot delete or modify an active, completed, or rejected reservation",
+		cannotDeleteAdmin: "Cannot delete or disable an admin account",
+		cannotUndoActivateWithOrders: "Cannot undo activation because there are orders linked to this reservation",
+		cannotEditProcessedReservation: "Cannot edit reservation details if it is completed, activated, or rejected.",
+		cannotModifyRejectedReservation: "Cannot modify a rejected reservation.",
 	},
 } as const;
 

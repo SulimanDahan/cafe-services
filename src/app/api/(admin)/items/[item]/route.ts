@@ -1,11 +1,13 @@
 import { itemSchema } from "@/lib/validations/item";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
 
 type Params = { params: Promise<{ item: string }> };
 
 /** GET a specific item */
 export async function GET(_req: Request, { params }: Params) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const { item: id } = await params;
  const item = await prisma.item.findUnique({
@@ -22,6 +24,7 @@ export async function GET(_req: Request, { params }: Params) {
 
 /** PUT (full update) a specific item */
 export async function PUT(request: Request, { params }: Params) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const { item: id } = await params;
  const body = await request.json();
@@ -58,6 +61,7 @@ export async function PUT(request: Request, { params }: Params) {
 
 /** DELETE a specific item */
 export async function DELETE(_req: Request, { params }: Params) {
+    if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
  const { item: id } = await params;
 

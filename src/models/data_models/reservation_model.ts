@@ -15,6 +15,7 @@ type ReservationModel = {
 	accepted: boolean;
 	activated: boolean;
 	completed: boolean;
+	rejected: boolean;
 	created_at: Date;
 	updated_at: Date;
 	/** Included via Prisma relation */
@@ -32,6 +33,7 @@ export const initialReservationState: ReservationModel = {
 	accepted: false,
 	activated: false,
 	completed: false,
+	rejected: false,
 	created_at: new Date(),
 	updated_at: new Date(),
 };

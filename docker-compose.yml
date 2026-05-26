@@ -23,8 +23,9 @@ services:
             dockerfile: Dockerfile
         container_name: cafe-services-prod
         restart: always
+        env_file: .env
         ports:
-            - "3001:3000" # Mapped to host port 3001 to prevent collisions with port 3000 in dev
+            - "3000:3000" # Mapped to host port 3000
         depends_on:
             postgres:
                 condition: service_healthy
@@ -34,8 +35,28 @@ services:
             - NODE_ENV=production
             - DATABASE_URL=postgresql://cafe_admin:cafe_secure_pass@postgres:5432/cafe_db?schema=public
 
+    caddy:
+        image: caddy:2-alpine
+        container_name: cafe-caddy-prod
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        environment:
+            - DOMAIN=${DOMAIN:-localhost}
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile
+            - caddy_data_prod:/data
+            - caddy_config_prod:/config
+        depends_on:
+            - web-prod
+
 volumes:
     postgres_data_prod:
         driver: local
     uploads_data_prod:
+        driver: local
+    caddy_data_prod:
+        driver: local
+    caddy_config_prod:
         driver: local
