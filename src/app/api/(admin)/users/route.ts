@@ -6,10 +6,16 @@ import encryptPassword from "@/helpers/encrypters";
 
 /** GET paginated users with optional search */
 export async function GET(request: Request) {
-    if (!(await requireAuth()))
+    const currentUser = await requireAuth();
+    if (!currentUser)
         return NextResponse.json(
             { error: "apiMessages.error.unauthorized" },
             { status: 401 },
+        );
+    if (!currentUser.is_admin)
+        return NextResponse.json(
+            { error: "apiMessages.error.forbidden" },
+            { status: 403 },
         );
     try {
         const { searchParams } = new URL(request.url);
@@ -50,10 +56,16 @@ export async function GET(request: Request) {
 
 /** POST a new user */
 export async function POST(request: Request) {
-    if (!(await requireAuth()))
+    const currentUser = await requireAuth();
+    if (!currentUser)
         return NextResponse.json(
             { error: "apiMessages.error.unauthorized" },
             { status: 401 },
+        );
+    if (!currentUser.is_admin)
+        return NextResponse.json(
+            { error: "apiMessages.error.forbidden" },
+            { status: 403 },
         );
     try {
         const data = await request.json();

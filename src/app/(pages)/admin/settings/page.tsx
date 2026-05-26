@@ -100,9 +100,33 @@ export default function SettingsAdmin() {
     const [saveStatus, setSaveStatus] = useState<
         "idle" | "saving" | "saved" | "error"
     >("idle");
-    const [activeTab, setActiveTab] = useState<"system" | "security">("system");
+    const [activeTab, setActiveTab] = useState<"system" | "security" | "backup">("system");
+    const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+    // Verify user role on mount
+    useEffect(() => {
+        const checkAdmin = async () => {
+            try {
+                const res = await fetch("/api/auth/me");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && json.data?.user?.is_admin) {
+                        setIsAdmin(true);
+                        return;
+                    }
+                }
+                setIsAdmin(false);
+                setActiveTab("backup"); // Automatically switch non-admins to backup tab
+            } catch {
+                setIsAdmin(false);
+                setActiveTab("backup");
+            }
+        };
+        checkAdmin();
+    }, []);
 
     const handleSaveAll = async (data: SettingsFormValues) => {
+        if (!isAdmin) return; // Prevent unauthorized saves
         setSaveStatus("saving");
 
         const success = await saveSettings({
@@ -128,6 +152,37 @@ export default function SettingsAdmin() {
         }
     };
 
+    // Filter tab options based on user role
+    const tabOptions = [
+        ...(isAdmin
+            ? [
+                  {
+                      id: "system",
+                      label: t("settings.sectionIdentity"),
+                      icon: <BuildingIcon className="w-4 h-4" />,
+                  },
+                  {
+                      id: "security",
+                      label: t("settings.sectionNotifications"),
+                      icon: <BellIcon className="w-4 h-4" />,
+                  },
+              ]
+            : []),
+        {
+            id: "backup",
+            label: t("settings.sectionBackup") || "Backup",
+            icon: <WarningIcon className="w-4 h-4" />,
+        },
+    ];
+
+    if (isAdmin === null) {
+        return (
+            <div className="flex items-center justify-center p-12 text-zinc-400 text-xs font-bold">
+                {t("common.loading")}
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6 w-full" dir={isRtl ? "rtl" : "ltr"}>
             {/* Top Header Banner Card */}
@@ -152,21 +207,10 @@ export default function SettingsAdmin() {
 
                     {/* Tab Navigation */}
                     <TabBar
-                        tabs={[
-                            {
-                                id: "system",
-                                label: t("settings.sectionIdentity"),
-                                icon: <BuildingIcon className="w-4 h-4" />,
-                            },
-                            {
-                                id: "security",
-                                label: t("settings.sectionNotifications"),
-                                icon: <BellIcon className="w-4 h-4" />,
-                            },
-                        ]}
+                        tabs={tabOptions}
                         activeTab={activeTab}
                         onChange={(id) =>
-                            setActiveTab(id as "system" | "security")
+                            setActiveTab(id as "system" | "security" | "backup")
                         }
                     />
                 </div>
@@ -434,41 +478,94 @@ export default function SettingsAdmin() {
                     </div>
                 </div>
 
-                {/* Save button and status floating-style bar */}
-                <div className="flex items-center justify-between bg-surface/80 border border-white/10 rounded-3xl p-4 shadow-2xl backdrop-blur-xl">
-                    <div>
-                        {saveStatus === "saved" && (
-                            <div className="px-5 py-2.5 rounded-full bg-green-500/10 border border-green-500/25 text-green-400 text-xs font-black flex items-center gap-2 animate-pulse">
-                                <CheckCircleIcon className="w-4 h-4" />
-                                <span>{t("settings.msgSaved")}</span>
-                            </div>
-                        )}
-                        {saveStatus === "error" && (
-                            <div className="px-5 py-2.5 rounded-full bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-black flex items-center gap-2 animate-pulse">
-                                <WarningIcon className="w-4 h-4" />
-                                <span>{t("settings.msgError")}</span>
-                            </div>
-                        )}
+                {/* 3. Database Backup Settings */}
+                <div
+                    className={`rounded-card border border-white/10 bg-surface/80 p-8 shadow-2xl backdrop-blur-xl space-y-6 ${activeTab === "backup" ? "block" : "hidden"}`}
+                >
+                    <div
+                        className={`flex items-center gap-3 pb-4 border-b border-white/10 ${isRtl ? "border-r-4 border-r-primary pr-3" : "border-l-4 border-l-primary pl-3"}`}
+                    >
+                        <div className="text-primary-hover">
+                            <WarningIcon className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-base font-black text-white">
+                            {t("settings.sectionBackup") || "Database Backup"}
+                        </h2>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={isLoading || saveStatus === "saving"}
-                        className="px-8 py-3.5 rounded-full bg-primary hover:bg-primary-hover disabled:bg-amber-600/50 disabled:cursor-not-allowed text-background font-black text-xs transition-all duration-300 shadow-lg shadow-primary/10 flex items-center gap-2 cursor-pointer"
-                    >
-                        {saveStatus === "saving" ? (
-                            <>
-                                <SpinnerIcon className="animate-spin h-3.5 w-3.5" />
-                                <span>{t("common.saving")}</span>
-                            </>
-                        ) : (
-                            <>
-                                <CheckIcon className="w-4 h-4" />
-                                <span>{t("settings.btnSaveAll")}</span>
-                            </>
-                        )}
-                    </button>
+                    <div className="space-y-4">
+                        <div className="p-5 rounded-2xl border border-white/5 bg-background/30 hover:border-white/10 transition-all duration-300">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="space-y-1">
+                                    <span className="text-xs font-black text-white block">
+                                        {t("settings.sectionBackup") || "Database Backup"}
+                                    </span>
+                                    <span className="text-[10px] text-zinc-500 font-bold block max-w-lg leading-relaxed">
+                                        {t("settings.sectionBackupDesc") || "Download a complete database snapshot in SQL format."}
+                                    </span>
+                                </div>
+                                <a
+                                    href="/api/settings/backup"
+                                    download
+                                    className="px-6 py-3 rounded-full bg-primary hover:bg-primary-hover text-background font-black text-xs transition-all duration-300 shadow-md shadow-primary/10 flex items-center justify-center gap-2 cursor-pointer self-start sm:self-center"
+                                >
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                        />
+                                    </svg>
+                                    <span>{t("settings.btnDownloadBackup") || "Download Backup (SQL)"}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Save button and status floating-style bar */}
+                {activeTab !== "backup" && (
+                    <div className="flex items-center justify-between bg-surface/80 border border-white/10 rounded-3xl p-4 shadow-2xl backdrop-blur-xl">
+                        <div>
+                            {saveStatus === "saved" && (
+                                <div className="px-5 py-2.5 rounded-full bg-green-500/10 border border-green-500/25 text-green-400 text-xs font-black flex items-center gap-2 animate-pulse">
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                    <span>{t("settings.msgSaved")}</span>
+                                </div>
+                            )}
+                            {saveStatus === "error" && (
+                                <div className="px-5 py-2.5 rounded-full bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-black flex items-center gap-2 animate-pulse">
+                                    <WarningIcon className="w-4 h-4" />
+                                    <span>{t("settings.msgError")}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isLoading || saveStatus === "saving"}
+                            className="px-8 py-3.5 rounded-full bg-primary hover:bg-primary-hover disabled:bg-amber-600/50 disabled:cursor-not-allowed text-background font-black text-xs transition-all duration-300 shadow-lg shadow-primary/10 flex items-center gap-2 cursor-pointer"
+                        >
+                            {saveStatus === "saving" ? (
+                                <>
+                                    <SpinnerIcon className="animate-spin h-3.5 w-3.5" />
+                                    <span>{t("common.saving")}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <CheckIcon className="w-4 h-4" />
+                                    <span>{t("settings.btnSaveAll")}</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
+                )}
             </form>
         </div>
     );

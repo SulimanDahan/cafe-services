@@ -12,10 +12,16 @@ interface RouteContext {
  * GET a specific user
  */
 export async function GET(request: Request, context: RouteContext) {
-    if (!(await requireAuth()))
+    const currentUser = await requireAuth();
+    if (!currentUser)
         return NextResponse.json(
             { error: "apiMessages.error.unauthorized" },
             { status: 401 },
+        );
+    if (!currentUser.is_admin)
+        return NextResponse.json(
+            { error: "apiMessages.error.forbidden" },
+            { status: 403 },
         );
     try {
         const { user: userId } = await context.params;
@@ -44,10 +50,16 @@ export async function GET(request: Request, context: RouteContext) {
  * PUT (update) a specific user
  */
 export async function PUT(request: Request, context: RouteContext) {
-    if (!(await requireAuth()))
+    const currentUser = await requireAuth();
+    if (!currentUser)
         return NextResponse.json(
             { error: "apiMessages.error.unauthorized" },
             { status: 401 },
+        );
+    if (!currentUser.is_admin)
+        return NextResponse.json(
+            { error: "apiMessages.error.forbidden" },
+            { status: 403 },
         );
     try {
         const { user: userId } = await context.params;
@@ -111,10 +123,16 @@ export async function PUT(request: Request, context: RouteContext) {
  * DELETE a specific user
  */
 export async function DELETE(request: Request, context: RouteContext) {
-    if (!(await requireAuth()))
+    const currentUser = await requireAuth();
+    if (!currentUser)
         return NextResponse.json(
             { error: "apiMessages.error.unauthorized" },
             { status: 401 },
+        );
+    if (!currentUser.is_admin)
+        return NextResponse.json(
+            { error: "apiMessages.error.forbidden" },
+            { status: 403 },
         );
     try {
         const { user: userId } = await context.params;

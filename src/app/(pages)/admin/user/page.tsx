@@ -40,15 +40,7 @@ export default function UsersAdmin() {
         updateUser,
         deleteUser,
     } = useUser();
-
-    const columns: TableColumn[] = [
-        { key: "username", label: t("users.columnUsername") },
-        { key: "role", label: t("users.columnRole") },
-        { key: "created", label: t("users.columnCreated") },
-        { key: "status", label: t("common.status"), align: "center" },
-        { key: "actions", label: t("common.actions"), align: "center" },
-    ];
-
+    const [isAdminState, setIsAdminState] = useState<boolean | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [errorModalMsg, setErrorModalMsg] = useState<string | null>(null);
@@ -57,15 +49,69 @@ export default function UsersAdmin() {
 
     const perPage = settings.per_page || 10;
 
+    // Verify if current user is admin
+    useEffect(() => {
+        const checkAdmin = async () => {
+            try {
+                const res = await fetch("/api/auth/me");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && json.data?.user?.is_admin) {
+                        setIsAdminState(true);
+                        return;
+                    }
+                }
+                setIsAdminState(false);
+            } catch {
+                setIsAdminState(false);
+            }
+        };
+        checkAdmin();
+    }, []);
+
     // Server-fetch users when page or search changes
     useEffect(() => {
+        if (isAdminState !== true) return; // Skip fetching if not authenticated/admin
         const params: Record<string, string> = {
             page: String(currentPage),
             per_page: String(perPage),
         };
         if (searchQuery) params.search = searchQuery;
         fetchAllUsers(params);
-    }, [currentPage, searchQuery, perPage, fetchAllUsers]);
+    }, [currentPage, searchQuery, perPage, fetchAllUsers, isAdminState]);
+
+    // Redirect or block rendering if user is not admin
+    if (isAdminState === false) {
+        return (
+            <div className="flex flex-col items-center justify-center p-12 text-center">
+                <div className="max-w-md w-full rounded-3xl border border-red-500/20 bg-surface p-8 space-y-4">
+                    <span className="text-4xl block">⚠️</span>
+                    <h2 className="text-lg font-black text-white">
+                        {t("common.unauthorizedTitle")}
+                    </h2>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                        {t("common.unauthorizedDesc")}
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    if (isAdminState === null) {
+        return (
+            <div className="flex items-center justify-center p-12 text-zinc-400 text-xs font-bold">
+                {t("common.loading")}
+            </div>
+        );
+    }
+
+    const columns: TableColumn[] = [
+        { key: "username", label: t("users.columnUsername") },
+        { key: "role", label: t("users.columnRole") },
+        { key: "created", label: t("users.columnCreated") },
+        { key: "status", label: t("common.status"), align: "center" },
+        { key: "actions", label: t("common.actions"), align: "center" },
+    ];
 
     const handleOpenAdd = () => {
         setEditingUser(null);

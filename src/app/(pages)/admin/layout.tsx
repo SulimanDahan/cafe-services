@@ -36,6 +36,7 @@ export default function AdminLayout({ children }: LayoutProps) {
     const [prevPathname, setPrevPathname] = useState(pathname);
     const [isCustomerAppBlock, setIsCustomerAppBlock] = useState(false);
     const [username, setUsername] = useState<string | null>(null);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     // Fetch user info
     useEffect(() => {
@@ -46,6 +47,7 @@ export default function AdminLayout({ children }: LayoutProps) {
                     const json = await res.json();
                     if (json.success && json.data?.user?.username) {
                         setUsername(json.data.user.username);
+                        setIsAdmin(json.data.user.is_admin ?? false);
                     }
                 }
             } catch (err) {
@@ -245,6 +247,7 @@ export default function AdminLayout({ children }: LayoutProps) {
                 t={t}
                 pathname={pathname}
                 setIsMobileOpen={setIsMobileOpen}
+                isAdmin={isAdmin}
             />
 
             {/* Footer Action (Logout) */}
