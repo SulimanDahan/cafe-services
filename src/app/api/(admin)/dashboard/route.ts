@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
+import { Decimal } from "@prisma/client/runtime/client";
 
 /**
  * GET dashboard summary stats.
@@ -48,7 +49,8 @@ export async function GET() {
             select: { item_price: true, quantity: true },
         });
         const totalRevenue = orders.reduce(
-            (sum: number, o) => sum + Number(o.item_price) * o.quantity,
+            (sum: number, o: { item_price: Decimal; quantity: number }) =>
+                sum + Number(o.item_price) * o.quantity,
             0,
         );
 
