@@ -1,10 +1,10 @@
-const CACHE_NAME = "cafe-services-cache-v1";
+const CACHE_NAME = "cafe-services-cache-v2";
 
 // Core static assets to cache on installation
 const STATIC_ASSETS = [
     "/",
-    "/customer-manifest.json",
-    "/admin-manifest.json",
+    "/customer-manifest.json?v=2",
+    "/admin-manifest.json?v=2",
     "/icon.svg",
     "/icon-192x192.png",
     "/icon-512x512.png",

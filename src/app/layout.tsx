@@ -12,6 +12,11 @@ const cairo = Cairo({
     subsets: ["arabic", "latin"],
 });
 
+import type { Viewport } from 'next';
+export const viewport: Viewport = {
+    themeColor: '#07080a',
+};
+
 const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
     subsets: ["latin"],
@@ -25,7 +30,7 @@ export async function generateMetadata() {
     return {
         title: t("common.logoTitle") + " - " + t("common.logoSubtitle"),
         description: t("common.logoSubtitle"),
-        manifest: "/customer-manifest.json",
+        manifest: "/customer-manifest.json?v=2",
     };
 }
 
