@@ -103,7 +103,8 @@ model Settings {
   notification_threshold             Int      @default(100)
   app_lang                           String   @default("ar")
   per_page                           Int      @default(25)
-  session_expiry_minutes             Int      @default(30)
+  session_expiry_minutes             Int      @default(60)
+  client_session_expiry_minutes      Int      @default(360)
   created_at                         DateTime @default(now())
   updated_at                         DateTime @default(now()) @updatedAt
   force_client_order_session_passKey Boolean  @default(false)

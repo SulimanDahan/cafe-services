@@ -23,7 +23,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ room
 			where: { id: reservationId },
 		});
 
-		if (!reservation || !reservation.accepted || reservation.completed || reservation.room_id !== room_id) {
+		if (!reservation || !reservation.accepted || !reservation.activated || reservation.completed || reservation.room_id !== room_id) {
 			return NextResponse.json(
 				{ error: "apiMessages.error.sessionExpired", sessionExpired: true },
 				{ status: 403 },
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
 			include: { room: true },
 		});
 
-		if (!reservation || !reservation.accepted || reservation.completed || reservation.room_id !== room_id) {
+		if (!reservation || !reservation.accepted || !reservation.activated || reservation.completed || reservation.room_id !== room_id) {
 			return NextResponse.json(
 				{ error: "apiMessages.error.sessionExpired", sessionExpired: true },
 				{ status: 403 },
@@ -144,7 +144,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ r
 			include: { room: true },
 		});
 
-		if (!reservation || !reservation.accepted || reservation.completed || reservation.room_id !== room_id) {
+		if (!reservation || !reservation.accepted || !reservation.activated || reservation.completed || reservation.room_id !== room_id) {
 			return NextResponse.json(
 				{ error: "apiMessages.error.sessionExpired", sessionExpired: true },
 				{ status: 403 },

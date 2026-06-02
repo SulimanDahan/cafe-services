@@ -66,7 +66,7 @@ export const home = {
     formClientName: "Full Name",
     formClientPlaceholder: "e.g., John Doe...",
     formPhone: "Contact Number",
-    formDateTime: "Date and Time",
+    formDateTime: "Booking Date",
     formAssignedRoom: "Select Room",
     btnSubmitBooking: "Confirm Booking",
     bookingSuccess:

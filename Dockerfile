@@ -20,6 +20,7 @@ RUN npm run build
 
 # Stage 3: Production runner
 FROM node:24-alpine AS runner
+RUN apk add --no-cache postgresql-client
 WORKDIR /app
 
 ENV NODE_ENV production

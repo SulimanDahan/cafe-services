@@ -13,6 +13,8 @@ import {
     ORDER_LOGIN_API_ROUTE,
     ORDER_ITEMS_USER_API_ROUTE,
     ORDER_USER_API_ROUTE,
+    ORDER_SESSION_API_ROUTE,
+    ORDER_LOGOUT_API_ROUTE,
 } from "./config/api_routes";
 import { AUTH_COOKIE_NAME } from "./config/constants";
 import { prisma } from "./lib/prisma";
@@ -37,6 +39,8 @@ const PUBLIC_API_EXCEPTIONS = [
     { path: ROOMS_USER_API_ROUTE, method: "GET" }, // Public rooms list for booking modal
     { path: ORDER_LOGIN_API_ROUTE, method: "POST" },
     { path: ORDER_ITEMS_USER_API_ROUTE, method: "GET" },
+    { path: ORDER_SESSION_API_ROUTE, method: "GET" }, // Client session check (cookie-based)
+    { path: ORDER_LOGOUT_API_ROUTE, method: "POST" }, // Client logout (clears cookie)
 ];
 
 function isAdminApiRoute(pathname: string, method: string) {

@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { Decimal } from "@prisma/client/runtime/client";
+import { Prisma } from "@prisma/client";
 
 /**
  * GET dashboard summary stats.
@@ -9,13 +10,83 @@ import { Decimal } from "@prisma/client/runtime/client";
  */
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     if (!(await requireAuth()))
         return NextResponse.json(
             { error: "apiMessages.error.unauthorized" },
             { status: 401 },
         );
     try {
+        const { searchParams } = new URL(req.url);
+        const range = searchParams.get("range") || "today"; // today | week | month | all
+
+        const whereReservation: Prisma.ReservationWhereInput = {};
+        const whereOrder: Prisma.OrderWhereInput = {};
+
+        if (range !== "all") {
+            const now = new Date();
+            // Adjust current time to local cafe timezone (UTC+3)
+            const localTime = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+
+            let start: Date;
+            let end: Date;
+
+            if (range === "today") {
+                const yyyy = localTime.getUTCFullYear();
+                const mm = String(localTime.getUTCMonth() + 1).padStart(2, "0");
+                const dd = String(localTime.getUTCDate()).padStart(2, "0");
+                start = new Date(`${yyyy}-${mm}-${dd}T00:00:00+03:00`);
+                end = new Date(`${yyyy}-${mm}-${dd}T23:59:59.999+03:00`);
+            } else if (range === "week") {
+                const currentDay = localTime.getUTCDay(); // 0 is Sunday, 6 is Saturday
+                const diffToSaturday = (currentDay + 1) % 7;
+
+                const saturday = new Date(localTime);
+                saturday.setUTCDate(saturday.getUTCDate() - diffToSaturday);
+
+                const yyyyStart = saturday.getUTCFullYear();
+                const mmStart = String(saturday.getUTCMonth() + 1).padStart(
+                    2,
+                    "0",
+                );
+                const ddStart = String(saturday.getUTCDate()).padStart(2, "0");
+
+                start = new Date(
+                    `${yyyyStart}-${mmStart}-${ddStart}T00:00:00+03:00`,
+                );
+
+                const friday = new Date(saturday);
+                friday.setUTCDate(friday.getUTCDate() + 6);
+
+                const yyyyEnd = friday.getUTCFullYear();
+                const mmEnd = String(friday.getUTCMonth() + 1).padStart(2, "0");
+                const ddEnd = String(friday.getUTCDate()).padStart(2, "0");
+
+                end = new Date(
+                    `${yyyyEnd}-${mmEnd}-${ddEnd}T23:59:59.999+03:00`,
+                );
+            } else {
+                // month
+                const yyyy = localTime.getUTCFullYear();
+                const mm = String(localTime.getUTCMonth() + 1).padStart(2, "0");
+
+                start = new Date(`${yyyy}-${mm}-01T00:00:00+03:00`);
+
+                // Get last day of month
+                const nextMonth = new Date(
+                    yyyy,
+                    localTime.getUTCMonth() + 1,
+                    0,
+                );
+                const ddEnd = String(nextMonth.getDate()).padStart(2, "0");
+
+                end = new Date(`${yyyy}-${mm}-${ddEnd}T23:59:59.999+03:00`);
+            }
+
+            whereReservation.date_time = { gte: start, lte: end };
+            whereOrder.reservation = { date_time: { gte: start, lte: end } };
+        }
+
         const [
             totalReservations,
             pendingReservations,
@@ -25,27 +96,38 @@ export async function GET() {
             recentReservations,
             totalOrders,
         ] = await Promise.all([
-            prisma.reservation.count(),
+            prisma.reservation.count({ where: whereReservation }),
             prisma.reservation.count({
-                where: { accepted: false, completed: false },
+                where: {
+                    ...whereReservation,
+                    accepted: false,
+                    completed: false,
+                },
             }),
             prisma.reservation.count({
-                where: { accepted: true, completed: false },
+                where: {
+                    ...whereReservation,
+                    accepted: true,
+                    completed: false,
+                },
             }),
             prisma.room.count({ where: { is_disable: false } }),
             prisma.item.count({ where: { is_disable: false } }),
             prisma.reservation.findMany({
+                where: whereReservation,
                 orderBy: { created_at: "desc" },
                 take: 20,
                 include: { room: true },
             }),
             prisma.order.aggregate({
+                where: whereOrder,
                 _sum: { item_price: true, quantity: true },
             }),
         ]);
 
         // Total revenue: sum(item_price * quantity) — computed per order
         const orders = await prisma.order.findMany({
+            where: whereOrder,
             select: { item_price: true, quantity: true },
         });
         const totalRevenue = orders.reduce(

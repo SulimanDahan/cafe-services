@@ -26,8 +26,8 @@ export interface GenericContextType<T> {
     refresh: () => Promise<T | null>;
     fetchAll: (queryParams?: Record<string, string>) => Promise<void>;
     add: (itemData: Partial<T>) => Promise<boolean>;
-    update: (id: string, itemData: Partial<T>) => Promise<boolean>;
-    deleteItem: (id: string) => Promise<boolean>;
+    update: (id: string, itemData: Partial<T>, onError?: (err: string) => void) => Promise<boolean>;
+    deleteItem: (id: string, onError?: (err: string) => void) => Promise<boolean>;
 }
 
 /**
@@ -171,7 +171,7 @@ export function useGenericCrudLogic<T>({
     );
 
     const update = useCallback(
-        async (id: string, itemData: Partial<T>) => {
+        async (id: string, itemData: Partial<T>, onError?: (err: string) => void) => {
             try {
                 const response = await fetch(`${apiRoute}/${id}`, {
                     method: "PUT",
@@ -190,9 +190,16 @@ export function useGenericCrudLogic<T>({
                     );
                     return true;
                 }
+                const errorData = await response.json().catch(() => ({}));
+                if (onError && errorData.error) {
+                    onError(errorData.error);
+                }
                 return false;
             } catch (error) {
                 console.error(`Failed to update:`, error);
+                if (onError) {
+                    onError("apiMessages.error.serverError");
+                }
                 return false;
             }
         },
@@ -200,7 +207,7 @@ export function useGenericCrudLogic<T>({
     );
 
     const deleteItem = useCallback(
-        async (id: string) => {
+        async (id: string, onError?: (err: string) => void) => {
             try {
                 const response = await fetch(`${apiRoute}/${id}`, {
                     method: "DELETE",
@@ -214,9 +221,16 @@ export function useGenericCrudLogic<T>({
                     setTotal((prev) => prev - 1);
                     return true;
                 }
+                const errorData = await response.json().catch(() => ({}));
+                if (onError && errorData.error) {
+                    onError(errorData.error);
+                }
                 return false;
             } catch (error) {
                 console.error(`Failed to delete:`, error);
+                if (onError) {
+                    onError("apiMessages.error.serverError");
+                }
                 return false;
             }
         },

@@ -2,6 +2,8 @@
 import {
     ORDER_LOGIN_API_ROUTE,
     ORDER_USER_API_ROUTE,
+    ORDER_SESSION_API_ROUTE,
+    ORDER_LOGOUT_API_ROUTE,
     ROOMS_USER_API_ROUTE,
 } from "@/config/api_routes";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -25,10 +27,10 @@ declare global {
             height: number,
             options?: {
                 inversionAttempts?:
-                    | "dontInvert"
-                    | "always"
-                    | "invert"
-                    | "attemptBoth";
+                | "dontInvert"
+                | "always"
+                | "invert"
+                | "attemptBoth";
             },
         ) => { data: string } | null;
     }
@@ -43,6 +45,7 @@ interface Reservation {
     room_id: string;
     room_name: string;
     accepted: boolean;
+    session_expires_at?: string;
 }
 
 interface Order {
@@ -90,20 +93,7 @@ export default function CustomerOrderPage() {
 
     const [orders, setOrders] = useState<Order[]>([]);
 
-    const [activeSession, setActiveSession] = useState<Reservation | null>(
-        () => {
-            if (typeof window === "undefined") return null;
-            const storedSession = sessionStorage.getItem("cafe_active_session");
-            if (storedSession) {
-                try {
-                    return JSON.parse(storedSession);
-                } catch {
-                    return null;
-                }
-            }
-            return null;
-        },
-    );
+    const [activeSession, setActiveSession] = useState<Reservation | null>(null);
 
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [itemGroups, setItemGroups] = useState<
@@ -165,7 +155,8 @@ export default function CustomerOrderPage() {
                 const data = await ordersRes.json();
                 if (data.sessionExpired) {
                     setActiveSession(null);
-                    sessionStorage.removeItem("cafe_active_session");
+                    // Clear the server-side HttpOnly cookie
+                    fetch(ORDER_LOGOUT_API_ROUTE, { method: "POST" }).catch(() => null);
                     setActionMessage({
                         text: t("orders.sessionEndedByReception"),
                         isError: false,
@@ -186,6 +177,10 @@ export default function CustomerOrderPage() {
     const [scanErrorMsg, setScanErrorMsg] = useState("");
     const [forcePasskeySetting, setForcePasskeySetting] = useState(false);
     const [enteredPasskey, setEnteredPasskey] = useState("");
+    const enteredPasskeyRef = useRef("");
+    useEffect(() => {
+        enteredPasskeyRef.current = enteredPasskey;
+    }, [enteredPasskey]);
     const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -212,8 +207,8 @@ export default function CustomerOrderPage() {
                     const list = Array.isArray(data)
                         ? data
                         : Array.isArray(data.data)
-                          ? data.data
-                          : [];
+                            ? data.data
+                            : [];
                     setAvailableRooms(list);
                 }
             } catch {
@@ -221,6 +216,24 @@ export default function CustomerOrderPage() {
             }
         };
         fetchRooms();
+    }, []);
+
+    // استرداد الجلسة من الـ Cookie عند تحميل الصفحة
+    useEffect(() => {
+        const restoreSession = async () => {
+            try {
+                const res = await fetch(ORDER_SESSION_API_ROUTE, { cache: "no-store" });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.session) {
+                        setActiveSession(data.session);
+                    }
+                }
+            } catch {
+                // silent — no session to restore
+            }
+        };
+        restoreSession();
     }, []);
 
     // تحميل إعدادات النظام للتحقق من رمز المرور
@@ -274,7 +287,7 @@ export default function CustomerOrderPage() {
         return () => {
             try {
                 document.body.removeChild(script);
-            } catch {}
+            } catch { }
         };
     }, []);
 
@@ -343,12 +356,12 @@ export default function CustomerOrderPage() {
                     .then((newStream) => {
                         if (videoRef.current) {
                             videoRef.current.srcObject = newStream;
-                            videoRef.current.play().catch(() => {});
+                            videoRef.current.play().catch(() => { });
                             setCameraStream(newStream);
                             startQrScanningLoop(videoRef.current, newStream);
                         }
                     })
-                    .catch(() => {});
+                    .catch(() => { });
             }
         }, 3500);
     }
@@ -363,9 +376,10 @@ export default function CustomerOrderPage() {
         setScanErrorMsg("");
 
         const isPasskeyRequired = forcePasskeySetting;
+        const currentPasskey = enteredPasskeyRef.current;
         if (
             isPasskeyRequired &&
-            (!enteredPasskey || enteredPasskey.length !== 6)
+            (!currentPasskey || currentPasskey.length !== 6)
         ) {
             setScanLoading(false);
             setScanStep("error");
@@ -383,7 +397,7 @@ export default function CustomerOrderPage() {
                 body: JSON.stringify({
                     room_id: roomId,
                     qr_code: qrCode,
-                    passkey: forcePasskeySetting ? enteredPasskey : undefined,
+                    passkey: forcePasskeySetting ? currentPasskey : undefined,
                 }),
             });
 
@@ -401,10 +415,6 @@ export default function CustomerOrderPage() {
                 };
 
                 setActiveSession(sessionData);
-                sessionStorage.setItem(
-                    "cafe_active_session",
-                    JSON.stringify(sessionData),
-                );
                 setScanStep("success");
                 setScanLoading(false);
                 setActionMessage({
@@ -423,7 +433,7 @@ export default function CustomerOrderPage() {
                     if (errData && errData.error) {
                         errMsg = errData.error;
                     }
-                } catch {}
+                } catch { }
                 setScanLoading(false);
                 setScanStep("error");
                 setScanErrorMsg(errMsg);
@@ -533,7 +543,37 @@ export default function CustomerOrderPage() {
     useEffect(() => {
         if (!activeSession) return;
 
+        // Check if the client session has expired by time
+        if (activeSession.session_expires_at) {
+            const expiresAt = new Date(activeSession.session_expires_at).getTime();
+            const now = Date.now();
+            if (now >= expiresAt) {
+                (() => setActiveSession(null))();
+                // Cookie cleared server-side by /api/order/logout
+                fetch(ORDER_LOGOUT_API_ROUTE, { method: "POST" }).catch(() => null);
+                (() => setActionMessage({
+                    text: t("orders.sessionEndedByReception"),
+                    isError: false,
+                }))();
+                return;
+            }
+        }
+
         const handleSync = () => {
+            // Re-check expiry on each sync
+            if (activeSession.session_expires_at) {
+                const expiresAt = new Date(activeSession.session_expires_at).getTime();
+                if (Date.now() >= expiresAt) {
+                    setActiveSession(null);
+                    // Cookie cleared server-side by /api/order/logout
+                    fetch(ORDER_LOGOUT_API_ROUTE, { method: "POST" }).catch(() => null);
+                    setActionMessage({
+                        text: t("orders.sessionEndedByReception"),
+                        isError: false,
+                    });
+                    return;
+                }
+            }
             fetchMenuAndOrders();
         };
 
@@ -551,7 +591,7 @@ export default function CustomerOrderPage() {
             window.removeEventListener("storage", handleSync);
             clearInterval(interval);
         };
-    }, [activeSession, fetchMenuAndOrders]);
+    }, [activeSession, fetchMenuAndOrders, t]);
 
     const adjustQuantity = (itemId: string, amount: number) => {
         setQuantities((prev) => {
@@ -564,9 +604,10 @@ export default function CustomerOrderPage() {
         });
     };
 
-    const handleLogOutSession = () => {
+    const handleLogOutSession = async () => {
         setActiveSession(null);
-        sessionStorage.removeItem("cafe_active_session");
+        // Clear the server-side HttpOnly cookie
+        await fetch(ORDER_LOGOUT_API_ROUTE, { method: "POST" }).catch(() => null);
         setActionMessage({ text: t("orders.logoutSession") });
     };
 

@@ -24,6 +24,7 @@ export const validation = {
  languageInvalid: "Language must be English or Arabic",
  perPageMinOne: "Per page must be at least 1",
  expiryMinOne: "Expiry minutes must be at least 1",
+ clientExpiryMinOne: "Client session expiry must be at least 1 minute",
 } as const;
 
 export default validation;

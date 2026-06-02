@@ -18,7 +18,7 @@ interface RoomContextType {
  fetchAllRooms: (queryParams?: Record<string, string>) => Promise<void>;
  addRoom: (data: Partial<RoomModel>) => Promise<boolean>;
  updateRoom: (id: string, data: Partial<RoomModel>) => Promise<boolean>;
- deleteRoom: (id: string) => Promise<boolean>;
+ deleteRoom: (id: string, onError?: (err: string) => void) => Promise<boolean>;
 }
 
 const { Context: RoomContext, useGenericContext } = createGenericContext<RoomModel>();

@@ -1,5 +1,8 @@
 FROM node:24-alpine
 
+# Install pg_dump client utility
+RUN apk add --no-cache postgresql-client
+
 WORKDIR /app
 
 # Install dependencies first (for caching)

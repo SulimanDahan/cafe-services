@@ -26,37 +26,56 @@ export async function GET(_req: Request, { params }: Params) {
 export async function PUT(request: Request, { params }: Params) {
     if (!(await requireAuth())) return NextResponse.json({ error: "apiMessages.error.unauthorized" }, { status: 401 });
  try {
- const { item: id } = await params;
- const body = await request.json();
- const validation = itemSchema.partial().safeParse(body);
+  const { item: id } = await params;
+  const body = await request.json();
+  const validation = itemSchema.partial().safeParse(body);
 
- if (!validation.success) {
- return NextResponse.json(
- { error: "apiMessages.error.validationFailed", details: validation.error.format() },
- { status: 422 }
- );
- }
+  if (!validation.success) {
+  return NextResponse.json(
+  { error: "apiMessages.error.validationFailed", details: validation.error.format() },
+  { status: 422 }
+  );
+  }
 
- const data = validation.data;
+  const data = validation.data;
 
- const updated = await prisma.item.update({
- where: { id },
- data: {
- name: data.name,
- price: data.price,
- group_id: data.group_id,
- is_disable: data.is_disable,
- },
- include: { group: true },
- });
+  const currentItem = await prisma.item.findUnique({ where: { id } });
+  if (!currentItem) {
+  return NextResponse.json({ error: "apiMessages.error.itemNotFound" }, { status: 404 });
+  }
 
- return NextResponse.json(updated);
- } catch (error: unknown) {
- console.error("Error updating item:", error);
- const err = error as { code?: string };
- if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.itemNotFound" }, { status: 404 });
- return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
- }
+  const ordersCount = await prisma.order.count({ where: { item_id: id } });
+  
+  const isChangingRestrictedFields =
+  (data.name !== undefined && data.name !== currentItem.name) ||
+  (data.price !== undefined && Number(data.price) !== Number(currentItem.price)) ||
+  (data.group_id !== undefined && data.group_id !== currentItem.group_id);
+
+  if (ordersCount > 0 && isChangingRestrictedFields) {
+  return NextResponse.json(
+  { error: "apiMessages.error.cannotEditItemWithOrders" },
+  { status: 400 }
+  );
+  }
+
+  const updated = await prisma.item.update({
+  where: { id },
+  data: {
+  name: data.name,
+  price: data.price,
+  group_id: data.group_id,
+  is_disable: data.is_disable,
+  },
+  include: { group: true },
+  });
+
+  return NextResponse.json(updated);
+  } catch (error: unknown) {
+  console.error("Error updating item:", error);
+  const err = error as { code?: string };
+  if (err.code === "P2025") return NextResponse.json({ error: "apiMessages.error.itemNotFound" }, { status: 404 });
+  return NextResponse.json({ error: "apiMessages.error.serverError" }, { status: 500 });
+  }
 }
 
 /** DELETE a specific item */

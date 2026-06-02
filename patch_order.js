@@ -1,8 +1,13 @@
-const fs = require('fs');
-let content = fs.readFileSync('src/app/(pages)/(user-pages)/order/page.tsx', 'utf-8');
+const fs = require("fs");
+let content = fs.readFileSync(
+    "src/app/(pages)/(user-pages)/order/page.tsx",
+    "utf-8",
+);
 
 // Replace handleSimulateScan
-content = content.replace(/function handleSimulateScan[\s\S]*?const handleLogOutSession/m, `async function handleSimulateScan(roomId: string, tableName: string) {
+content = content.replace(
+    /function handleSimulateScan[\s\S]*?const handleLogOutSession/m,
+    `async function handleSimulateScan(roomId: string, tableName: string) {
         setScanLoading(true);
         setScanStep("scanning");
         setScanErrorMsg("");
@@ -21,13 +26,13 @@ content = content.replace(/function handleSimulateScan[\s\S]*?const handleLogOut
                 setScanStep("success");
                 setScanLoading(false);
                 setActionMessage({
-                    text: isRtl ? \`أهلاً بك عميلنا المميز (\${data.reservation.client_name})! تم فتح الجلسة لطاولة \${tableName}.\` : \`Welcome (\${data.reservation.client_name})! Session unlocked.\`,
+                    text: isRtl ? \`أهلاً بك عميلنا المميز (\${data.reservation.client_name})! تم فتح الجلسة لغرفة \${tableName}.\` : \`Welcome (\${data.reservation.client_name})! Session unlocked.\`,
                 });
                 setTimeout(() => { setIsScannerOpen(false); setScanStep("idle"); }, 1200);
             } else {
                 setScanLoading(false);
                 setScanStep("error");
-                setScanErrorMsg(isRtl ? "لا يوجد حجز نشط ومقبول لهذه الطاولة اليوم." : "No active and confirmed reservation found for this table today.");
+                setScanErrorMsg(isRtl ? "لا يوجد حجز نشط ومقبول لهذه الغرفة اليوم." : "No active and confirmed reservation found for this table today.");
             }
         } catch (error) {
             setScanLoading(false);
@@ -36,10 +41,13 @@ content = content.replace(/function handleSimulateScan[\s\S]*?const handleLogOut
         }
     }
 
-    const handleLogOutSession`);
+    const handleLogOutSession`,
+);
 
 // Replace handlePlaceOrder
-content = content.replace(/const handlePlaceOrder =[\s\S]*?const handleCancelOrder/m, `const handlePlaceOrder = async (item: MenuItem) => {
+content = content.replace(
+    /const handlePlaceOrder =[\s\S]*?const handleCancelOrder/m,
+    `const handlePlaceOrder = async (item: MenuItem) => {
         if (!activeSession) {
             setActionMessage({ text: isRtl ? "يجب تفعيل الجلسة ومسح الـ QR أولاً" : "Activate session first", isError: true });
             return;
@@ -75,7 +83,7 @@ content = content.replace(/const handlePlaceOrder =[\s\S]*?const handleCancelOrd
                 setOrders(updatedOrders);
                 localStorage.setItem("cafe_orders", JSON.stringify(updatedOrders));
 
-                setActionMessage({ text: isRtl ? \`تم إضافة (\${qty} × \${item.name_ar}) لطاولتك!\` : \`Added to your table!\` });
+                setActionMessage({ text: isRtl ? \`تم إضافة (\${qty} × \${item.name_ar}) لغرفتك!\` : \`Added to your table!\` });
                 setQuantities((prev) => ({ ...prev, [item.id]: 1 }));
             } else {
                 setActionMessage({ text: isRtl ? "حدث خطأ أثناء الطلب." : "Failed to place order.", isError: true });
@@ -85,11 +93,21 @@ content = content.replace(/const handlePlaceOrder =[\s\S]*?const handleCancelOrd
         }
     };
 
-    const handleCancelOrder`);
+    const handleCancelOrder`,
+);
 
 // Also fix localstorage reading for active session: change to sessionStorage
-content = content.replace(/localStorage\.getItem\("cafe_active_session"\)/g, 'sessionStorage.getItem("cafe_active_session")');
-content = content.replace(/localStorage\.removeItem\("cafe_active_session"\)/g, 'sessionStorage.removeItem("cafe_active_session")');
-content = content.replace(/localStorage\.setItem\("cafe_active_session"/g, 'sessionStorage.setItem("cafe_active_session"');
+content = content.replace(
+    /localStorage\.getItem\("cafe_active_session"\)/g,
+    'sessionStorage.getItem("cafe_active_session")',
+);
+content = content.replace(
+    /localStorage\.removeItem\("cafe_active_session"\)/g,
+    'sessionStorage.removeItem("cafe_active_session")',
+);
+content = content.replace(
+    /localStorage\.setItem\("cafe_active_session"/g,
+    'sessionStorage.setItem("cafe_active_session"',
+);
 
-fs.writeFileSync('src/app/(pages)/(user-pages)/order/page.tsx', content);
+fs.writeFileSync("src/app/(pages)/(user-pages)/order/page.tsx", content);

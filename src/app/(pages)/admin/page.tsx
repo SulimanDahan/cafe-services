@@ -64,7 +64,9 @@ export default function LoginPage() {
                     window.dispatchEvent(new CustomEvent("navigation-start"));
                     router.push(ADMIN_DASHBOARD_PAGE_ROUTE);
                 } else {
-                    setError(data.error || t("login.errorInvalid"));
+                    setError(
+                        data.error ? t(data.error) : t("login.errorInvalid"),
+                    );
                     setIsLoading(false);
                 }
             })

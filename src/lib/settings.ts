@@ -11,13 +11,13 @@ export async function getSystemSettings() {
 		const settingsCount = await prisma.settings.count();
 		if (settingsCount > 1) {
 			const firstSettings = await prisma.settings.findFirst({
-				orderBy: { created_at: "asc" }
+				orderBy: { created_at: "asc" },
 			});
 			if (firstSettings) {
 				await prisma.settings.deleteMany({
 					where: {
-						id: { not: firstSettings.id }
-					}
+						id: { not: firstSettings.id },
+					},
 				});
 			}
 		}
@@ -29,7 +29,7 @@ export async function getSystemSettings() {
 
 	try {
 		appSettings = await prisma.settings.findFirst({
-			orderBy: { created_at: "asc" }
+			orderBy: { created_at: "asc" },
 		});
 
 		if (!appSettings) {
@@ -40,26 +40,31 @@ export async function getSystemSettings() {
 						app_lang: "ar",
 						per_page: 25,
 						notification_threshold: 100,
-						session_expiry_minutes: 30,
+						session_expiry_minutes: 60,
+						client_session_expiry_minutes: 360,
 						force_client_order_session_passKey: false,
 					},
 				});
 			} catch {
 				// In case of a concurrent create race, fetch the created row
 				appSettings = await prisma.settings.findFirst({
-					orderBy: { created_at: "asc" }
+					orderBy: { created_at: "asc" },
 				});
 			}
 		}
 	} catch (dbError) {
-		console.warn("Database connection failed, using default settings fallback:", dbError);
+		console.warn(
+			"Database connection failed, using default settings fallback:",
+			dbError,
+		);
 		return {
 			id: "default",
 			currency_name: "YER",
 			app_lang: "ar",
 			per_page: 25,
 			notification_threshold: 100,
-			session_expiry_minutes: 30,
+			session_expiry_minutes: 60,
+			client_session_expiry_minutes: 360,
 			force_client_order_session_passKey: false,
 			created_at: new Date(),
 			updated_at: new Date(),

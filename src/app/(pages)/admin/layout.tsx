@@ -109,7 +109,7 @@ export default function AdminLayout({ children }: LayoutProps) {
         (() => setIsLoading(false))();
     }, [pathname]);
 
-    // Setup navigation progress listeners for clicks, history navigation, and programmatic changes
+    // Setup navigation progress listeners for clicks and history navigation (popstate)
     useEffect(() => {
         const handleAnchorClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
@@ -125,6 +125,8 @@ export default function AdminLayout({ children }: LayoutProps) {
                     href.startsWith("/") &&
                     !href.startsWith("//") &&
                     targetAttr !== "_blank" &&
+                    anchor.getAttribute("data-bypass-loader") !== "true" &&
+                    !anchor.hasAttribute("download") &&
                     !event.metaKey &&
                     !event.ctrlKey &&
                     !event.shiftKey &&
@@ -141,33 +143,22 @@ export default function AdminLayout({ children }: LayoutProps) {
             }
         };
 
-        // Back & Forward history navigation trigger
         const handlePopState = () => {
-            setIsLoading(true);
-        };
-
-        // Programmatic route change navigation triggers (via CustomEvent)
-        const handleNavigationStart = () => {
-            setIsLoading(true);
+            setIsLoading(false); // Reset loading state on history navigations
         };
 
         document.addEventListener("click", handleAnchorClick, {
             capture: true,
         });
         window.addEventListener("popstate", handlePopState);
-        window.addEventListener("navigation-start", handleNavigationStart);
 
         return () => {
             document.removeEventListener("click", handleAnchorClick, {
                 capture: true,
             });
             window.removeEventListener("popstate", handlePopState);
-            window.removeEventListener(
-                "navigation-start",
-                handleNavigationStart,
-            );
         };
-    }, [pathname]);
+    }, []);
 
     if (isCustomerAppBlock) {
         return (

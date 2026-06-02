@@ -41,9 +41,12 @@ export const settings = {
 	seconds: "seconds",
 	msgSaved: "All platform settings successfully saved!",
 	msgError: "An error occurred while saving. Please try again.",
-	sessionExpiryLabel: "Session Expiry Duration",
-	sessionExpiryDesc:
-		"Minutes of inactivity before the admin session expires automatically.",
+	adminSessionExpiryLabel: "Admin Session Duration",
+	adminSessionExpiryDesc:
+		"Minutes of inactivity before the admin session expires automatically. Default is 60 minutes (1 hour).",
+	clientSessionExpiryLabel: "Client Session Duration",
+	clientSessionExpiryDesc:
+		"Minutes before the customer's ordering session expires automatically on the order page. Default is 360 minutes (6 hours).",
 	minutesUnit: "min",
 	btnSaveAll: "Save All Configuration",
 	langAr: "العربية (Arabic)",

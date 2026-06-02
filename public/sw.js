@@ -14,19 +14,30 @@ const STATIC_ASSETS = [
 // Install Event: cache static resources
 self.addEventListener("install", (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return Promise.allSettled(
-                STATIC_ASSETS.map(url => 
-                    fetch(url).then(response => {
-                        if (response.ok) {
-                            return cache.put(url, response);
-                        }
-                    }).catch(err => console.warn("Failed to cache asset:", url, err))
-                )
-            );
-        }).then(() => {
-            return self.skipWaiting();
-        })
+        caches
+            .open(CACHE_NAME)
+            .then((cache) => {
+                return Promise.allSettled(
+                    STATIC_ASSETS.map((url) =>
+                        fetch(url)
+                            .then((response) => {
+                                if (response.ok) {
+                                    return cache.put(url, response);
+                                }
+                            })
+                            .catch((err) =>
+                                console.warn(
+                                    "Failed to cache asset:",
+                                    url,
+                                    err,
+                                ),
+                            ),
+                    ),
+                );
+            })
+            .then(() => {
+                return self.skipWaiting();
+            }),
     );
 });
 
@@ -54,8 +65,8 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
     const url = new URL(event.request.url);
 
-    // Bypass real-time notification streams entirely to prevent stalling stream connections
-    if (url.pathname.startsWith("/api/notifications/stream")) {
+    // Bypass all API requests entirely
+    if (url.pathname.startsWith("/api/")) {
         return;
     }
 

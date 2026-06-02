@@ -4,7 +4,7 @@
 
 {$DOMAIN} {
     tls internal
-    reverse_proxy cafe-services-prod:3000
+    reverse_proxy web-prod:3000
 }
 
 :80 {

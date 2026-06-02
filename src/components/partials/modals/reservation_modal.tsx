@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { reservationSchema } from "@/lib/validations/reservation";
@@ -39,7 +39,9 @@ export const BookingModal = ({
         date_time: string;
     }
 
-    const activeRooms = rooms.filter((r) => !r.is_disable);
+    const activeRooms = useMemo(() => {
+        return rooms.filter((r) => !r.is_disable);
+    }, [rooms]);
 
     const {
         register,
@@ -74,7 +76,8 @@ export const BookingModal = ({
         return () => {
             document.body.style.overflow = "unset";
         };
-    }, [isOpen, activeRooms, reset]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, reset]);
 
     if (!isOpen) return null;
 
@@ -88,6 +91,9 @@ export const BookingModal = ({
                     phone: data.phone,
                     room_id: data.room_id,
                     date_time: data.date_time,
+                    accepted: false,
+                    completed: false,
+                    rejected: false,
                 }),
             });
 

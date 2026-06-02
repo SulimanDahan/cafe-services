@@ -64,7 +64,7 @@ export const home = {
     formClientName: "الاسم الكامل",
     formClientPlaceholder: "مثال: أحمد محمد...",
     formPhone: "رقم التواصل",
-    formDateTime: "تاريخ ووقت الحجز",
+    formDateTime: "تاريخ الحجز",
     formAssignedRoom: "اختر الغرفة / القاعة",
     btnSubmitBooking: "تأكيد الحجز",
     bookingSuccess: "تم إرسال طلب الحجز بنجاح! بانتظار التأكيد.",

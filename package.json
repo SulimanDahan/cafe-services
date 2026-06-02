@@ -13,7 +13,9 @@
 		"seed": "npx tsx prisma/seed.ts",
 		"reset:admin": "npx tsx prisma/reset_admin_password.ts",
 		"db:restore": "docker exec -i cafe-postgres-prod psql -U cafe_admin -d cafe_db -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\" && docker exec -i cafe-postgres-prod psql -U cafe_admin -d cafe_db < backup.sql",
-		"db:restore:dev": "docker exec -i cafe-postgres-dev psql -U cafe_admin -d cafe_db -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\" && docker exec -i cafe-postgres-dev psql -U cafe_admin -d cafe_db < backup.sql"
+		"db:restore:dev": "docker exec -i cafe-postgres-dev psql -U cafe_admin -d cafe_db -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\" && docker exec -i cafe-postgres-dev psql -U cafe_admin -d cafe_db < backup.sql",
+		"db:push": "docker exec -it cafe-services-prod npx prisma db push",
+		"db:push:dev": "docker exec -it cafe-services-dev npx prisma db push"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.2.2",

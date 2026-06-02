@@ -108,12 +108,19 @@ export default function ItemsAdmin() {
 
     const handleSave = async (data: ItemFormValues): Promise<boolean> => {
         let success = false;
+        let apiErrorKey: string | null = null;
         if (editingItem) {
-            success = await updateItem(editingItem.id, {
-                name: data.name,
-                price: parseFloat(data.price),
-                group_id: data.group_id,
-            });
+            success = await updateItem(
+                editingItem.id,
+                {
+                    name: data.name,
+                    price: parseFloat(data.price),
+                    group_id: data.group_id,
+                },
+                (errKey) => {
+                    apiErrorKey = errKey;
+                }
+            );
         } else {
             success = await addItem({
                 name: data.name,
@@ -123,18 +130,22 @@ export default function ItemsAdmin() {
         }
 
         if (!success) {
-            setErrorModalMsg(t("common.errorOccurred"));
+            setErrorModalMsg(t(apiErrorKey || "common.errorOccurred"));
         }
         return success;
     };
 
     const handleToggleDisable = async (item: ItemModel) => {
-        await updateItem(item.id, { is_disable: !item.is_disable });
+        await updateItem(item.id, { is_disable: !item.is_disable }, (errKey) => {
+            setErrorModalMsg(t(errKey));
+        });
     };
 
     const handleDelete = async (id: string) => {
         if (confirm(t("common.confirmDelete"))) {
-            await deleteItem(id);
+            await deleteItem(id, (errKey) => {
+                setErrorModalMsg(t(errKey));
+            });
         }
     };
 

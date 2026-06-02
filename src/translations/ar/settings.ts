@@ -40,9 +40,12 @@ export const settings = {
     seconds: "ثانية",
     msgSaved: "تم حفظ وتحديث الإعدادات بنجاح تـام!",
     msgError: "حدث خطأ أثناء الحفظ، يرجى المحاولة مرة أخرى.",
-    sessionExpiryLabel: "مدة انتهاء الجلسة (Session Expiry)",
-    sessionExpiryDesc:
-        "المدة الزمنية بالدقائق قبل انتهاء جلسة المستخدم تلقائياً عند عدم النشاط.",
+    adminSessionExpiryLabel: "مدة جلسة المشرف (Admin Session)",
+    adminSessionExpiryDesc:
+        "المدة الزمنية بالدقائق قبل انتهاء جلسة المشرف تلقائياً — الافتراضي 60 دقيقة (ساعة واحدة).",
+    clientSessionExpiryLabel: "مدة جلسة العميل (Client Session)",
+    clientSessionExpiryDesc:
+        "المدة الزمنية بالدقائق قبل انتهاء جلسة العميل في صفحة الطلب تلقائياً — الافتراضي 360 دقيقة (6 ساعات).",
     minutesUnit: "دقيقة",
     btnSaveAll: "حفظ كافة الإعدادات",
     currencyUSD: "دولار أمريكي (USD)",

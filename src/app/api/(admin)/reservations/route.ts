@@ -158,10 +158,6 @@ export async function POST(request: Request) {
             }
         }
 
-        const todayStr = new Date().toISOString().split("T")[0];
-        const resDateStr = new Date(data.date_time).toISOString().split("T")[0];
-        const isToday = todayStr === resDateStr;
-
         const reservation = await prisma.reservation.create({
             data: {
                 client_name: data.client_name,
@@ -169,7 +165,7 @@ export async function POST(request: Request) {
                 room_id: data.room_id,
                 order_passkey,
                 date_time: data.date_time,
-                accepted: data.accepted ?? isToday,
+                accepted: data.accepted ?? true,
                 activated: data.activated ?? false,
                 completed: data.completed ?? false,
                 rejected: data.rejected ?? false,

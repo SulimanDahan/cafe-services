@@ -33,8 +33,6 @@ export async function POST(req: NextRequest) {
         }
 
         const resDate = date_time ? new Date(date_time) : new Date();
-        const todayStr = new Date().toISOString().split("T")[0];
-        const isToday = resDate.toISOString().split("T")[0] === todayStr;
 
         const result = await prisma.reservation.create({
             data: {
@@ -43,7 +41,7 @@ export async function POST(req: NextRequest) {
                 room_id,
                 order_passkey,
                 date_time: resDate,
-                accepted: isToday,
+                accepted: false,
                 completed: false,
             },
             include: {

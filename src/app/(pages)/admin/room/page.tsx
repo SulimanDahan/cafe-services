@@ -132,7 +132,9 @@ export default function AdminRoomsPage() {
     const handleDeleteRoom = async (room: RoomModel) => {
         const confirmMsg = `${t("reservations.confirmDeleteTable")}${room.name}${t("reservations.confirmDeleteTableSuffix")}`;
         if (confirm(confirmMsg)) {
-            await deleteRoom(room.id);
+            await deleteRoom(room.id, (errKey) => {
+                setErrorModalMsg(t(errKey));
+            });
         }
     };
 

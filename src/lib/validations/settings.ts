@@ -23,6 +23,13 @@ export const settingsSchema = z.object({
 			.int()
 			.min(1, { message: "validation.expiryMinOne" }),
 	),
+	client_session_expiry_minutes: z.preprocess(
+		(val) => (typeof val === "string" ? parseInt(val) : val),
+		z
+			.number()
+			.int()
+			.min(1, { message: "validation.clientExpiryMinOne" }),
+	),
 	force_client_order_session_passKey: z.boolean().optional(),
 });
 

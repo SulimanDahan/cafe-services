@@ -41,6 +41,7 @@ export default function SettingsAdmin() {
         per_page: string;
         notification_threshold: string;
         session_expiry_minutes: string;
+        client_session_expiry_minutes: string;
         force_client_order_session_passKey: boolean;
     }
 
@@ -63,7 +64,10 @@ export default function SettingsAdmin() {
                 settings.notification_threshold || 100,
             ),
             session_expiry_minutes: String(
-                settings.session_expiry_minutes || 30,
+                settings.session_expiry_minutes || 60,
+            ),
+            client_session_expiry_minutes: String(
+                settings.client_session_expiry_minutes || 360,
             ),
             force_client_order_session_passKey:
                 settings.force_client_order_session_passKey ?? false,
@@ -87,7 +91,10 @@ export default function SettingsAdmin() {
                         settings.notification_threshold || 100,
                     ),
                     session_expiry_minutes: String(
-                        settings.session_expiry_minutes || 30,
+                        settings.session_expiry_minutes || 60,
+                    ),
+                    client_session_expiry_minutes: String(
+                        settings.client_session_expiry_minutes || 360,
                     ),
                     force_client_order_session_passKey:
                         settings.force_client_order_session_passKey ?? false,
@@ -135,6 +142,7 @@ export default function SettingsAdmin() {
             per_page: Number(data.per_page),
             notification_threshold: Number(data.notification_threshold),
             session_expiry_minutes: Number(data.session_expiry_minutes),
+            client_session_expiry_minutes: Number(data.client_session_expiry_minutes),
             force_client_order_session_passKey:
                 data.force_client_order_session_passKey,
         });
@@ -404,22 +412,25 @@ export default function SettingsAdmin() {
                                 {t("settings.inputThresholdDesc")}
                             </span>
                         </div>
+                    </div>
 
-                        {/* Session Expiry */}
+                    {/* Session Expiry — Admin + Client side by side */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Admin Session Expiry */}
                         <div className="space-y-2 bg-background/50 p-5 rounded-2xl border border-white/5 hover:border-white/10 transition-all duration-300 flex flex-col justify-between">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2 text-primary-hover">
                                     <ClockIcon className="w-4 h-4" />
                                     <label
-                                        htmlFor="sessionExp"
+                                        htmlFor="adminSessionExp"
                                         className="text-xs font-black text-zinc-300 block cursor-pointer"
                                     >
-                                        {t("settings.sessionExpiryLabel")}
+                                        {t("settings.adminSessionExpiryLabel")}
                                     </label>
                                 </div>
                                 <div className="relative flex items-center mt-1">
                                     <input
-                                        id="sessionExp"
+                                        id="adminSessionExp"
                                         type="number"
                                         min="5"
                                         max="1440"
@@ -443,7 +454,49 @@ export default function SettingsAdmin() {
                                 )}
                             </div>
                             <span className="text-[10px] text-zinc-500 font-bold block mt-3 leading-normal border-t border-white/5 pt-2">
-                                {t("settings.sessionExpiryDesc")}
+                                {t("settings.adminSessionExpiryDesc")}
+                            </span>
+                        </div>
+
+                        {/* Client Session Expiry */}
+                        <div className="space-y-2 bg-background/50 p-5 rounded-2xl border border-primary/10 hover:border-primary/20 transition-all duration-300 flex flex-col justify-between">
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-primary-hover">
+                                    <ClockIcon className="w-4 h-4" />
+                                    <label
+                                        htmlFor="clientSessionExp"
+                                        className="text-xs font-black text-zinc-300 block cursor-pointer"
+                                    >
+                                        {t("settings.clientSessionExpiryLabel")}
+                                    </label>
+                                </div>
+                                <div className="relative flex items-center mt-1">
+                                    <input
+                                        id="clientSessionExp"
+                                        type="number"
+                                        min="30"
+                                        max="2880"
+                                        step="30"
+                                        {...register("client_session_expiry_minutes")}
+                                        className="w-full bg-background border border-primary/20 text-primary-light font-bold rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-primary/30 transition-all block"
+                                    />
+                                    <span
+                                        className={`absolute ${isRtl ? "left-4" : "right-4"} text-xs font-black text-primary-hover pointer-events-none`}
+                                    >
+                                        {t("settings.minutesUnit")}
+                                    </span>
+                                </div>
+                                {errors.client_session_expiry_minutes?.message && (
+                                    <p className="text-[10px] text-red-400 font-medium mt-1">
+                                        {String(
+                                            errors.client_session_expiry_minutes
+                                                .message,
+                                        )}
+                                    </p>
+                                )}
+                            </div>
+                            <span className="text-[10px] text-zinc-500 font-bold block mt-3 leading-normal border-t border-primary/10 pt-2">
+                                {t("settings.clientSessionExpiryDesc")}
                             </span>
                         </div>
                     </div>
@@ -507,6 +560,7 @@ export default function SettingsAdmin() {
                                 <a
                                     href="/api/settings/backup"
                                     download
+                                    data-bypass-loader="true"
                                     className="px-6 py-3 rounded-full bg-primary hover:bg-primary-hover text-background font-black text-xs transition-all duration-300 shadow-md shadow-primary/10 flex items-center justify-center gap-2 cursor-pointer self-start sm:self-center"
                                 >
                                     <svg

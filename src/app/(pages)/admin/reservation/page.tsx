@@ -135,16 +135,12 @@ export default function ReservationsAdmin() {
                 date_time: new Date(data.date_time),
             });
         } else {
-            const todayStr = new Date().toISOString().split("T")[0];
-            const resDate = new Date(data.date_time);
-            const isToday = resDate.toISOString().split("T")[0] === todayStr;
-
             success = await addReservation({
                 client_name: data.client_name,
                 phone: data.phone,
                 room_id: data.room_id,
                 date_time: new Date(data.date_time),
-                accepted: isToday,
+                accepted: true,
                 completed: false,
             });
         }
@@ -204,8 +200,6 @@ export default function ReservationsAdmin() {
             day: "numeric",
             month: "long",
             year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
         });
     };
 
@@ -454,38 +448,25 @@ export default function ReservationsAdmin() {
                                                     />
                                                 </>
                                             )}
-                                        {!res.activated &&
+                                        {res.accepted &&
+                                            !res.activated &&
                                             !res.completed &&
                                             !res.rejected && (
-                                                <>
-                                                    <ActionIconButton
-                                                        variant="edit"
-                                                        icon={
-                                                            <EditIcon className="w-4 h-4" />
-                                                        }
-                                                        onClick={() =>
-                                                            handleOpenEditForm(
-                                                                res,
-                                                            )
-                                                        }
-                                                        title={t("common.edit")}
-                                                    />
-                                                    <ActionIconButton
-                                                        variant="edit"
-                                                        icon={
-                                                            <UndoCircleIcon className="w-4 h-4" />
-                                                        }
-                                                        onClick={() =>
-                                                            handleUndoAction(
-                                                                res.id,
-                                                                "accept",
-                                                            )
-                                                        }
-                                                        title={t(
-                                                            "reservations.btnUndoAccept",
-                                                        )}
-                                                    />
-                                                </>
+                                                <ActionIconButton
+                                                    variant="edit"
+                                                    icon={
+                                                        <UndoCircleIcon className="w-4 h-4" />
+                                                    }
+                                                    onClick={() =>
+                                                        handleUndoAction(
+                                                            res.id,
+                                                            "accept",
+                                                        )
+                                                    }
+                                                    title={t(
+                                                        "reservations.btnUndoAccept",
+                                                    )}
+                                                />
                                             )}
                                         {res.activated &&
                                             !res.completed &&

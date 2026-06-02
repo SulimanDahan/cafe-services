@@ -24,6 +24,7 @@ export const validation = {
  languageInvalid: "اللغة يجب أن تكون إنجليزية أو عربية",
  perPageMinOne: "عدد العناصر في الصفحة يجب أن يكون 1 على الأقل",
  expiryMinOne: "مدة الجلسة يجب أن تكون دقيقة واحدة على الأقل",
+ clientExpiryMinOne: "مدة جلسة العميل يجب أن تكون دقيقة واحدة على الأقل",
 } as const;
 
 export default validation;
