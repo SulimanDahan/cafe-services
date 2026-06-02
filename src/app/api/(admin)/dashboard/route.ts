@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
             totalRooms,
             totalItems,
             recentReservations,
-            totalOrders,
+            orders,
         ] = await Promise.all([
             prisma.reservation.count({ where: whereReservation }),
             prisma.reservation.count({
@@ -119,20 +119,22 @@ export async function GET(req: NextRequest) {
                 take: 20,
                 include: { room: true },
             }),
-            prisma.order.aggregate({
+            // Single query to compute both revenue and ordered units
+            prisma.order.findMany({
                 where: whereOrder,
-                _sum: { item_price: true, quantity: true },
+                select: { item_price: true, quantity: true },
             }),
         ]);
 
-        // Total revenue: sum(item_price * quantity) — computed per order
-        const orders = await prisma.order.findMany({
-            where: whereOrder,
-            select: { item_price: true, quantity: true },
-        });
+        // Compute revenue and ordered units from the single orders query
         const totalRevenue = orders.reduce(
             (sum: number, o: { item_price: Decimal; quantity: number }) =>
                 sum + Number(o.item_price) * o.quantity,
+            0,
+        );
+        const totalOrderedUnits = orders.reduce(
+            (sum: number, o: { item_price: Decimal; quantity: number }) =>
+                sum + o.quantity,
             0,
         );
 
@@ -144,7 +146,7 @@ export async function GET(req: NextRequest) {
                 totalRooms,
                 totalItems,
                 totalRevenue,
-                totalOrderedUnits: totalOrders._sum.quantity ?? 0,
+                totalOrderedUnits,
             },
             recentReservations,
         });

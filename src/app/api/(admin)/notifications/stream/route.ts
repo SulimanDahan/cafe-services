@@ -32,11 +32,12 @@ export async function GET(req: NextRequest) {
 		}
 	};
 
-	// 1. Send all existing unread/recent notifications as an initial sync
+	// 1. Send only unread notifications as an initial sync
 	try {
 		const recentNotifications = await prisma.notification.findMany({
+			where: { read: false },
 			orderBy: { created_at: "desc" },
-			take: 20,
+			take: 50,
 		});
 		sendEvent("initial-notifications", recentNotifications);
 	} catch (dbError) {
