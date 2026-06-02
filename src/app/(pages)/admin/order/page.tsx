@@ -18,6 +18,7 @@ export default function AdminOrdersOperations() {
     const { settings } = useSettings();
     const {
         reservations,
+        totalPages,
         isReservationsLoading,
         fetchAllReservations,
         checkoutReservation,
@@ -37,17 +38,40 @@ export default function AdminOrdersOperations() {
         isError?: boolean;
     } | null>(null);
 
-    // Reload both datasets on mount
-    const loadData = useCallback(async () => {
-        await Promise.all([
-            fetchAllReservations({ fetch_all: "true" }),
-            fetchAllOrders(),
-        ]);
-    }, [fetchAllReservations, fetchAllOrders]);
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Extract per_page to satisfy React Compiler's dependency tracking
+    const perPage = settings?.per_page;
+
+    // Fetch reservations with debouncing when filters change
+    const fetchReservations = useCallback(async () => {
+        await fetchAllReservations({
+            page: currentPage.toString(),
+            per_page: perPage?.toString() || "10",
+            status: activeTab === "active" ? "in_progress" : "completed",
+            all: "true",
+            search: searchQuery,
+        });
+    }, [
+        fetchAllReservations,
+        currentPage,
+        perPage,
+        activeTab,
+        searchQuery,
+    ]);
 
     useEffect(() => {
-        loadData();
-    }, [loadData]);
+        const timer = setTimeout(() => {
+            fetchReservations();
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [fetchReservations]);
+
+    // Fetch orders once on mount
+    useEffect(() => {
+        fetchAllOrders();
+    }, [fetchAllOrders]);
 
     // Dismiss toast after 4 seconds
     useEffect(() => {
@@ -86,35 +110,25 @@ export default function AdminOrdersOperations() {
         }
     };
 
-    // Filter reservations based on active tab
-    const displayedReservations = reservations.filter((r) =>
-        activeTab === "active" ? r.accepted && !r.completed : r.completed,
-    );
-
-    // Search filter
-    const filteredReservations = displayedReservations.filter(
-        (r) =>
-            r.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (r.room?.name ?? "")
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-            String(r.number).includes(searchQuery),
-    );
+    // Reset page when tab or search changes
+    useEffect(() => {
+        (() => setCurrentPage(1))();
+    }, [activeTab, searchQuery]);
 
     // Select the first one by default if none is selected
     useEffect(() => {
         if (
-            filteredReservations.length > 0 &&
-            !filteredReservations.some((r) => r.id === selectedReservationId)
+            reservations.length > 0 &&
+            !reservations.some((r) => r.id === selectedReservationId)
         ) {
-            (() => setSelectedReservationId(filteredReservations[0].id))();
-        } else if (filteredReservations.length === 0) {
+            (() => setSelectedReservationId(reservations[0].id))();
+        } else if (reservations.length === 0) {
             (() => setSelectedReservationId(null))();
         }
-    }, [filteredReservations, selectedReservationId, activeTab]);
+    }, [reservations, selectedReservationId, activeTab]);
 
     const selectedReservation =
-        filteredReservations.find((r) => r.id === selectedReservationId) ||
+        reservations.find((r) => r.id === selectedReservationId) ||
         null;
 
     // Operational metrics
@@ -194,8 +208,8 @@ export default function AdminOrdersOperations() {
                                     {t("common.loading")}
                                 </span>
                             </div>
-                        ) : filteredReservations.length > 0 ? (
-                            filteredReservations.map(
+                        ) : reservations.length > 0 ? (
+                            reservations.map(
                                 (res: ReservationModel) => {
                                     const resOrders = orders.filter(
                                         (o) => o.reservation_id === res.id,
@@ -248,6 +262,29 @@ export default function AdminOrdersOperations() {
                             </div>
                         )}
                     </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between pt-2 px-1">
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-1.5 rounded-full bg-surface border border-white/5 text-xs font-bold text-zinc-400 hover:text-white disabled:opacity-30 transition-colors cursor-pointer"
+                            >
+                                {t("common.previous")}
+                            </button>
+                            <span className="text-xs text-zinc-500 font-medium">
+                                {currentPage} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-1.5 rounded-full bg-surface border border-white/5 text-xs font-bold text-zinc-400 hover:text-white disabled:opacity-30 transition-colors cursor-pointer"
+                            >
+                                {t("common.next")}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT: Detail View */}
@@ -284,7 +321,7 @@ export default function AdminOrdersOperations() {
                                                 (sum, o) =>
                                                     sum +
                                                     Number(o.item_price) *
-                                                        o.quantity,
+                                                    o.quantity,
                                                 0,
                                             )
                                             .toLocaleString("en-US")}{" "}
@@ -371,7 +408,7 @@ export default function AdminOrdersOperations() {
                                                             </span>
                                                         ) : (
                                                             activeTab ===
-                                                                "active" && (
+                                                            "active" && (
                                                                 <button
                                                                     onClick={() =>
                                                                         handleApproveOrder(
@@ -413,7 +450,7 @@ export default function AdminOrdersOperations() {
                                                             Number(
                                                                 o.item_price,
                                                             ) *
-                                                                o.quantity,
+                                                            o.quantity,
                                                         0,
                                                     ),
                                             )

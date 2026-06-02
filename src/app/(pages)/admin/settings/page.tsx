@@ -22,6 +22,7 @@ import { useSettings } from "@/context/settings_context";
 import systemCurrencies from "@/config/system_currencies";
 import TabBar from "@/components/tab_bar";
 import SpinnerIcon from "@/components/icons/SpinnerIcon";
+import { InputField } from "@/components/input";
 // import { common } from "@/translations/ar/common";
 
 /**
@@ -164,17 +165,17 @@ export default function SettingsAdmin() {
     const tabOptions = [
         ...(isAdmin
             ? [
-                  {
-                      id: "system",
-                      label: t("settings.sectionIdentity"),
-                      icon: <BuildingIcon className="w-4 h-4" />,
-                  },
-                  {
-                      id: "security",
-                      label: t("settings.sectionNotifications"),
-                      icon: <BellIcon className="w-4 h-4" />,
-                  },
-              ]
+                {
+                    id: "system",
+                    label: t("settings.sectionIdentity"),
+                    icon: <BuildingIcon className="w-4 h-4" />,
+                },
+                {
+                    id: "security",
+                    label: t("settings.sectionNotifications"),
+                    icon: <BellIcon className="w-4 h-4" />,
+                },
+            ]
             : []),
         {
             id: "backup",
@@ -254,22 +255,15 @@ export default function SettingsAdmin() {
                                         {t("settings.inputDefaultCurrency")}
                                     </label>
                                 </div>
-                                <select
+                                <InputField
                                     id="cCurrency"
+                                    isSelect
+                                    options={systemCurrencies.map((c) => ({
+                                        id: c,
+                                        name: t(`common.${c}`),
+                                    }))}
                                     {...register("currency_name")}
-                                    className="w-full bg-background border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-white/20 transition-all block cursor-pointer mt-1"
-                                >
-                                    {systemCurrencies.map(
-                                        (currency: string, index: number) => (
-                                            <option
-                                                value={currency}
-                                                key={index}
-                                            >
-                                                {t(`common.${currency}`)}
-                                            </option>
-                                        ),
-                                    )}
-                                </select>
+                                />
                                 {errors.currency_name?.message && (
                                     <p className="text-[10px] text-red-400 font-medium mt-1">
                                         {t(
@@ -297,18 +291,15 @@ export default function SettingsAdmin() {
                                         {t("settings.appLangLabel")}
                                     </label>
                                 </div>
-                                <select
+                                <InputField
                                     id="appLangSel"
+                                    isSelect
+                                    options={[
+                                        { id: "ar", name: t("settings.langAr") },
+                                        { id: "en", name: t("settings.langEn") },
+                                    ]}
                                     {...register("app_lang")}
-                                    className="w-full bg-background border border-white/10 text-primary-light font-black rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-white/20 transition-all block cursor-pointer mt-1"
-                                >
-                                    <option value="ar">
-                                        {t("settings.langAr")}
-                                    </option>
-                                    <option value="en">
-                                        {t("settings.langEn")}
-                                    </option>
-                                </select>
+                                />
                                 {errors.app_lang?.message && (
                                     <p className="text-[10px] text-red-400 font-medium mt-1">
                                         {t(String(errors.app_lang.message))}
@@ -332,16 +323,13 @@ export default function SettingsAdmin() {
                                         {t("settings.perPageLabel")}
                                     </label>
                                 </div>
-                                <select
+                                <InputField
                                     id="perPageSel"
+                                    type="number"
+                                    min={1}
                                     {...register("per_page")}
-                                    className="w-full bg-background border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-white/20 transition-all block cursor-pointer mt-1"
-                                >
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
+                                    className="w-full bg-background border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-white/20 transition-all block mt-1"
+                                />
                                 {errors.per_page?.message && (
                                     <p className="text-[10px] text-red-400 font-medium mt-1">
                                         {t(String(errors.per_page.message))}
@@ -384,13 +372,12 @@ export default function SettingsAdmin() {
                                     </label>
                                 </div>
                                 <div className="relative flex items-center mt-1">
-                                    <input
+                                    <InputField
                                         id="nThresh"
                                         type="number"
-                                        min="0"
-                                        step="10"
+                                        min={0}
+                                        step={10}
                                         {...register("notification_threshold")}
-                                        className="w-full bg-background border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-white/20 transition-all block"
                                     />
                                     <span
                                         className={`absolute ${isRtl ? "left-4" : "right-4"} text-xs font-black text-primary-hover pointer-events-none`}
@@ -429,14 +416,12 @@ export default function SettingsAdmin() {
                                     </label>
                                 </div>
                                 <div className="relative flex items-center mt-1">
-                                    <input
+                                    <InputField
                                         id="adminSessionExp"
                                         type="number"
-                                        min="5"
-                                        max="1440"
-                                        step="5"
+                                        min={5}
+                                        max={1440}
                                         {...register("session_expiry_minutes")}
-                                        className="w-full bg-background border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-white/20 transition-all block"
                                     />
                                     <span
                                         className={`absolute ${isRtl ? "left-4" : "right-4"} text-xs font-black text-primary-hover pointer-events-none`}
@@ -471,14 +456,12 @@ export default function SettingsAdmin() {
                                     </label>
                                 </div>
                                 <div className="relative flex items-center mt-1">
-                                    <input
+                                    <InputField
                                         id="clientSessionExp"
                                         type="number"
-                                        min="30"
-                                        max="2880"
-                                        step="30"
+                                        min={30}
+                                        max={2880}
                                         {...register("client_session_expiry_minutes")}
-                                        className="w-full bg-background border border-primary/20 text-primary-light font-bold rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-primary/30 transition-all block"
                                     />
                                     <span
                                         className={`absolute ${isRtl ? "left-4" : "right-4"} text-xs font-black text-primary-hover pointer-events-none`}

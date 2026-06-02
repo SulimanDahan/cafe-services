@@ -91,9 +91,6 @@ export const BookingModal = ({
                     phone: data.phone,
                     room_id: data.room_id,
                     date_time: data.date_time,
-                    accepted: false,
-                    completed: false,
-                    rejected: false,
                 }),
             });
 
@@ -109,7 +106,7 @@ export const BookingModal = ({
             console.error("Booking error:", err);
             alert(
                 "Booking error: " +
-                    (err instanceof Error ? err.message : String(err)),
+                (err instanceof Error ? err.message : String(err)),
             );
         }
     };

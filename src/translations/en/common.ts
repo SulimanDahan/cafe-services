@@ -3,6 +3,9 @@ export const common = {
 	logoSubtitle: "Rowaq Cafe",
 	logout: "Logout",
 	save: "Save Changes",
+	previous: "Previous",
+	next: "Next",
+	saving: "Saving",
 	cancel: "Cancel",
 	edit: "Edit",
 	delete: "Delete",
@@ -40,8 +43,10 @@ export const common = {
 	USD: "US Dollar",
 	pwaAdminTitle: "Install Admin Dashboard",
 	pwaCustomerTitle: "Install Order Application",
-	pwaAdminDesc: "Install the dashboard to track orders, reservations, and print stickers up to 3x faster than the browser!",
-	pwaCustomerDesc: "Install the menu application to your device for an ultra-fast ordering experience, smoother animations, and instant receipt tracking!",
+	pwaAdminDesc:
+		"Install the dashboard to track orders, reservations, and print stickers up to 3x faster than the browser!",
+	pwaCustomerDesc:
+		"Install the menu application to your device for an ultra-fast ordering experience, smoother animations, and instant receipt tracking!",
 	pwaIosInstructAdmin: "To install on iOS: Tap the Share button",
 	pwaIosInstructCustomer: "at the bottom then select",
 	pwaIosAddBtn: "Add to Home Screen ➕",

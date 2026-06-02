@@ -75,11 +75,19 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 
         if (isStandalone) return;
 
-        // 2. If user already dismissed the prompt in this session, do not show again
-        const isDismissed = sessionStorage.getItem(
-            `pwa_prompt_dismissed_${appType}`,
+        // 2. If user already dismissed the prompt in the last 24 hours, do not show
+        const dismissedAtStr = localStorage.getItem(
+            `pwa_prompt_dismissed_at_${appType}`,
         );
-        if (isDismissed === "true") return;
+        if (dismissedAtStr) {
+            const dismissedAt = parseInt(dismissedAtStr, 10);
+            const now = Date.now();
+            if (now - dismissedAt < 24 * 60 * 60 * 1000) {
+                return;
+            } else {
+                localStorage.removeItem(`pwa_prompt_dismissed_at_${appType}`);
+            }
+        }
 
         // 3. Detect Platform
         const userAgent = navigator.userAgent || "";
@@ -146,7 +154,10 @@ export default function PWAInstallBanner({ appType }: PWAInstallBannerProps) {
 
     const handleDismissClick = () => {
         setIsVisible(false);
-        sessionStorage.setItem(`pwa_prompt_dismissed_${appType}`, "true");
+        localStorage.setItem(
+            `pwa_prompt_dismissed_at_${appType}`,
+            Date.now().toString(),
+        );
     };
 
     if (!isVisible) return null;
