@@ -281,7 +281,7 @@ export default function CustomerOrderPage() {
     useEffect(() => {
         if (typeof window === "undefined" || window.jsQR) return;
         const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js";
+        script.src = "/jsqr.min.js"; // Hosted locally in /public for offline support
         script.async = true;
         document.body.appendChild(script);
         return () => {
