@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import AdminHeader from "@/components/headers/admin_header";
 import SearchInput from "@/components/SearchInput";
-import { LockIcon, BuildingIcon } from "@/components/icons";
+import { LockIcon, BuildingIcon, UndoCircleIcon, TrashIcon } from "@/components/icons";
 import BillIcon from "@/components/icons/BillIcon";
 import BoxIcon from "@/components/icons/BoxIcon";
 import MetricCard from "@/components/metric_card";
@@ -23,7 +23,7 @@ export default function AdminOrdersOperations() {
         fetchAllReservations,
         checkoutReservation,
     } = useReservation();
-    const { orders, fetchAllOrders, updateOrder } = useOrder();
+    const { orders, fetchAllOrders, updateOrder, deleteOrder } = useOrder();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState<"active" | "completed">(
@@ -110,6 +110,24 @@ export default function AdminOrdersOperations() {
         }
     };
 
+    const handleUnapproveOrder = async (orderId: string) => {
+        const success = await updateOrder(orderId, { accepted: false });
+        if (success) {
+            setToast({ text: t("orders.msgOrderUnapproveSuccess") || "تم التراجع عن اعتماد الطلب" });
+        } else {
+            setToast({ text: t("orders.msgOrderUnapproveFailed") || "فشل التراجع عن الاعتماد", isError: true });
+        }
+    };
+
+    const handleDeleteOrder = async (orderId: string) => {
+        const success = await deleteOrder(orderId);
+        if (success) {
+            setToast({ text: t("orders.msgOrderDeleteSuccess") || "تم حذف الطلب بنجاح" });
+        } else {
+            setToast({ text: t("orders.msgOrderDeleteFailed") || "فشل حذف الطلب", isError: true });
+        }
+    };
+
     // Reset page when tab or search changes
     useEffect(() => {
         (() => setCurrentPage(1))();
@@ -135,12 +153,21 @@ export default function AdminOrdersOperations() {
     const activeOnlyReservations = reservations.filter(
         (r) => r.accepted && !r.completed,
     );
-    const totalRevenue = orders.reduce(
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todayOrders = orders.filter((o) => {
+        const orderDate = new Date(o.created_at);
+        return orderDate >= today;
+    });
+
+    const totalRevenue = todayOrders.reduce(
         (sum, o) => sum + Number(o.item_price) * o.quantity,
         0,
     );
     const activeRoomsCount = activeOnlyReservations.length;
-    const totalSoldItems = orders.reduce((sum, o) => sum + o.quantity, 0);
+    const totalSoldItems = todayOrders.reduce((sum, o) => sum + o.quantity, 0);
 
     return (
         <div className="space-y-6">
@@ -401,26 +428,48 @@ export default function AdminOrdersOperations() {
                                                         </span>
 
                                                         {o.accepted ? (
-                                                            <span className="px-3 py-1.5 rounded-full text-[10px] font-black bg-green-500/10 border border-green-500/20 text-green-400">
-                                                                {t(
-                                                                    "orders.statusApproved",
+                                                            <>
+                                                                <span className="px-3 py-1.5 rounded-full text-[10px] font-black bg-green-500/10 border border-green-500/20 text-green-400">
+                                                                    {t(
+                                                                        "orders.statusApproved",
+                                                                    )}
+                                                                </span>
+                                                                {/* Undo approval button — only when reservation is active */}
+                                                                {activeTab === "active" && (
+                                                                    <button
+                                                                        onClick={() => handleUnapproveOrder(o.id)}
+                                                                        title={t("orders.btnUnapprove") || "التراجع عن الاعتماد"}
+                                                                        className="p-1.5 rounded-full text-zinc-500 hover:text-amber-400 hover:bg-amber-400/10 transition-all cursor-pointer"
+                                                                    >
+                                                                        <UndoCircleIcon className="w-4 h-4" />
+                                                                    </button>
                                                                 )}
-                                                            </span>
+                                                            </>
                                                         ) : (
                                                             activeTab ===
                                                             "active" && (
-                                                                <button
-                                                                    onClick={() =>
-                                                                        handleApproveOrder(
-                                                                            o.id,
-                                                                        )
-                                                                    }
-                                                                    className="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-background font-extrabold text-xs transition-all cursor-pointer shadow-lg shadow-primary/20"
-                                                                >
-                                                                    {t(
-                                                                        "orders.btnApprove",
-                                                                    )}
-                                                                </button>
+                                                                <>
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            handleApproveOrder(
+                                                                                o.id,
+                                                                            )
+                                                                        }
+                                                                        className="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-background font-extrabold text-xs transition-all cursor-pointer shadow-lg shadow-primary/20"
+                                                                    >
+                                                                        {t(
+                                                                            "orders.btnApprove",
+                                                                        )}
+                                                                    </button>
+                                                                    {/* Delete button — only for unapproved orders */}
+                                                                    <button
+                                                                        onClick={() => handleDeleteOrder(o.id)}
+                                                                        title={t("orders.btnDeleteOrder") || "حذف الطلب"}
+                                                                        className="p-1.5 rounded-full text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-all cursor-pointer"
+                                                                    >
+                                                                        <TrashIcon className="w-4 h-4" />
+                                                                    </button>
+                                                                </>
                                                             )
                                                         )}
                                                     </div>

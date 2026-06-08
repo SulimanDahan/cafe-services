@@ -31,10 +31,13 @@
 3. **[🚀 إعدادات التشغيل والديبلويمينت (Docker & Deployment)](docs/deployment.md)**
    دليل خطوة بخطوة لتشغيل المشروع في بيئة التطوير (Development) أو رفعه على الخادم (Production) بأعلى أداء.
 
-4. **[💾 قواعد البيانات (Prisma & PostgreSQL)](docs/database.md)**
+4. **[🪟 استضافة ويندوز المحلية (Windows Local Hosting)](docs/WINDOWS_HOSTING.md)**
+   الدليل الشامل لاستضافة النظام بشكل صامت وتلقائي على سيرفر ويندوز محلي لشبكات المايكروتيك وبدون استخدام Docker.
+
+5. **[💾 قواعد البيانات (Prisma & PostgreSQL)](docs/database.md)**
    تعرف على هيكل جداول قاعدة البيانات وكيفية مزامنتها بطريقة تمنع فقدان البيانات.
 
-5. **[🎨 واجهة المستخدم ونظام التصميم (UI, Design & CSS Variables)](docs/ui_and_design.md)**
+6. **[🎨 واجهة المستخدم ونظام التصميم (UI, Design & CSS Variables)](docs/ui_and_design.md)**
    كيف يعمل التصميم الزجاجي، وكيف يمكنك تغيير الألوان الرئيسية (Theme) في ثوانٍ.
 
 ---

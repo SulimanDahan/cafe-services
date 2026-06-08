@@ -1,6 +1,6 @@
 export const common = {
 	logoTitle: "Admin Portal",
-	logoSubtitle: "Rowaq Cafe",
+	logoSubtitle: "Rawaq Happy",
 	logout: "Logout",
 	save: "Save Changes",
 	previous: "Previous",

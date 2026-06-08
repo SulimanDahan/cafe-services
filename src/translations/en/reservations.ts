@@ -27,7 +27,8 @@ export const reservations = {
 	btnUndoAccept: "Undo Accept",
 	btnUndoActivate: "Undo Activate",
 	btnUndoComplete: "Undo Completion",
-	confirmUndoComplete: "Are you sure you want to undo the completion? The payment will also be undone and the reservation will be restored to active status.",
+	confirmUndoComplete:
+		"Are you sure you want to undo the completion? The payment will also be undone and the reservation will be restored to active status.",
 	btnUndoReject: "Undo Rejection",
 	searchRoom: "Search room name...",
 	totalRooms: "Total Rooms:",
@@ -49,7 +50,8 @@ export const reservations = {
 	formRoomName: "Detailed Room Name",
 	formRoomPlaceholder: "e.g., Room 5 VIP...",
 	roomsPageTitle: "Rooms Management",
-	roomsPageSub: "Generate physical self-service QR stickers with native printing capabilities.",
+	roomsPageSub:
+		"Generate physical self-service QR stickers with native printing capabilities.",
 	btnAddRoomTable: "Add Room",
 	statTotalTables: "Total Rooms",
 	statActiveTables: "Active & Available",
@@ -68,18 +70,24 @@ export const reservations = {
 	noTablesRegistered: "No rooms registered.",
 	modalAddPhysTitle: "Add New Room",
 	formQrToken: "Unique QR Code Token Value",
-	formQrTokenDesc: "Note: This is the actual identifier printed within the QR code. It must be unique and cannot be duplicated.",
+	formQrTokenDesc:
+		"Note: This is the actual identifier printed within the QR code. It must be unique and cannot be duplicated.",
 	btnGenerateNewQr: "Generate new random QR",
 	btnSaveTable: "Save Room",
 	stickerTitle: "Room QR Code Sticker",
 	stickerSub: "Preview physical label sticker and trigger printing.",
-	stickerCafe: "Rowaq Cafe",
+	stickerCafe: "Rawaq Happy",
 	stickerId: "ID:",
 	stickerScan: "Scan QR to view menu & order",
-	stickerScanDesc: "Requires an active, accepted booking for today's date to proceed.",
+	stickerScanDesc:
+		"Requires an active, accepted booking for today's date to proceed.",
 	btnDismissPreview: "Dismiss Preview",
 	btnPrintLabel: "Print Label Now",
-	errDuplicateQr: "Sorry! This QR token is already in use by another room. Please enter a unique token.",
+	errDuplicateQr:
+		"Sorry! This QR token is already in use by another room. Please enter a unique token.",
 	confirmDeleteTable: "Are you sure you want to delete room: (",
-	confirmDeleteTableSuffix: ")? All ordering channels associated with it will be removed.",
+	confirmDeleteTableSuffix:
+		")? All ordering channels associated with it will be removed.",
+	roomAvailable: "Room Available",
+	roomOccupied: "Room Occupied",
 };

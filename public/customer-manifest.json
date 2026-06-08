@@ -1,6 +1,6 @@
 {
-	"name": "مقهى رواق | Rowaq Cafe",
-	"short_name": "مقهى رواق",
+	"name": "استراحة رواق | Rawaq Happy",
+	"short_name": "استراحة رواق",
 	"description": "الطلب الذاتي المباشر من المقهى | Direct self-ordering from the cafe.",
 	"start_url": "/order",
 	"scope": "/order",

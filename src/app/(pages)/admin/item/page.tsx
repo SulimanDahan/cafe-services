@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import AdminHeader from "@/components/headers/admin_header";
 import SearchInput from "@/components/SearchInput";
 import {
-    UndoCircleIcon,
+    DisableIcon,
     CheckCircleIcon,
     EditIcon,
     TrashIcon,
@@ -268,7 +268,7 @@ export default function ItemsAdmin() {
                                             }
                                             icon={
                                                 !item.is_disable ? (
-                                                    <UndoCircleIcon className="w-4 h-4" />
+                                                    <DisableIcon className="w-4 h-4" />
                                                 ) : (
                                                     <CheckCircleIcon className="w-4 h-4" />
                                                 )

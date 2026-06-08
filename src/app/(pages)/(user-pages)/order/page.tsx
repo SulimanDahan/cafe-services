@@ -176,8 +176,12 @@ export default function CustomerOrderPage() {
     >("idle");
     const [scanErrorMsg, setScanErrorMsg] = useState("");
     const [forcePasskeySetting, setForcePasskeySetting] = useState(false);
+    const [settingsLoaded, setSettingsLoaded] = useState(false);
     const [enteredPasskey, setEnteredPasskey] = useState("");
     const enteredPasskeyRef = useRef("");
+
+    const [urlQrCode, setUrlQrCode] = useState<string | null>(null);
+
     useEffect(() => {
         enteredPasskeyRef.current = enteredPasskey;
     }, [enteredPasskey]);
@@ -251,10 +255,38 @@ export default function CustomerOrderPage() {
                 }
             } catch (err) {
                 console.error("Failed to fetch settings:", err);
+            } finally {
+                setSettingsLoaded(true);
             }
         };
         fetchSettings();
     }, []);
+
+    // استخراج رمز QR من الرابط (URL)
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const qr = params.get("qr");
+            if (qr) {
+                (() => setUrlQrCode(qr))();
+            }
+        }
+    }, []);
+
+    // محاولة تسجيل الدخول التلقائي من الرابط الذكي
+    useEffect(() => {
+        if (
+            settingsLoaded &&
+            urlQrCode &&
+            !forcePasskeySetting &&
+            !activeSession &&
+            scanStep === "idle" &&
+            !scanLoading
+        ) {
+            handleQrLogin({ qrCode: urlQrCode });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [settingsLoaded, urlQrCode, forcePasskeySetting, activeSession]);
 
     // البيئة وعزل الـ PWA
     useEffect(() => {
@@ -798,32 +830,53 @@ export default function CustomerOrderPage() {
                                         maxLength={6}
                                         value={enteredPasskey}
                                         onChange={(e) => {
-                                            const val = e.target.value.replace(
-                                                /\D/g,
-                                                "",
-                                            );
+                                            const val = e.target.value.replace(/\D/g, "").slice(0, 6);
                                             setEnteredPasskey(val);
                                         }}
-                                        placeholder={t(
-                                            "orders.inputPasskeyPlaceholder",
-                                        )}
-                                        className="w-full text-center bg-background border border-white/10 text-primary-light font-extrabold tracking-widest rounded-2xl px-4 py-3.5 text-base focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all block"
+                                        placeholder={t("orders.inputPasskeyPlaceholder")}
+                                        className="w-full text-center text-3xl font-black tracking-[0.5em] bg-surface-container border border-white/10 rounded-xl py-3 text-white focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-zinc-600 placeholder:text-xl placeholder:tracking-normal"
+                                        disabled={scanLoading}
                                     />
+                                    {scanStep === "error" && scanErrorMsg && (
+                                        <p className="text-[10px] text-red-400 font-medium text-center mt-2">
+                                            {scanErrorMsg}
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
-                            <div className="pt-2">
-                                <PrimaryButton
-                                    onClick={() => {
-                                        setScanStep("idle");
-                                        setScanErrorMsg("");
-                                        setIsScannerOpen(true);
-                                    }}
-                                    className="px-8 py-4 rounded-full bg-primary hover:bg-primary-hover text-background font-extrabold text-sm transition-all duration-200 shadow-xl shadow-primary/10 inline-flex items-center gap-2.5 cursor-pointer"
-                                >
-                                    <QrCodeNeonIcon className="w-5 h-5" />
-                                    <span>{t("orders.btnScan")}</span>
-                                </PrimaryButton>
+                            <div className="pt-4 flex flex-col gap-3 max-w-xs mx-auto w-full">
+                                {urlQrCode ? (
+                                    <PrimaryButton
+                                        onClick={() => handleQrLogin({ qrCode: urlQrCode })}
+                                        disabled={scanLoading || (forcePasskeySetting && enteredPasskey.length !== 6)}
+                                        className="w-full relative group overflow-hidden"
+                                        size="lg"
+                                    >
+                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                        <span className="relative flex items-center justify-center gap-2">
+                                            <QrCodeNeonIcon className="w-5 h-5" />
+                                            {t("orders.btnUnlockRoom")}
+                                        </span>
+                                    </PrimaryButton>
+                                ) : (
+                                    <PrimaryButton
+                                        onClick={() => {
+                                            setScanErrorMsg("");
+                                            setScanStep("idle");
+                                            setIsScannerOpen(true);
+                                        }}
+                                        disabled={scanLoading}
+                                        className="w-full relative group overflow-hidden"
+                                        size="lg"
+                                    >
+                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                        <span className="relative flex items-center justify-center gap-2">
+                                            <QrCodeNeonIcon className="w-5 h-5" />
+                                            {t("orders.btnScanQR")}
+                                        </span>
+                                    </PrimaryButton>
+                                )}
                             </div>
                         </div>
                     </>
@@ -837,8 +890,8 @@ export default function CustomerOrderPage() {
                                         <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                                         {t("orders.bookingVerified")}
                                     </span>
-                                    <h1 className="text-xl sm:text-2xl font-black text-white">{`${t("orders.welcomeGuestPrefix")} ${activeSession.client_name}`}</h1>
-                                    <p className="text-xs text-zinc-400 font-medium">{`${t("orders.assignedLocationPrefix")} (${activeSession.room_name}) — ${t("orders.refNumberPrefix")} ${activeSession.number}`}</p>
+                                    <h1 className="text-xl sm:text-2xl font-black text-white">{`${t("orders.welcomeGuestPrefix")} ${activeSession!.client_name}`}</h1>
+                                    <p className="text-xs text-zinc-400 font-medium">{`${t("orders.assignedLocationPrefix")} (${activeSession!.room_name}) — ${t("orders.refNumberPrefix")} ${activeSession!.number}`}</p>
                                 </div>
                                 <PrimaryButton
                                     onClick={handleLogOutSession}
@@ -906,11 +959,11 @@ export default function CustomerOrderPage() {
                                         `common.${settings.currency_name}`,
                                     )}
                                     bookingIdLabel={t("orders.bookingIdLabel")}
-                                    reservationNumber={activeSession.number}
+                                    reservationNumber={activeSession!.number}
                                     guestNameLabel={t("orders.guestNameLabel")}
-                                    clientName={activeSession.client_name}
+                                    clientName={activeSession!.client_name}
                                     tableLocLabel={t("orders.tableLocLabel")}
-                                    roomName={activeSession.room_name}
+                                    roomName={activeSession!.room_name}
                                     totalOrderedLabel={t(
                                         "orders.totalOrderedLabel",
                                     )}

@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLanguage } from "@/config/i18n";
 import { CloseIcon } from "@/components/icons";
 
@@ -31,7 +32,10 @@ export default function AdminModal({
 }: AdminModalProps) {
     const { isRtl } = useLanguage();
 
+    const [mounted, setMounted] = useState(false);
+
     useEffect(() => {
+        (() => setMounted(true))();
         if (isOpen) {
             document.body.style.overflow = "hidden";
         } else {
@@ -43,9 +47,9 @@ export default function AdminModal({
         };
     }, [isOpen]);
 
-    if (!isOpen) return null;
+    if (!isOpen || !mounted) return null;
 
-    return (
+    const modalContent = (
         <div
             className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
             dir={isRtl ? "rtl" : "ltr"}
@@ -75,4 +79,6 @@ export default function AdminModal({
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }

@@ -35,7 +35,8 @@ export const reservations = {
 	btnUndoAccept: "تراجع عن القبول",
 	btnUndoActivate: "تراجع عن التنشيط",
 	btnUndoComplete: "تراجع عن الإكمال",
-	confirmUndoComplete: "هل أنت متأكد من التراجع عن الإكمال؟ سيتم التراجع عن الدفع كذلك وإعادة الحجز للحالة النشطة.",
+	confirmUndoComplete:
+		"هل أنت متأكد من التراجع عن الإكمال؟ سيتم التراجع عن الدفع كذلك وإعادة الحجز للحالة النشطة.",
 	btnUndoReject: "تراجع عن الرفض",
 	searchRoom: "البحث باسم الغرفة...",
 	totalRooms: "إجمالي الغرف:",
@@ -57,7 +58,8 @@ export const reservations = {
 	formRoomName: "اسم الغرفة بالتفصيل",
 	formRoomPlaceholder: "مثال: غرفة VIP 2 (بجوار البيانو)...",
 	roomsPageTitle: "إدارة الغرف",
-	roomsPageSub: "توليد ملصقات الـ QR المادية للخدمة الذاتية مع الطباعة والتحكم التشغيلي الكامل.",
+	roomsPageSub:
+		"توليد ملصقات الـ QR المادية للخدمة الذاتية مع الطباعة والتحكم التشغيلي الكامل.",
 	btnAddRoomTable: "إضافة غرفة جديدة",
 	statTotalTables: "إجمالي الغرف المسجلة",
 	statActiveTables: "غرف نشطة ومتاحة",
@@ -76,18 +78,23 @@ export const reservations = {
 	noTablesRegistered: "لا توجد غرف متوفرة.",
 	modalAddPhysTitle: "إضافة غرفة مادية جديدة",
 	formQrToken: "معرّف رمز الـ QR للغرفة (فريد)",
-	formQrTokenDesc: "ملاحظة: هذا هو المعرّف الفعلي المطبوع داخل ملصق الـ QR. يجب أن يكون فريداً بالكامل ولا يتكرر لتفادي الخلط في حجوزات الغرف.",
+	formQrTokenDesc:
+		"ملاحظة: هذا هو المعرّف الفعلي المطبوع داخل ملصق الـ QR. يجب أن يكون فريداً بالكامل ولا يتكرر لتفادي الخلط في حجوزات الغرف.",
 	btnGenerateNewQr: "توليد رمز عشوائي جديد",
 	btnSaveTable: "إضافة وحفظ",
 	stickerTitle: "ملصق رمز الـ QR للغرفة",
 	stickerSub: "معاينة الملصق المادي وبدء عملية الطباعة المباشرة.",
-	stickerCafe: "رواق كافيه",
+	stickerCafe: "رواق هابي",
 	stickerId: "المعرّف:",
 	stickerScan: "وجه كاميرتك للمسح والطلب",
-	stickerScanDesc: "يتطلب وجود حجز معتمد وساري المفعول لتاريخ اليوم لبدء الطلب.",
+	stickerScanDesc:
+		"يتطلب وجود حجز معتمد وساري المفعول لتاريخ اليوم لبدء الطلب.",
 	btnDismissPreview: "إغلاق المعاينة",
 	btnPrintLabel: "طباعة الملصق الآن",
-	errDuplicateQr: "عذراً! رمز الـ QR هذا مستخدم مسبقاً لغرفة أخرى. يرجى إدخال رمز فريد.",
+	errDuplicateQr:
+		"عذراً! رمز الـ QR هذا مستخدم مسبقاً لغرفة أخرى. يرجى إدخال رمز فريد.",
 	confirmDeleteTable: "هل أنت متأكد من رغبتك في حذف الغرفة: (",
 	confirmDeleteTableSuffix: ")؟ سيتم قفل إمكانية الطلب المرتبطة بها.",
+	roomAvailable: "غرفة متاحة وفارغة",
+	roomOccupied: "غرفة مشغولة (يوجد عميل)",
 };

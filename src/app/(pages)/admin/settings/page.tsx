@@ -44,6 +44,7 @@ export default function SettingsAdmin() {
         session_expiry_minutes: string;
         client_session_expiry_minutes: string;
         force_client_order_session_passKey: boolean;
+        auto_accept_orders: boolean;
     }
 
     // React Hook Form
@@ -72,6 +73,7 @@ export default function SettingsAdmin() {
             ),
             force_client_order_session_passKey:
                 settings.force_client_order_session_passKey ?? false,
+            auto_accept_orders: settings.auto_accept_orders ?? false,
         },
     });
 
@@ -99,6 +101,7 @@ export default function SettingsAdmin() {
                     ),
                     force_client_order_session_passKey:
                         settings.force_client_order_session_passKey ?? false,
+                    auto_accept_orders: settings.auto_accept_orders ?? false,
                 },
                 { keepDirtyValues: true },
             );
@@ -146,6 +149,7 @@ export default function SettingsAdmin() {
             client_session_expiry_minutes: Number(data.client_session_expiry_minutes),
             force_client_order_session_passKey:
                 data.force_client_order_session_passKey,
+            auto_accept_orders: data.auto_accept_orders,
         });
 
         if (success) {
@@ -506,6 +510,33 @@ export default function SettingsAdmin() {
                                     {...register(
                                         "force_client_order_session_passKey",
                                     )}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:content-[''] after:content-[''] after:absolute after:top-0.5 after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-checked:after:bg-background peer-checked:after:border-transparent after:inset-s-0.5 peer-checked:after:inset-s-5.5"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Auto Accept Orders Switch */}
+                    <div className="border-t border-white/10 pt-4">
+                        <div className="flex items-center justify-between p-5 rounded-2xl border border-white/5 bg-background/30 hover:border-white/10 transition-all duration-300">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-primary/10 text-primary-hover rounded-xl">
+                                    <CheckIcon className="w-5 h-5" />
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-xs font-black text-white">
+                                        {t("settings.toggleAutoAcceptOrders")}
+                                    </span>
+                                    <span className="text-[10px] text-zinc-500 font-bold leading-relaxed max-w-lg">
+                                        {t("settings.toggleAutoAcceptOrdersDesc")}
+                                    </span>
+                                </div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input
+                                    type="checkbox"
+                                    {...register("auto_accept_orders")}
                                     className="sr-only peer"
                                 />
                                 <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:content-[''] after:content-[''] after:absolute after:top-0.5 after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-checked:after:bg-background peer-checked:after:border-transparent after:inset-s-0.5 peer-checked:after:inset-s-5.5"></div>

@@ -2,17 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 // import { ADMIN_PAGE_ROUTES } from "@/config/page_routes";
 import { useLanguage } from "@/config/i18n";
 import { defaultLoginData, LoginModel } from "@/models/data_models/login_model";
 import { LOGIN_API_ROUTE } from "@/config/api_routes";
-import {
-    ADMIN_DASHBOARD_PAGE_ROUTE,
-    MAIN_PAGE_ROUTE,
-} from "@/config/page_routes";
+import { ADMIN_DASHBOARD_PAGE_ROUTE } from "@/config/page_routes";
 import { AUTH_COOKIE_NAME } from "@/config/constants";
-import { LogoIcon, WarningIcon, ArrowIcon } from "@/components/icons";
+import { LogoIcon, WarningIcon } from "@/components/icons";
 import { InputField } from "@/components/input";
 import SpinnerIcon from "@/components/icons/SpinnerIcon";
 
@@ -23,7 +19,7 @@ import SpinnerIcon from "@/components/icons/SpinnerIcon";
  */
 export default function LoginPage() {
     const router = useRouter();
-    const { t, isRtl } = useLanguage();
+    const { t } = useLanguage();
     const [loginData, setLoginData] = useState<LoginModel>(defaultLoginData);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -153,18 +149,6 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    {/* Back Link */}
-                    <div className="mt-8 text-center">
-                        <Link
-                            href={MAIN_PAGE_ROUTE}
-                            className="inline-flex items-center gap-2 text-xs text-zinc-400 hover:text-primary-light transition-colors duration-200"
-                        >
-                            <ArrowIcon
-                                className={`w-3.5 h-3.5 ${isRtl ? "" : "rotate-180"}`}
-                            />
-                            <span>{t("login.backHome")}</span>
-                        </Link>
-                    </div>
                 </div>
 
                 {/* Footer Info */}

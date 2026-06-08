@@ -22,6 +22,8 @@ interface AdminReservationModalProps {
     onSave: (data: ReservationFormValues) => Promise<boolean>;
     rooms: { id: string; name: string; is_disable: boolean }[];
     initialData?: ReservationFormValues | null;
+    /** Set of room IDs that currently have an active session */
+    activeRoomIds?: Set<string>;
 }
 
 export default function AdminReservationModal({
@@ -30,6 +32,7 @@ export default function AdminReservationModal({
     onSave,
     rooms,
     initialData,
+    activeRoomIds = new Set(),
 }: AdminReservationModalProps) {
     const { t } = useLanguage();
 
@@ -130,15 +133,43 @@ export default function AdminReservationModal({
                 )}
 
                 {/* Room / Table selector */}
-                <InputField
-                    isSelect
-                    label={t("reservations.formAssignedRoom")}
-                    id="resRoom"
-                    {...register("room_id")}
-                    options={rooms
-                        .filter((r) => !r.is_disable)
-                        .map((r) => ({ id: r.id, name: r.name }))}
-                />
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-wide">
+                        {t("reservations.formAssignedRoom")}
+                    </label>
+                    <div className="relative">
+                        <select
+                            id="resRoom"
+                            {...register("room_id")}
+                            className="w-full bg-[#0d0f17] border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-semibold focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all appearance-none cursor-pointer pr-8"
+                        >
+                            {rooms
+                                .filter((r) => !r.is_disable)
+                                .map((r) => (
+                                    <option key={r.id} value={r.id}>
+                                        {activeRoomIds.has(r.id) ? "🔴" : "🟢"} {r.name}
+                                    </option>
+                                ))}
+                        </select>
+                        {/* Custom dropdown arrow */}
+                        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                            <svg className="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    {/* Legend */}
+                    <div className="flex items-center gap-4 mt-1">
+                        <span className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-medium">
+                            <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                            {t("reservations.roomAvailable") || "متاحة"}
+                        </span>
+                        <span className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-medium">
+                            <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+                            {t("reservations.roomOccupied") || "مشغولة"}
+                        </span>
+                    </div>
+                </div>
                 {errors.room_id?.message && (
                     <p className="text-[10px] text-red-400 font-medium mt-1">
                         {t(String(errors.room_id.message))}

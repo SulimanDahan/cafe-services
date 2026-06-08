@@ -1,7 +1,7 @@
 {
-	"name": "إدارة مقهى رواق | Rowaq Cafe Admin",
+	"name": "إدارة استراحة رواق | Rawaq Happy Admin",
 	"short_name": "إدارة رواق",
-	"description": "لوحة تحكم إدارة مقهى رواق للطلبات والحجوزات | Rowaq Cafe management dashboard for orders and reservations.",
+	"description": "لوحة تحكم إدارة استراحة رواق للطلبات والحجوزات | Rawaq Happy management dashboard for orders and reservations.",
 	"start_url": "/admin",
 	"scope": "/admin",
 	"display": "standalone",

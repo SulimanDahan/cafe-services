@@ -6,7 +6,7 @@ import AdminHeader from "@/components/headers/admin_header";
 import SearchInput from "@/components/SearchInput";
 import {
     SunIcon,
-    UndoCircleIcon,
+    DisableIcon,
     CheckIcon,
     TrashIcon,
     EditIcon,
@@ -146,7 +146,8 @@ export default function AdminRoomsPage() {
         setIsPreviewOpen(true);
 
         try {
-            const dataUrl = await QRCode.toDataURL(room.qr_code, {
+            const fullUrl = `${window.location.origin}/order?qr=${room.qr_code}`;
+            const dataUrl = await QRCode.toDataURL(fullUrl, {
                 width: 800,
                 margin: 1,
                 color: { dark: "#000000", light: "#FFFFFF" },
@@ -161,100 +162,6 @@ export default function AdminRoomsPage() {
 
     return (
         <div className="space-y-6">
-            {/* Inject print-only styles */}
-            <style jsx global>{`
-                @media print {
-                    @page {
-                        margin: 0;
-                        size: portrait;
-                        background-color: #07080a !important;
-                    }
-                    body {
-                        background-color: #07080a !important;
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                        width: 100%;
-                    }
-                    body * {
-                        visibility: hidden;
-                    }
-                    #printable-sticker,
-                    #printable-sticker * {
-                        visibility: visible;
-                    }
-                    #printable-sticker {
-                        position: absolute !important;
-                        left: 50% !important;
-                        top: 50% !important;
-                        transform: translate(-50%, -50%) !important;
-                        width: 18cm !important;
-                        height: auto !important;
-                        min-height: 25cm !important;
-                        margin: 0 !important;
-                        border-radius: 1.5cm !important;
-                        border: 2px solid rgba(255, 255, 255, 0.1) !important;
-                        /* Force the entire page background to be black by casting a massive shadow outwards */
-                        box-shadow: 0 0 0 100cm #07080a !important;
-                        box-sizing: border-box !important;
-                        display: flex !important;
-                        flex-direction: column !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        gap: 1.5cm !important;
-                        padding: 2cm !important;
-                        background-color: #07080a !important;
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                    }
-                    /* Scale elements using physical units for print */
-                    #printable-sticker .header-group {
-                        gap: 0.5cm !important;
-                        display: flex !important;
-                        flex-direction: column !important;
-                        align-items: center !important;
-                    }
-                    #printable-sticker .logo-container {
-                        width: 3.5cm !important;
-                        height: 3.5cm !important;
-                        margin-bottom: 0.5cm !important;
-                    }
-                    #printable-sticker .cafe-name {
-                        font-size: 16pt !important;
-                        text-align: center !important;
-                    }
-                    #printable-sticker .cafe-subtitle {
-                        font-size: 10pt !important;
-                        text-align: center !important;
-                        margin-top: 0.2cm !important;
-                    }
-                    #printable-sticker .room-name {
-                        font-size: 32pt !important;
-                        text-align: center !important;
-                        margin-bottom: 0.5cm !important;
-                    }
-                    #printable-sticker .qr-container {
-                        width: 12cm !important;
-                        height: 12cm !important;
-                        padding: 0.5cm !important;
-                        border-radius: 1cm !important;
-                        border: 4px solid rgba(251, 191, 36, 0.3) !important; /* amber-500/30 */
-                        background: #ffffff !important;
-                    }
-                    #printable-sticker .footer-title {
-                        font-size: 14pt !important;
-                        text-align: center !important;
-                        margin-top: 0.5cm !important;
-                    }
-                    #printable-sticker .footer-desc {
-                        font-size: 11pt !important;
-                        text-align: center !important;
-                    }
-                    .no-print {
-                        display: none !important;
-                    }
-                }
-            `}</style>
-
             {/* Page Header */}
             <AdminHeader
                 title={t("reservations.roomsPageTitle")}
@@ -342,8 +249,8 @@ export default function AdminRoomsPage() {
                                 >
                                     {!room.is_disable
                                         ? t(
-                                              "reservations.statusActiveAvailable",
-                                          )
+                                            "reservations.statusActiveAvailable",
+                                        )
                                         : t("reservations.statusOutOfService")}
                                 </Badge>
                             </td>
@@ -366,7 +273,7 @@ export default function AdminRoomsPage() {
                                         }
                                         icon={
                                             !room.is_disable ? (
-                                                <UndoCircleIcon className="w-4 h-4" />
+                                                <DisableIcon className="w-4 h-4" />
                                             ) : (
                                                 <CheckIcon className="w-4 h-4" />
                                             )
@@ -377,11 +284,11 @@ export default function AdminRoomsPage() {
                                         title={
                                             !room.is_disable
                                                 ? t(
-                                                      "reservations.actionDeactivate",
-                                                  )
+                                                    "reservations.actionDeactivate",
+                                                )
                                                 : t(
-                                                      "reservations.actionActivate",
-                                                  )
+                                                    "reservations.actionActivate",
+                                                )
                                         }
                                     />
 

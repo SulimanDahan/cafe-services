@@ -108,4 +108,5 @@ model Settings {
   created_at                         DateTime @default(now())
   updated_at                         DateTime @default(now()) @updatedAt
   force_client_order_session_passKey Boolean  @default(false)
+  auto_accept_orders                 Boolean  @default(false)
 }

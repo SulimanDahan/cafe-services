@@ -5,7 +5,7 @@ import AdminHeader from "@/components/headers/admin_header";
 import SearchInput from "@/components/SearchInput";
 import {
     UserAddIcon,
-    UndoCircleIcon,
+    DisableIcon,
     CheckCircleIcon,
     EditIcon,
     TrashIcon,
@@ -270,7 +270,7 @@ export default function UsersAdmin() {
                                         }
                                         icon={
                                             !user.is_disable ? (
-                                                <UndoCircleIcon className="w-4 h-4" />
+                                                <DisableIcon className="w-4 h-4" />
                                             ) : (
                                                 <CheckCircleIcon className="w-4 h-4" />
                                             )

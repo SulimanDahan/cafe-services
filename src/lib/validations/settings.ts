@@ -31,6 +31,7 @@ export const settingsSchema = z.object({
 			.min(1, { message: "validation.clientExpiryMinOne" }),
 	),
 	force_client_order_session_passKey: z.boolean().optional(),
+	auto_accept_orders: z.boolean().optional(),
 });
 
 export type SettingsInput = z.infer<typeof settingsSchema>;

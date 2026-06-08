@@ -57,6 +57,9 @@ export const settings = {
     toggleForcePasskey: "إجبار العميل على إدخال رمز التحقق (Passkey)",
     toggleForcePasskeyDesc:
         "يتطلب من العميل إدخال رمز التحقق الخاص بحجزه (Order Passkey) لتمكينه من إرسال الطلبات عبر رمز الـ QR.",
+    toggleAutoAcceptOrders: "اعتماد طلبات العملاء تلقائياً",
+    toggleAutoAcceptOrdersDesc:
+        "عند تفعيل هذا الخيار، سيتم قبول واعتماد كل طلب يضيفه العميل تلقائياً دون الحاجة لمراجعة يدوية من الإدارة.",
     sectionBackup: "النسخ الاحتياطي لقاعدة البيانات",
     sectionBackupDesc: "تنزيل نسخة احتياطية كاملة من قاعدة بيانات النظام بصيغة SQL لاستعادتها أو حفظها في مكان آمن.",
     btnDownloadBackup: "تحميل النسخة الاحتياطية الآن (SQL)",

@@ -7,7 +7,7 @@ import SearchInput from "@/components/SearchInput";
 import { useLanguage } from "@/config/i18n";
 import { useSettings } from "@/context/settings_context";
 import {
-    UndoCircleIcon,
+    DisableIcon,
     CheckCircleIcon,
     EditIcon,
     TrashIcon,
@@ -190,7 +190,7 @@ export default function ItemGroupsAdmin() {
                                         }
                                         icon={
                                             !group.is_disable ? (
-                                                <UndoCircleIcon className="w-4 h-4" />
+                                                <DisableIcon className="w-4 h-4" />
                                             ) : (
                                                 <CheckCircleIcon className="w-4 h-4" />
                                             )

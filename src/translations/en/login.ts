@@ -10,5 +10,5 @@ export const login = {
 	errorInvalid: "Invalid username or password!",
 	errorRequired: "Please enter both username and password.",
 	backHome: "Return to Homepage",
-	footerInfo: "Rowaq Cafe • Version 1.0.0",
+	footerInfo: "Rawaq Happy • Version 1.0.0",
 };

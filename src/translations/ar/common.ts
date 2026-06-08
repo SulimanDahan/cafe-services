@@ -1,6 +1,6 @@
 export const common = {
 	logoTitle: "بوابة الإدارة",
-	logoSubtitle: "رواق كافيه",
+	logoSubtitle: "رواق هابي",
 	logout: "تسجيل الخروج",
 	save: "حفظ التغييرات",
 	saving: "جاري الحفظ",

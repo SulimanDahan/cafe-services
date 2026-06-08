@@ -2,6 +2,7 @@
 	"name": "cafe-services",
 	"version": "1.0.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"dev": "next dev",
 		"dev:win": "next dev --webpack",
@@ -37,10 +38,11 @@
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"babel-plugin-react-compiler": "1.0.0",
-		"dotenv": "^16.4.7",
+		"dotenv": "^16.6.1",
 		"eslint": "^9",
 		"eslint-config-next": "16.2.6",
 		"prisma": "^7.8.0",
+		"selfsigned": "^5.5.0",
 		"tailwindcss": "^4",
 		"tsx": "^4.21.0",
 		"typescript": "^5"

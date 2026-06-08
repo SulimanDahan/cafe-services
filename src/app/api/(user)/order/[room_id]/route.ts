@@ -78,6 +78,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
 
 		const orders = [];
 
+		// Check auto-accept setting once before the loop
+		const orderSettings = await getSystemSettings();
+		const autoAccept = orderSettings?.auto_accept_orders ?? false;
+
 		for (const item of items) {
 			const dbItem = await prisma.item.findUnique({
 				where: { id: item.id },
@@ -89,6 +93,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
 						item_id: item.id,
 						item_price: dbItem.price,
 						quantity: item.quantity,
+						// Auto-accept the order if the setting is enabled
+						accepted: autoAccept,
 					},
 					include: { item: true },
 				});

@@ -89,6 +89,13 @@ export default function ReservationsAdmin() {
 
     const perPage = settings.per_page || 10;
 
+    // Compute set of room IDs that currently have an active (activated, not completed) reservation
+    const activeRoomIds = new Set(
+        reservations
+            .filter((r) => r.activated && !r.completed && !r.rejected)
+            .map((r) => r.room_id),
+    );
+
     // Server-fetch reservations when page, search, tab or showPast changes
     useEffect(() => {
         const params: Record<string, string> = {
@@ -552,6 +559,7 @@ export default function ReservationsAdmin() {
                 }}
                 onSave={handleSaveReservation}
                 rooms={rooms}
+                activeRoomIds={activeRoomIds}
                 initialData={
                     editingRes
                         ? {

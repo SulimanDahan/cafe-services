@@ -36,6 +36,7 @@ export { default as LockIcon } from "./lock_icon";
 export * from "./qrcode_icon";
 export * from "./types";
 export { default as EnableCircleIcon } from "./EnableCircleIcon";
+export { default as DisableIcon } from "./DisableIcon";
 export { default as TvIcon } from "./TvIcon";
 export { default as WifiIcon } from "./WifiIcon";
 export { default as HookahIcon } from "./HookahIcon";

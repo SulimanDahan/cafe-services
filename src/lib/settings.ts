@@ -43,6 +43,7 @@ export async function getSystemSettings() {
 						session_expiry_minutes: 60,
 						client_session_expiry_minutes: 360,
 						force_client_order_session_passKey: false,
+						auto_accept_orders: false,
 					},
 				});
 			} catch {
@@ -66,6 +67,7 @@ export async function getSystemSettings() {
 			session_expiry_minutes: 60,
 			client_session_expiry_minutes: 360,
 			force_client_order_session_passKey: false,
+			auto_accept_orders: false,
 			created_at: new Date(),
 			updated_at: new Date(),
 		};
