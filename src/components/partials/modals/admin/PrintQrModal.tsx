@@ -52,9 +52,19 @@ export default function PrintQrModal({
                     #admin-layout-root, .no-print {
                         display: none !important;
                     }
-                    /* Hide the modal's shell (title, close button, borders, background) */
+                    /* Hide the modal's shell visually */
                     body * {
                         visibility: hidden !important;
+                    }
+                    /* Reset ALL parent paddings and flex centerings that push the sticker down */
+                    .fixed.inset-0,
+                    .fixed.inset-0 > div,
+                    .fixed.inset-0 > div > div {
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        display: flex !important;
+                        justify-content: center !important;
+                        align-items: center !important;
                     }
                     /* Make the sticker and its children visible */
                     #printable-sticker,
@@ -66,14 +76,15 @@ export default function PrintQrModal({
                         top: 0 !important;
                         left: 0 !important;
                         margin: 0 !important;
+                        margin-right: -0.8cm !important;
                         width: 100% !important;
                         height: 100vh !important;
-                        padding: 0 0cm !important;
+                        padding: 0 !important;
                         box-sizing: border-box !important;
                         display: flex !important;
                         flex-direction: column !important;
                         align-items: center !important;
-                        justify-content: flex-start !important;
+                        justify-content: center !important;
                         background-color: #07080a !important;
                         border: none !important;
                         border-radius: 0 !important;
@@ -89,8 +100,8 @@ export default function PrintQrModal({
                         margin-bottom: 0.5cm !important;
                     }
                     #printable-sticker .logo-container {
-                        width: 4cm !important;
-                        height: 4cm !important;
+                        width: 6cm !important;
+                        height: 6cm !important;
                     }
                     #printable-sticker .cafe-name {
                         font-size: 26pt !important;
@@ -98,20 +109,18 @@ export default function PrintQrModal({
                         line-height: 1.2 !important;
                     }
                     #printable-sticker .cafe-subtitle {
-                        font-size: 14pt !important;
-                        text-align: center !important;
-                        color: #fbbf24 !important; /* Primary hover color */
+                        display: none !important;
                     }
                     #printable-sticker .room-name {
                         font-size: 42pt !important;
                         text-align: center !important;
-                        margin-top: 2cm !important;
+                        margin-top: 1cm !important;
                         margin-bottom: 1cm !important;
                     }
                     /* QR code container — white background required for scanning */
                     #printable-sticker .qr-container {
-                        width: 11cm !important;
-                        height: 11cm !important;
+                        width: 14cm !important;
+                        height: 14cm !important;
                         padding: 0.5cm !important;
                         border-radius: 0.8cm !important;
                         background: #ffffff !important;
@@ -155,7 +164,7 @@ export default function PrintQrModal({
                 title={t("reservations.stickerTitle")}
             >
                 <div className="space-y-6">
-                    <p className="text-xs text-zinc-400 -mt-2 text-center">
+                    <p className="text-xs text-zinc-400 -mt-2 text-center print:hidden">
                         {t("reservations.stickerSub")}
                     </p>
 
@@ -168,7 +177,7 @@ export default function PrintQrModal({
                                 <LogoIcon className="w-full h-full sticker-logo drop-shadow-md text-primary" />
                             </div>
                             <div className="text-left font-black tracking-wide leading-none text-white cafe-text-group">
-                                <p className="text-[10px] cafe-name">
+                                <p className="text-[10px] cafe-name print:hidden">
                                     {t("reservations.stickerCafe")}
                                 </p>
                                 <p className="text-[7px] text-primary-hover/90 tracking-widest uppercase mt-0.5 cafe-subtitle print:hidden">
