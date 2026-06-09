@@ -184,7 +184,6 @@ export default function AdminLayoutClient({ children }: LayoutProps) {
         return (
             <>
                 {children}
-                {isLoading && <PageLoader />}
             </>
         );
     }

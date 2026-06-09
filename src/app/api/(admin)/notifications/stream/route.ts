@@ -61,14 +61,33 @@ export async function GET(req: NextRequest) {
 	notificationEmitter.on("new-order", onNewOrder);
 	notificationEmitter.on("order-deleted", onOrderDeleted);
 
-	// 3. Keep Connection Alive (Ping)
-	const pingInterval = setInterval(() => {
+	// 3. Keep Connection Alive & Monitor Pending Status
+    const intervalSeconds = parseInt(process.env.ALARM_INTERVAL_SECONDS || "10", 10);
+	const pingInterval = setInterval(async () => {
 		try {
 			writer.write(encoder.encode(": ping\n\n"));
+            
+            // Check for unapproved reservations (not accepted, not rejected, not completed)
+            const pendingReservations = await prisma.reservation.count({
+                where: { accepted: false, rejected: false, completed: false }
+            });
+            // Check for unapproved orders belonging to active reservations
+            const pendingOrders = await prisma.order.count({
+                where: { 
+                    accepted: false,
+                    reservation: {
+                        completed: false,
+                        rejected: false
+                    }
+                }
+            });
+            
+            sendEvent("pending-status", { pendingReservations, pendingOrders });
+
 		} catch (err) {
-			console.error("Failed sending ping:", err);
+			console.error("Failed sending ping or pending status:", err);
 		}
-	}, 20000); // Send ping every 20 seconds
+	}, intervalSeconds * 1000); // Dynamic interval based on .env
 
 	const cleanup = () => {
 		clearInterval(pingInterval);

@@ -146,4 +146,6 @@ export const orders = {
 	btnScanQR: "التقط رمز الـ QR",
 	pendingCart: "سلة الطلبات المؤقتة",
 	confirmSend: "تأكيد وإرسال الطلبات",
+	btnUnlockRoom: "تسجيل الدخول وفتح الجلسة",
+	orderAcceptedSuccess: "تم اعتماد طلبك والبدء في تجهيزه!",
 };

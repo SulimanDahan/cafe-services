@@ -145,4 +145,6 @@ export const orders = {
 	btnScanQR: "Scan QR Code",
 	pendingCart: "Pending Cart",
 	confirmSend: "Confirm and Send Orders",
+	btnUnlockRoom: "Log in and Unlock Session",
+	orderAcceptedSuccess: "Your order has been approved and is being prepared!",
 };

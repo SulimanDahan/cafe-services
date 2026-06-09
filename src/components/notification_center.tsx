@@ -3,12 +3,10 @@ import {
     NOTIFICATION_API_ROUTE,
     NOTIFICATION_STREAM_API_ROUTE,
 } from "@/config/api_routes";
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useEffect, useState, useRef } from "react";
 import { BellIcon } from "./icons";
 import { useLanguage } from "@/config/i18n";
+import { playAdminChime } from "@/lib/audio";
 
 interface Notification {
     id: string;
@@ -30,54 +28,12 @@ export default function NotificationCenter() {
     const [toasts, setToasts] = useState<Notification[]>([]);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    /**
-    * Synthesizes a beautiful harmonic chime (E5 and G5 chord) natively via Web Audio API.
-    * Bypasses the need for downloading/hosting external `.mp3` audio files.
-    */
-    const playChime = () => {
-        if (typeof window === "undefined") return;
-        try {
-            const AudioContext =
-                window.AudioContext || (window as any).webkitAudioContext;
-            if (!AudioContext) return;
-            const ctx = new AudioContext();
-
-            const playTone = (
-                freq: number,
-                start: number,
-                duration: number,
-            ) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-
-                osc.type = "sine";
-                osc.frequency.setValueAtTime(freq, start);
-
-                gain.gain.setValueAtTime(0.12, start);
-                gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
-
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-
-                osc.start(start);
-                osc.stop(start + duration);
-            };
-
-            const now = ctx.currentTime;
-            // Beautiful harmonic interval: E5 (659.25Hz) followed by G5 (783.99Hz)
-            playTone(659.25, now, 0.15);
-            playTone(783.99, now + 0.08, 0.3);
-        } catch (e) {
-            console.warn("AudioContext playback blocked or failed:", e);
-        }
-    };
-
     // Connect to Real-time SSE Stream
     useEffect(() => {
         const eventSource = new EventSource(NOTIFICATION_STREAM_API_ROUTE);
 
         // Initial load of previous notifications
-        eventSource.addEventListener("initial-notifications", (event: any) => {
+        eventSource.addEventListener("initial-notifications", (event: MessageEvent) => {
             try {
                 const data = JSON.parse(event.data);
                 setNotifications(data);
@@ -87,7 +43,7 @@ export default function NotificationCenter() {
         });
 
         // Handle new real-time notification
-        eventSource.addEventListener("new-notification", (event: any) => {
+        eventSource.addEventListener("new-notification", (event: MessageEvent) => {
             try {
                 const notification = JSON.parse(event.data);
 
@@ -98,7 +54,7 @@ export default function NotificationCenter() {
                 setToasts((prev) => [...prev, notification]);
 
                 // Play audio chime
-                playChime();
+                playAdminChime();
 
                 // Auto remove toast after 5 seconds
                 setTimeout(() => {
@@ -108,6 +64,18 @@ export default function NotificationCenter() {
                 }, 5000);
             } catch (err) {
                 console.error("Error parsing new notification:", err);
+            }
+        });
+
+        // Listen for recurring pending status to repeat chime for unapproved items
+        eventSource.addEventListener("pending-status", (event: MessageEvent) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.pendingReservations > 0 || data.pendingOrders > 0) {
+                    playAdminChime();
+                }
+            } catch (err) {
+                console.error("Error parsing pending status:", err);
             }
         });
 

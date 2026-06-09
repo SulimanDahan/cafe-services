@@ -146,7 +146,8 @@ export default function AdminRoomsPage() {
         setIsPreviewOpen(true);
 
         try {
-            const fullUrl = `${window.location.origin}/order?qr=${room.qr_code}`;
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+            const fullUrl = `${baseUrl}/order?qr=${room.qr_code}`;
             const dataUrl = await QRCode.toDataURL(fullUrl, {
                 width: 800,
                 margin: 1,

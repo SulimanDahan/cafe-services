@@ -15,6 +15,7 @@ const DrawerButton = ({ link, setIsMobileOpen, isActive }: LinkType) => {
 		<Link
 			key={link.path}
 			href={link.path}
+            prefetch={true}
 			onClick={() => setIsMobileOpen(false)}
 			className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all duration-200 relative group ${isActive
 				? "bg-primary/10 text-primary-light border-s-4 border-s-primary"

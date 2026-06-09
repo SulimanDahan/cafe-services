@@ -18,6 +18,7 @@ import { LogoutIcon, LockIcon } from "@/components/icons";
 import TabBar from "@/components/tab_bar";
 import MenuItemCard from "@/components/partials/orders/menu_item_card";
 import { InputField } from "@/components/input";
+import { playCustomerChime } from "@/lib/audio";
 
 interface Reservation {
     id: string;
@@ -91,6 +92,31 @@ export default function CustomerOrderPage() {
         text: string;
         isError?: boolean;
     } | null>(null);
+
+    const previousOrdersRef = useRef<Order[]>([]);
+
+
+    useEffect(() => {
+        const prevOrders = previousOrdersRef.current;
+        if (prevOrders.length > 0 && orders.length > 0) {
+            // Find if any order changed from !accepted to accepted
+            const newlyAccepted = orders.some((currentOrder) => {
+                if (!currentOrder.accepted) return false;
+                const prevOrder = prevOrders.find((o) => o.id === currentOrder.id);
+                // If it existed before and was NOT accepted, but is now accepted
+                return prevOrder && !prevOrder.accepted;
+            });
+
+            if (newlyAccepted) {
+                playCustomerChime();
+                setActionMessage({
+                    text: t("orders.orderAcceptedSuccess") || "Your order has been approved!",
+                    isError: false,
+                });
+            }
+        }
+        previousOrdersRef.current = orders;
+    }, [orders, t]);
 
     // Load dynamic menu items, groups, and active orders from database
     const fetchMenuAndOrders = useCallback(async () => {
