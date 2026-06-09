@@ -28,4 +28,7 @@ export const item = {
     formPlaceholderNameAr: "مثال: قهوة كابتشينو...",
     formLabelPrice: "السعر الفردي",
     formLabelCategory: "المجموعة التصنيفية المندرجة",
+    colImage: "الصورة",
+    noImage: "لا صورة",
+    formLabelImage: "صورة الصنف",
 };

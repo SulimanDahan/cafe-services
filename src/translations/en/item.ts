@@ -28,4 +28,7 @@ export const item = {
 	formPlaceholderNameAr: "e.g., Flat White...",
 	formLabelPrice: "Unit Price",
 	formLabelCategory: "Assigned Category",
+	colImage: "Image",
+	noImage: "No Image",
+	formLabelImage: "Item Image",
 };

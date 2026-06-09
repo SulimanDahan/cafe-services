@@ -1,11 +1,14 @@
 "use client";
 
 import PlusIcon from "@/components/icons/PlusIcon";
+import LogoIcon from "@/components/icons/LogoIcon";
+import Image from "next/image";
 
 interface MenuItem {
     id: string;
     name: string;
     price: number | string;
+    image?: string | null;
     group?: {
         id: string;
         name: string;
@@ -43,18 +46,36 @@ export default function MenuItemCard({
     addOrderLabel,
 }: MenuItemCardProps) {
     return (
-        <div className="rounded-3xl border border-white/10 bg-surface p-5.5 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between gap-4 group shadow-md">
+        <div className="rounded-3xl border border-white/10 bg-surface p-4 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between gap-4 group shadow-md overflow-hidden">
+            <div className="relative w-full h-32 rounded-2xl overflow-hidden mb-2 shrink-0 bg-surface-lighter flex items-center justify-center">
+                {item.image ? (
+                    <>
+                        <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-110"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent pointer-events-none" />
+                    </>
+                ) : (
+                    <div className="flex flex-col items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity duration-300 w-full h-full">
+                        <LogoIcon className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 text-white transition-all" />
+                    </div>
+                )}
+            </div>
             <div className="space-y-2">
                 <div className="flex justify-between items-start gap-2">
-                    <span className="px-2.5 py-1 rounded-full text-[9px] font-black bg-[#0d0f17] text-primary-hover/90 border border-white/5">
+                    <span className="px-2.5 py-1 rounded-full text-[9px] font-black bg-[#0d0f17] text-primary-hover/90 border border-white/5 shrink-0">
                         {item.group?.name}
                     </span>
-                    <span className="text-xs font-black text-primary-hover">
+                    <span className="text-xs font-black text-primary-hover whitespace-nowrap">
                         {Number(item.price).toLocaleString("en-US")}{" "}
                         {currencyLabel}
                     </span>
                 </div>
-                <h3 className="text-sm font-black text-white group-hover:text-primary-light transition-colors">
+                <h3 className="text-sm font-black text-white group-hover:text-primary-light transition-colors line-clamp-2">
                     {item.name}
                 </h3>
             </div>

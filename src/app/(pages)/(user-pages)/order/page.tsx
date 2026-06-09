@@ -88,6 +88,7 @@ export default function CustomerOrderPage() {
     const [quantities, setQuantities] = useState<Record<string, number>>({});
 
     const [activeCategory, setActiveCategory] = useState<string>("all");
+    const [searchQuery, setSearchQuery] = useState("");
     const [actionMessage, setActionMessage] = useState<{
         text: string;
         isError?: boolean;
@@ -592,8 +593,9 @@ export default function CustomerOrderPage() {
     const totalBill = totalSavedBill + totalCartBill;
 
     const filteredItems = menuItems.filter((item) => {
-        if (activeCategory === "all") return true;
-        return item.group_id === activeCategory;
+        const matchesCategory = activeCategory === "all" || item.group_id === activeCategory;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
     });
 
     if (isAdminAppBlock) {
@@ -806,6 +808,19 @@ export default function CustomerOrderPage() {
                                         ]}
                                         activeTab={activeCategory}
                                         onChange={setActiveCategory}
+                                    />
+                                </div>
+
+                                <div className="animate-fade-in relative">
+                                    <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                        <span className="text-zinc-500 font-bold text-lg">⌕</span>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder={t("common.search") || "ابحث عن صنف..."}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full bg-surface-container border border-white/10 rounded-2xl py-3 pr-10 pl-4 text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold"
                                     />
                                 </div>
 

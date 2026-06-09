@@ -30,7 +30,6 @@ export async function generateMetadata() {
     return {
         title: t("common.logoTitle") + " - " + t("common.logoSubtitle"),
         description: t("common.logoSubtitle"),
-        manifest: "/customer-manifest.json?v=2",
     };
 }
 

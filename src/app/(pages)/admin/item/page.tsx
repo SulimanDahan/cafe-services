@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 import AdminHeader from "@/components/headers/admin_header";
 import SearchInput from "@/components/SearchInput";
@@ -45,6 +46,7 @@ export default function ItemsAdmin() {
     const { groups, fetchAllGroups } = useItemGroup();
 
     const columns: TableColumn[] = [
+        { key: "image", label: t("item.colImage"), align: "center" },
         { key: "name", label: t("item.colNameAr") },
         { key: "category", label: t("item.colCategory") },
         { key: "price", label: t("item.columnPrice") },
@@ -59,13 +61,6 @@ export default function ItemsAdmin() {
     const [errorModalMsg, setErrorModalMsg] = useState<string | null>(null);
     const [editingItem, setEditingItem] = useState<ItemModel | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-
-    // Form submission data structure
-    interface ItemFormValues {
-        name: string;
-        price: string;
-        group_id: string;
-    }
 
     const perPage = settings.per_page || 10;
 
@@ -106,27 +101,19 @@ export default function ItemsAdmin() {
         setIsOpen(true);
     };
 
-    const handleSave = async (data: ItemFormValues): Promise<boolean> => {
+    const handleSave = async (formData: FormData): Promise<boolean> => {
         let success = false;
         let apiErrorKey: string | null = null;
         if (editingItem) {
             success = await updateItem(
                 editingItem.id,
-                {
-                    name: data.name,
-                    price: parseFloat(data.price),
-                    group_id: data.group_id,
-                },
+                formData,
                 (errKey) => {
                     apiErrorKey = errKey;
                 }
             );
         } else {
-            success = await addItem({
-                name: data.name,
-                price: parseFloat(data.price),
-                group_id: data.group_id,
-            });
+            success = await addItem(formData);
         }
 
         if (!success) {
@@ -222,6 +209,17 @@ export default function ItemsAdmin() {
                                 key={item.id}
                                 className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200"
                             >
+                                <td className="py-4 px-4 text-center whitespace-nowrap">
+                                    {item.image ? (
+                                        <div className="relative w-10 h-10 mx-auto rounded-full overflow-hidden border border-white/10">
+                                            <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-10 h-10 mx-auto rounded-full bg-surface border border-white/5 flex items-center justify-center">
+                                            <span className="text-[10px] text-zinc-500 font-bold">{t("item.noImage")}</span>
+                                        </div>
+                                    )}
+                                </td>
                                 <td
                                     className={`py-4 px-4 font-bold text-white group-hover:text-primary-light transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
                                 >

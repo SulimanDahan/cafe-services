@@ -10,6 +10,7 @@ export const itemSchema = z.object({
     ),
     group_id: z.string().uuid({ message: "validation.categoryIdRequired" }),
     is_disable: z.boolean().optional(),
+    image: z.any().optional(),
 });
 
 export type ItemInput = z.infer<typeof itemSchema>;

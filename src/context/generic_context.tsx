@@ -25,8 +25,8 @@ export interface GenericContextType<T> {
     clear: () => void;
     refresh: () => Promise<T | null>;
     fetchAll: (queryParams?: Record<string, string>) => Promise<void>;
-    add: (itemData: Partial<T>) => Promise<boolean>;
-    update: (id: string, itemData: Partial<T>, onError?: (err: string) => void) => Promise<boolean>;
+    add: (itemData: Partial<T> | FormData) => Promise<boolean>;
+    update: (id: string, itemData: Partial<T> | FormData, onError?: (err: string) => void) => Promise<boolean>;
     deleteItem: (id: string, onError?: (err: string) => void) => Promise<boolean>;
 }
 
@@ -147,12 +147,18 @@ export function useGenericCrudLogic<T>({
     );
 
     const add = useCallback(
-        async (itemData: Partial<T>) => {
+        async (itemData: Partial<T> | FormData) => {
             try {
+                const isFormData = itemData instanceof FormData;
+                const headers: HeadersInit = {};
+                if (!isFormData) {
+                    headers["Content-Type"] = "application/json";
+                }
+
                 const response = await fetch(apiRoute, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(itemData),
+                    headers,
+                    body: isFormData ? (itemData as FormData) : JSON.stringify(itemData),
                 });
                 if (response.ok) {
                     const result = await response.json();
@@ -171,12 +177,18 @@ export function useGenericCrudLogic<T>({
     );
 
     const update = useCallback(
-        async (id: string, itemData: Partial<T>, onError?: (err: string) => void) => {
+        async (id: string, itemData: Partial<T> | FormData, onError?: (err: string) => void) => {
             try {
+                const isFormData = itemData instanceof FormData;
+                const headers: HeadersInit = {};
+                if (!isFormData) {
+                    headers["Content-Type"] = "application/json";
+                }
+
                 const response = await fetch(`${apiRoute}/${id}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(itemData),
+                    headers,
+                    body: isFormData ? (itemData as FormData) : JSON.stringify(itemData),
                 });
                 if (response.ok) {
                     const result = await response.json();
@@ -198,7 +210,7 @@ export function useGenericCrudLogic<T>({
             } catch (error) {
                 console.error(`Failed to update:`, error);
                 if (onError) {
-                    onError("apiMessages.error.serverError");
+                    onError("apiMessages.error.networkError");
                 }
                 return false;
             }

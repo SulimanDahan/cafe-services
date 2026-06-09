@@ -16,8 +16,8 @@ interface ItemContextType {
     totalPages: number;
     isItemsLoading: boolean;
     fetchAllItems: (queryParams?: Record<string, string>) => Promise<void>;
-    addItem: (data: Partial<ItemModel>) => Promise<boolean>;
-    updateItem: (id: string, data: Partial<ItemModel>, onError?: (err: string) => void) => Promise<boolean>;
+    addItem: (data: Partial<ItemModel> | FormData) => Promise<boolean>;
+    updateItem: (id: string, data: Partial<ItemModel> | FormData, onError?: (err: string) => void) => Promise<boolean>;
     deleteItem: (
         id: string,
         onError?: (err: string) => void,

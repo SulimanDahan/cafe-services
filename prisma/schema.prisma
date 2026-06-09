@@ -60,6 +60,7 @@ model Item {
   price      Decimal   @default(0)
   group_id   String
   is_disable Boolean   @default(false)
+  image      String?
   created_at DateTime  @default(now())
   updated_at DateTime  @default(now()) @updatedAt
   group      ItemGroup @relation(fields: [group_id], references: [id])
