@@ -14,27 +14,10 @@ import { PrimaryButton } from "@/components/button/primary_button";
 import AdminBlockOverlay from "@/components/partials/orders/admin_block_overlay";
 import Billing from "@/components/partials/orders/billing";
 import ActiveOrdersList from "@/components/partials/orders/active_orders_list";
-import QrScannerModal from "@/components/partials/modals/qrscan_modal";
-import { LogoutIcon, LockIcon, QrCodeNeonIcon } from "@/components/icons";
+import { LogoutIcon, LockIcon } from "@/components/icons";
 import TabBar from "@/components/tab_bar";
 import MenuItemCard from "@/components/partials/orders/menu_item_card";
-
-declare global {
-    interface Window {
-        jsQR?: (
-            data: Uint8ClampedArray,
-            width: number,
-            height: number,
-            options?: {
-                inversionAttempts?:
-                | "dontInvert"
-                | "always"
-                | "invert"
-                | "attemptBoth";
-            },
-        ) => { data: string } | null;
-    }
-}
+import { InputField } from "@/components/input";
 
 interface Reservation {
     id: string;
@@ -92,6 +75,8 @@ export default function CustomerOrderPage() {
     const [isAdminAppBlock, setIsAdminAppBlock] = useState(false);
 
     const [orders, setOrders] = useState<Order[]>([]);
+    const [cartItems, setCartItems] = useState<{ item: MenuItem; quantity: number }[]>([]);
+    const [isConfirming, setIsConfirming] = useState(false);
 
     const [activeSession, setActiveSession] = useState<Reservation | null>(null);
 
@@ -169,7 +154,6 @@ export default function CustomerOrderPage() {
     }, [activeSession, isRtl, t]);
 
     // حالات الـ QR الكاميرا والمحاكاة
-    const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [scanLoading, setScanLoading] = useState(false);
     const [scanStep, setScanStep] = useState<
         "idle" | "scanning" | "error" | "success"
@@ -181,15 +165,11 @@ export default function CustomerOrderPage() {
     const enteredPasskeyRef = useRef("");
 
     const [urlQrCode, setUrlQrCode] = useState<string | null>(null);
+    const [selectedRoomId, setSelectedRoomId] = useState("");
 
     useEffect(() => {
         enteredPasskeyRef.current = enteredPasskey;
     }, [enteredPasskey]);
-    const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-
-    const videoRef = useRef<HTMLVideoElement | null>(null);
-    const scanIntervalRef = useRef<number | null>(null);
-
     const [hasMounted, setHasMounted] = useState(false);
     useEffect(() => {
         (() => setHasMounted(true))();
@@ -278,12 +258,15 @@ export default function CustomerOrderPage() {
         if (
             settingsLoaded &&
             urlQrCode &&
-            !forcePasskeySetting &&
             !activeSession &&
             scanStep === "idle" &&
             !scanLoading
         ) {
-            handleQrLogin({ qrCode: urlQrCode });
+            if (forcePasskeySetting) {
+                // Wait for user to input passkey in the main form
+            } else {
+                handleQrLogin({ qrCode: urlQrCode });
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [settingsLoaded, urlQrCode, forcePasskeySetting, activeSession]);
@@ -309,99 +292,9 @@ export default function CustomerOrderPage() {
         }
     }, []);
 
-    // تحميل مكتبة jsQR ديناميكياً
-    useEffect(() => {
-        if (typeof window === "undefined" || window.jsQR) return;
-        const script = document.createElement("script");
-        script.src = "/jsqr.min.js"; // Hosted locally in /public for offline support
-        script.async = true;
-        document.body.appendChild(script);
-        return () => {
-            try {
-                document.body.removeChild(script);
-            } catch { }
-        };
-    }, []);
-
-    // حلقة مسح الكاميرا بحثاً عن الكود
-    function startQrScanningLoop(
-        videoElement: HTMLVideoElement,
-        stream: MediaStream,
-    ) {
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-
-        const scan = () => {
-            if (
-                !isScannerOpen ||
-                !videoElement ||
-                videoElement.paused ||
-                videoElement.ended
-            ) {
-                scanIntervalRef.current = requestAnimationFrame(scan);
-                return;
-            }
-            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-                canvas.width = 320;
-                canvas.height = 240;
-                context?.drawImage(
-                    videoElement,
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height,
-                );
-                const imageData = context?.getImageData(
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height,
-                );
-
-                if (imageData && window.jsQR) {
-                    const code = window.jsQR(
-                        imageData.data,
-                        imageData.width,
-                        imageData.height,
-                        {
-                            inversionAttempts: "dontInvert",
-                        },
-                    );
-                    if (code && code.data) {
-                        handleQrDecoded(code.data, stream);
-                        return;
-                    }
-                }
-            }
-            scanIntervalRef.current = requestAnimationFrame(scan);
-        };
-        scanIntervalRef.current = requestAnimationFrame(scan);
-    }
-
-    function triggerResumeScanning() {
-        setTimeout(() => {
-            if (isScannerOpen && videoRef.current) {
-                setScanStep("scanning");
-                setScanErrorMsg("");
-                navigator.mediaDevices
-                    .getUserMedia({ video: { facingMode: "environment" } })
-                    .then((newStream) => {
-                        if (videoRef.current) {
-                            videoRef.current.srcObject = newStream;
-                            videoRef.current.play().catch(() => { });
-                            setCameraStream(newStream);
-                            startQrScanningLoop(videoRef.current, newStream);
-                        }
-                    })
-                    .catch(() => { });
-            }
-        }, 3500);
-    }
-
     async function handleQrLogin(
         { roomId, qrCode }: { roomId?: string; qrCode?: string },
         tableName?: string,
-        resumeOnFailure: boolean = false,
     ) {
         setScanLoading(true);
         setScanStep("scanning");
@@ -416,9 +309,6 @@ export default function CustomerOrderPage() {
             setScanLoading(false);
             setScanStep("error");
             setScanErrorMsg(t("orders.errPasskeyRequired"));
-            if (resumeOnFailure) {
-                triggerResumeScanning();
-            }
             return;
         }
 
@@ -455,7 +345,6 @@ export default function CustomerOrderPage() {
                         .replace("{tableName}", sessionData.room_name),
                 });
                 setTimeout(() => {
-                    setIsScannerOpen(false);
                     setScanStep("idle");
                 }, 1200);
             } else {
@@ -469,107 +358,18 @@ export default function CustomerOrderPage() {
                 setScanLoading(false);
                 setScanStep("error");
                 setScanErrorMsg(errMsg);
-                if (resumeOnFailure) {
-                    triggerResumeScanning();
+
+                // If it was a passkey error (status 422), do nothing extra since form is on page
+                if (res.status === 422) {
+                    return;
                 }
             }
         } catch {
             setScanLoading(false);
             setScanStep("error");
             setScanErrorMsg("Network Error");
-            if (resumeOnFailure) {
-                triggerResumeScanning();
-            }
         }
     }
-
-    function handleQrDecoded(qrData: string, activeStream: MediaStream) {
-        if (scanIntervalRef.current) {
-            cancelAnimationFrame(scanIntervalRef.current);
-            scanIntervalRef.current = null;
-        }
-        activeStream.getTracks().forEach((track) => track.stop());
-        setCameraStream(null);
-
-        handleQrLogin({ qrCode: qrData }, undefined, true);
-    }
-
-    // اختيار الغرفة يدوياً من قائمة المودال
-    async function handleRoomSelect(roomId: string) {
-        const room = availableRooms.find((r) => r.id === roomId);
-        await handleQrLogin({ roomId }, room?.name, false);
-    }
-
-    // إدارة الكاميرا في المتصفح
-    useEffect(() => {
-        let activeStream: MediaStream | null = null;
-        if (isScannerOpen) {
-            const startCamera = async () => {
-                try {
-                    if (
-                        typeof navigator !== "undefined" &&
-                        navigator.mediaDevices &&
-                        navigator.mediaDevices.getUserMedia
-                    ) {
-                        const isMobile =
-                            /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(
-                                navigator.userAgent,
-                            ) ||
-                            (navigator.maxTouchPoints > 0 &&
-                                /Macintosh/i.test(navigator.userAgent));
-                        const preferredFacingMode = isMobile
-                            ? "environment"
-                            : "user";
-
-                        const stream =
-                            await navigator.mediaDevices.getUserMedia({
-                                video: {
-                                    facingMode: preferredFacingMode,
-                                    width: { ideal: 640 },
-                                    height: { ideal: 480 },
-                                },
-                            });
-                        activeStream = stream;
-                        setCameraStream(stream);
-
-                        const videoEl = videoRef.current;
-                        if (videoEl) {
-                            videoEl.srcObject = stream;
-                            videoEl.setAttribute("playsinline", "true");
-                            videoEl.setAttribute("muted", "true");
-                            await videoEl.play();
-                            setScanStep("scanning");
-                            startQrScanningLoop(videoEl, stream);
-                        }
-                    } else {
-                        setScanStep("idle");
-                        // In production, suppress technical camera/SSL errors — room selection tab handles it
-                        if (process.env.NODE_ENV !== "production") {
-                            setScanErrorMsg(t("orders.cameraHttpBlock"));
-                        }
-                    }
-                } catch {
-                    setScanStep("idle");
-                    // In production, suppress technical camera/SSL errors
-                    if (process.env.NODE_ENV !== "production") {
-                        setScanErrorMsg(t("orders.cameraFailedFallback"));
-                    }
-                }
-            };
-            const timer = setTimeout(() => {
-                startCamera();
-            }, 150);
-            return () => {
-                clearTimeout(timer);
-                if (scanIntervalRef.current)
-                    cancelAnimationFrame(scanIntervalRef.current);
-                if (activeStream)
-                    activeStream.getTracks().forEach((track) => track.stop());
-                setCameraStream(null);
-            };
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isScannerOpen, isRtl]);
 
     // المزامنة اللحظية مع قاعدة البيانات
     useEffect(() => {
@@ -653,6 +453,31 @@ export default function CustomerOrderPage() {
         }
 
         const qty = quantities[item.id] || 1;
+
+        setCartItems(prev => {
+            const existing = prev.find(c => c.item.id === item.id);
+            if (existing) {
+                return prev.map(c => c.item.id === item.id ? { ...c, quantity: c.quantity + qty } : c);
+            }
+            return [...prev, { item, quantity: qty }];
+        });
+
+        setActionMessage({
+            text: t("orders.itemAddedToTable")
+                .replace("{qty}", qty.toString())
+                .replace("{name}", item.name),
+        });
+        setQuantities((prev) => ({ ...prev, [item.id]: 1 }));
+    };
+
+    const handleRemoveFromCart = (itemId: string) => {
+        setCartItems(prev => prev.filter(c => c.item.id !== itemId));
+    };
+
+    const handleConfirmOrders = async () => {
+        if (!activeSession || cartItems.length === 0) return;
+        setIsConfirming(true);
+
         try {
             const res = await fetch(
                 `${ORDER_USER_API_ROUTE}/${activeSession.room_id}`,
@@ -661,20 +486,19 @@ export default function CustomerOrderPage() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         reservation_id: activeSession.id,
-                        items: [{ id: item.id, quantity: qty }],
+                        items: cartItems.map(c => ({ id: c.item.id, quantity: c.quantity })),
                     }),
                 },
             );
 
             if (res.ok) {
                 await fetchMenuAndOrders();
-
+                setCartItems([]);
                 setActionMessage({
                     text: t("orders.itemAddedToTable")
-                        .replace("{qty}", qty.toString())
-                        .replace("{name}", item.name),
+                        .replace("{qty}", cartItems.reduce((sum, c) => sum + c.quantity, 0).toString())
+                        .replace("{name}", t("orders.pendingCart") || "Items"),
                 });
-                setQuantities((prev) => ({ ...prev, [item.id]: 1 }));
             } else {
                 setActionMessage({
                     text: t("orders.failedToPlaceOrder"),
@@ -683,6 +507,8 @@ export default function CustomerOrderPage() {
             }
         } catch {
             setActionMessage({ text: "Network error", isError: true });
+        } finally {
+            setIsConfirming(false);
         }
     };
 
@@ -727,10 +553,17 @@ export default function CustomerOrderPage() {
     const tableOrders = activeSession
         ? orders.filter((o) => o.reservation_id === activeSession.id)
         : [];
-    const totalBill = tableOrders.reduce(
+
+    // Combine saved active orders with local cart items to show the full potential bill
+    const totalSavedBill = tableOrders.reduce(
         (sum, o) => sum + o.item_price * o.quantity,
         0,
     );
+    const totalCartBill = cartItems.reduce(
+        (sum, c) => sum + Number(c.item.price) * c.quantity,
+        0
+    );
+    const totalBill = totalSavedBill + totalCartBill;
 
     const filteredItems = menuItems.filter((item) => {
         if (activeCategory === "all") return true;
@@ -796,6 +629,8 @@ export default function CustomerOrderPage() {
                 </div>
             )}
 
+
+
             <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 py-14 flex flex-col items-center justify-center relative">
                 {!activeSession ? (
                     <>
@@ -814,69 +649,90 @@ export default function CustomerOrderPage() {
                                 </p>
                             </div>
 
-                            {forcePasskeySetting && (
-                                <div className="space-y-2 max-w-xs mx-auto animate-fade-in">
-                                    <label
-                                        htmlFor="lockPasskeyIn"
-                                        className="text-xs font-bold text-zinc-400 block text-center"
-                                    >
-                                        {t("orders.inputPasskeyLabel")}
-                                    </label>
-                                    <input
-                                        id="lockPasskeyIn"
-                                        type="text"
-                                        inputMode="numeric"
-                                        pattern="[0-9]*"
-                                        maxLength={6}
-                                        value={enteredPasskey}
-                                        onChange={(e) => {
-                                            const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-                                            setEnteredPasskey(val);
-                                        }}
-                                        placeholder={t("orders.inputPasskeyPlaceholder")}
-                                        className="w-full text-center text-3xl font-black tracking-[0.5em] bg-surface-container border border-white/10 rounded-xl py-3 text-white focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-zinc-600 placeholder:text-xl placeholder:tracking-normal"
-                                        disabled={scanLoading}
-                                    />
-                                    {scanStep === "error" && scanErrorMsg && (
-                                        <p className="text-[10px] text-red-400 font-medium text-center mt-2">
-                                            {scanErrorMsg}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
-
-                            <div className="pt-4 flex flex-col gap-3 max-w-xs mx-auto w-full">
-                                {urlQrCode ? (
-                                    <PrimaryButton
-                                        onClick={() => handleQrLogin({ qrCode: urlQrCode })}
-                                        disabled={scanLoading || (forcePasskeySetting && enteredPasskey.length !== 6)}
-                                        className="w-full relative group overflow-hidden"
-                                        size="lg"
-                                    >
-                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                        <span className="relative flex items-center justify-center gap-2">
-                                            <QrCodeNeonIcon className="w-5 h-5" />
-                                            {t("orders.btnUnlockRoom")}
-                                        </span>
-                                    </PrimaryButton>
-                                ) : (
-                                    <PrimaryButton
-                                        onClick={() => {
-                                            setScanErrorMsg("");
-                                            setScanStep("idle");
-                                            setIsScannerOpen(true);
-                                        }}
-                                        disabled={scanLoading}
-                                        className="w-full relative group overflow-hidden"
-                                        size="lg"
-                                    >
-                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                        <span className="relative flex items-center justify-center gap-2">
-                                            <QrCodeNeonIcon className="w-5 h-5" />
-                                            {t("orders.btnScanQR")}
-                                        </span>
-                                    </PrimaryButton>
+                            <div className="space-y-4 pt-4 w-full max-w-sm mx-auto">
+                                {!urlQrCode && (
+                                    <div className="space-y-2 animate-fade-in text-start">
+                                        <InputField
+                                            id="mainRoomSelectDropdown"
+                                            label={t("orders.selectRoomLabel")}
+                                            isSelect
+                                            options={[
+                                                { id: "", name: t("orders.selectRoomPlaceholder") },
+                                                ...availableRooms,
+                                            ]}
+                                            value={selectedRoomId}
+                                            onChange={(e) => {
+                                                setSelectedRoomId((e as React.ChangeEvent<HTMLSelectElement>).target.value);
+                                                setScanErrorMsg("");
+                                            }}
+                                            disabled={scanLoading}
+                                        />
+                                    </div>
                                 )}
+
+                                {forcePasskeySetting && (
+                                    <div className="space-y-2 animate-fade-in text-start">
+                                        <label
+                                            htmlFor="lockPasskeyInMain"
+                                            className="text-xs font-bold text-zinc-400 block"
+                                        >
+                                            {t("orders.inputPasskeyLabel")}
+                                        </label>
+                                        <input
+                                            id="lockPasskeyInMain"
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            maxLength={6}
+                                            value={enteredPasskey}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                                                setEnteredPasskey(val);
+                                            }}
+                                            placeholder={t("orders.inputPasskeyPlaceholder")}
+                                            className="w-full text-center text-3xl font-black tracking-[0.5em] bg-surface-container border border-white/10 rounded-xl py-3 text-white focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-zinc-600 placeholder:text-xl placeholder:tracking-normal"
+                                            disabled={scanLoading}
+                                            autoComplete="off"
+                                        />
+                                    </div>
+                                )}
+
+                                {scanStep === "error" && scanErrorMsg && (
+                                    <p className="text-[10px] text-red-400 font-medium text-center mt-2 bg-red-500/10 py-2 rounded-lg border border-red-500/20">
+                                        {scanErrorMsg}
+                                    </p>
+                                )}
+
+                                <div className="pt-2">
+                                    <PrimaryButton
+                                        onClick={async () => {
+                                            if (urlQrCode) {
+                                                await handleQrLogin({ qrCode: urlQrCode });
+                                            } else if (selectedRoomId) {
+                                                const room = availableRooms.find((r) => r.id === selectedRoomId);
+                                                await handleQrLogin({ roomId: selectedRoomId }, room?.name);
+                                            }
+                                        }}
+                                        disabled={scanLoading || (!urlQrCode && !selectedRoomId) || (forcePasskeySetting && enteredPasskey.length !== 6)}
+                                        className="w-full relative group overflow-hidden justify-center"
+                                        size="lg"
+                                    >
+                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                        <span className="relative flex items-center justify-center gap-2 font-extrabold tracking-wide">
+                                            {scanLoading ? (
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <div className="animate-spin h-4 w-4 border-2 border-white/50 border-t-white rounded-full" />
+                                                    <span>{t("common.loading")}</span>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <LockIcon className="w-5 h-5" />
+                                                    {t("orders.btnUnlockRoom")}
+                                                </>
+                                            )}
+                                        </span>
+                                    </PrimaryButton>
+                                </div>
                             </div>
                         </div>
                     </>
@@ -970,9 +826,52 @@ export default function CustomerOrderPage() {
                                     totalQuantity={tableOrders.reduce(
                                         (sum, o) => sum + o.quantity,
                                         0,
-                                    )}
+                                    ) + cartItems.reduce((sum, c) => sum + c.quantity, 0)}
                                     unitUnits={t("orders.unitUnits")}
                                 />
+
+                                {/* سلة الطلبات غير المؤكدة */}
+                                {cartItems.length > 0 && (
+                                    <div className="rounded-card border border-primary/30 bg-primary/5 p-6 shadow-xl space-y-4 animate-fade-in relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-linear-to-b from-primary/10 to-transparent pointer-events-none opacity-50" />
+
+                                        <div className="flex items-center gap-2 relative z-10">
+                                            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
+                                            <h3 className="text-sm font-black text-white">{t("orders.pendingCart") || "سلة الطلبات المؤقتة"}</h3>
+                                        </div>
+
+                                        <div className="space-y-3 relative z-10 max-h-60 overflow-y-auto pr-1">
+                                            {cartItems.map((cartItem) => (
+                                                <div key={cartItem.item.id} className="flex justify-between items-center bg-[#131522] border border-white/5 p-3 rounded-2xl">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <span className="text-sm font-bold text-white">{cartItem.item.name}</span>
+                                                        <span className="text-xs font-medium text-amber-500">
+                                                            {cartItem.quantity} x {Number(cartItem.item.price)} {t(`common.${settings.currency_name}`)}
+                                                        </span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleRemoveFromCart(cartItem.item.id)}
+                                                        className="h-8 w-8 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/20 transition-colors"
+                                                    >
+                                                        <span className="text-xs font-bold">✕</span>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="pt-2 relative z-10">
+                                            <PrimaryButton
+                                                onClick={handleConfirmOrders}
+                                                disabled={isConfirming}
+                                                className="w-full justify-center group"
+                                            >
+                                                <span className="font-extrabold tracking-wide">
+                                                    {isConfirming ? t("common.loading") : (t("orders.confirmSend") || "تأكيد وإرسال الطلبات")}
+                                                </span>
+                                            </PrimaryButton>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <ActiveOrdersList
                                     title={t("orders.myActiveOrders")}
@@ -988,24 +887,6 @@ export default function CustomerOrderPage() {
                         </div>
                     </>
                 )}
-
-                {/* QR Scanner Modal */}
-                <QrScannerModal
-                    isOpen={isScannerOpen}
-                    onClose={() => setIsScannerOpen(false)}
-                    scanLoading={scanLoading}
-                    scanStep={scanStep}
-                    scanErrorMsg={scanErrorMsg}
-                    cameraStream={cameraStream}
-                    videoRef={videoRef}
-                    t={t}
-                    isRtl={isRtl}
-                    forcePasskeySetting={forcePasskeySetting}
-                    enteredPasskey={enteredPasskey}
-                    onPasskeyChange={setEnteredPasskey}
-                    rooms={availableRooms}
-                    onRoomSelect={handleRoomSelect}
-                />
             </main>
         </>
     );

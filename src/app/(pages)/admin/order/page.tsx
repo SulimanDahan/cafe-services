@@ -159,15 +159,24 @@ export default function AdminOrdersOperations() {
 
     const todayOrders = orders.filter((o) => {
         const orderDate = new Date(o.created_at);
-        return orderDate >= today;
+        return orderDate >= today && o.accepted;
     });
 
     const totalRevenue = todayOrders.reduce(
         (sum, o) => sum + Number(o.item_price) * o.quantity,
         0,
     );
+
     const activeRoomsCount = activeOnlyReservations.length;
     const totalSoldItems = todayOrders.reduce((sum, o) => sum + o.quantity, 0);
+
+    const formatDate = (date: Date | string) => {
+        return new Date(date).toLocaleString(isRtl ? "ar-SA" : "en-US", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        });
+    };
 
     return (
         <div className="space-y-6">
@@ -192,7 +201,7 @@ export default function AdminOrdersOperations() {
                 />
                 <MetricCard
                     title={t("orders.statOrderedUnits")}
-                    value={`${totalSoldItems} ${t("orders.unitUnits")}`}
+                    value={`${totalSoldItems}`}
                     icon={<BoxIcon className="w-5 h-5" />}
                 />
             </div>
@@ -270,7 +279,7 @@ export default function AdminOrdersOperations() {
                                                 </div>
                                                 <p className="text-[11px] text-zinc-500 font-bold">
                                                     {res.room?.name ??
-                                                        t("common.unknown")}
+                                                        t("common.unknown")} • {formatDate(res.date_time)}
                                                 </p>
                                             </div>
                                             {activeTab === "active" &&
@@ -332,6 +341,9 @@ export default function AdminOrdersOperations() {
                                     <h2 className="text-3xl font-black text-white tracking-tight">
                                         {selectedReservation.client_name}
                                     </h2>
+                                    <p className="text-sm font-bold text-zinc-400 mt-2">
+                                        {formatDate(selectedReservation.date_time)}
+                                    </p>
                                 </div>
                                 <div className="sm:text-right">
                                     <span className="text-[11px] text-zinc-400 font-black tracking-wider block uppercase mb-1">

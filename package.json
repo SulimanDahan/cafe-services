@@ -10,6 +10,8 @@
 		"build": "next build",
 		"build:db": "npx prisma generate && next build",
 		"start": "next start",
+		"start:public": "next start --hostname 0.0.0.0",
+		"start:local": "next start --hostname 0.0.0.0 --port 80",
 		"lint": "eslint",
 		"seed": "npx tsx prisma/seed.ts",
 		"reset:admin": "npx tsx prisma/reset_admin_password.ts",

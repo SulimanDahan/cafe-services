@@ -14,6 +14,7 @@ interface ReservationFormValues {
     phone: string;
     room_id: string;
     date_time: string;
+    order_passkey?: number;
 }
 
 interface AdminReservationModalProps {
@@ -61,6 +62,7 @@ export default function AdminReservationModal({
                     phone: initialData.phone,
                     room_id: initialData.room_id,
                     date_time: initialData.date_time.split("T")[0],
+                    order_passkey: initialData.order_passkey,
                 });
             } else {
                 const today = new Date().toISOString().split("T")[0];
@@ -130,6 +132,18 @@ export default function AdminReservationModal({
                     <p className="text-[10px] text-red-400 font-medium mt-1">
                         {t(String(errors.date_time.message))}
                     </p>
+                )}
+
+                {/* Read-only Passkey (if exists) */}
+                {initialData?.order_passkey && (
+                    <InputField
+                        label={t("reservations.columnPasskey") || "Passkey"}
+                        id="resPasskey"
+                        type="text"
+                        value={initialData.order_passkey.toString()}
+                        readOnly
+                        className="opacity-75 font-black text-amber-500 tracking-wider"
+                    />
                 )}
 
                 {/* Room / Table selector */}

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 		const response = NextResponse.json({ message: t("apiMessages.success.logout") });
 		response.cookies.set(AUTH_COOKIE_NAME, "", {
 			httpOnly: true,
-			secure: isProduction,
+			secure: isProduction && process.env.ALLOW_INSECURE_COOKIES !== "true",
 			sameSite: "lax",
 			path: "/",
 			maxAge: 0, // Expire immediately

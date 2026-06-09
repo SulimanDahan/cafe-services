@@ -312,7 +312,7 @@ export default function ReservationsAdmin() {
                                     <td
                                         className={`py-4 px-4 font-black text-amber-500 text-sm tracking-wider whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
                                     >
-                                        {res.order_passkey}
+                                        {res.order_passkey ? res.order_passkey.toString() : "—"}
                                     </td>
                                 )}
                                 <td
@@ -566,6 +566,7 @@ export default function ReservationsAdmin() {
                               client_name: editingRes.client_name,
                               phone: editingRes.phone,
                               room_id: editingRes.room_id,
+                              order_passkey: editingRes.order_passkey,
                               date_time: new Date(
                                   editingRes.date_time,
                               ).toISOString(),

@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
 		const response = NextResponse.json({ session });
 		response.cookies.set(ORDER_COOKIE_NAME, activeReservation.id, {
 			httpOnly: true,
-			secure: isProduction,
+			secure: isProduction && process.env.ALLOW_INSECURE_COOKIES !== "true",
 			sameSite: "lax",
 			path: "/",
 			maxAge: clientExpiryMinutes * 60,

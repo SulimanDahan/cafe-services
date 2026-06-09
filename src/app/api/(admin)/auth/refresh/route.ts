@@ -31,10 +31,13 @@ export async function POST(request: NextRequest) {
 		message: t("apiMessages.success.sessionRefreshed"),
 	});
 
+	const isProduction = process.env.NODE_ENV === "production";
+	const secureCookie = isProduction && process.env.ALLOW_INSECURE_COOKIES !== "true";
+
 	response.cookies.set(AUTH_COOKIE_NAME, authSession.value, {
 		expires: newExpirationDate,
 		httpOnly: true,
-		secure: true,
+		secure: secureCookie,
 		sameSite: "strict",
 	});
 

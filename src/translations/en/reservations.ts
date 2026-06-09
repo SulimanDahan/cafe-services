@@ -41,6 +41,7 @@ export const reservations = {
 	actionEnableTable: "Enable Room",
 	actionDeleteTable: "Delete room",
 	modalAddTitle: "Add New Booking",
+	modalEditTitle: "Edit Reservation Details",
 	formClientName: "Full Client Name",
 	formClientPlaceholder: "e.g., John Doe...",
 	formPhone: "Contact Phone Number",
@@ -83,6 +84,7 @@ export const reservations = {
 		"Requires an active, accepted booking for today's date to proceed.",
 	btnDismissPreview: "Dismiss Preview",
 	btnPrintLabel: "Print Label Now",
+	btnDownloadLabel: "Download Image",
 	errDuplicateQr:
 		"Sorry! This QR token is already in use by another room. Please enter a unique token.",
 	confirmDeleteTable: "Are you sure you want to delete room: (",

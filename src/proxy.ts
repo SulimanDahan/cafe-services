@@ -25,7 +25,7 @@ const isProduction = process.env.NODE_ENV === "production";
 function cookieOptions(maxAge: number) {
     return {
         httpOnly: true,
-        secure: isProduction,
+        secure: isProduction && process.env.ALLOW_INSECURE_COOKIES !== "true",
         sameSite: "lax" as const,
         path: "/",
         maxAge,

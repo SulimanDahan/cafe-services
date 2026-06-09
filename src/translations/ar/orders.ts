@@ -62,7 +62,7 @@ export const orders = {
 	statOccupiedRooms: "عدد الغرف النشطة",
 	statOrderedUnits: "إجمالي الطلبات",
 	unitRooms: "غرف",
-	unitUnits: "وحدات",
+	unitUnits: "طلب",
 	checkoutSearch: "البحث باسم العميل أو الغرفة...",
 	matchingBookings: "النتائج المطابقة:",
 	accumulatedTotal: "مجموع قيمة الفاتورة",
@@ -144,4 +144,6 @@ export const orders = {
 	msgOrderDeleteSuccess: "تم حذف الطلب بنجاح",
 	msgOrderDeleteFailed: "فشل حذف الطلب",
 	btnScanQR: "التقط رمز الـ QR",
+	pendingCart: "سلة الطلبات المؤقتة",
+	confirmSend: "تأكيد وإرسال الطلبات",
 };

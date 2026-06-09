@@ -49,6 +49,7 @@ export const reservations = {
 	actionEnableTable: "إعادة الإتاحة للحجز",
 	actionDeleteTable: "مسح الغرفة",
 	modalAddTitle: "إضافة حجز غرفة جديد",
+	modalEditTitle: "تعديل تفاصيل الحجز",
 	formClientName: "اسم العميل الثلاثي",
 	formClientPlaceholder: "مثال: محمد أحمد العتيبي...",
 	formPhone: "رقم جوال التواصل",
@@ -91,6 +92,7 @@ export const reservations = {
 		"يتطلب وجود حجز معتمد وساري المفعول لتاريخ اليوم لبدء الطلب.",
 	btnDismissPreview: "إغلاق المعاينة",
 	btnPrintLabel: "طباعة الملصق الآن",
+	btnDownloadLabel: "تنزيل كصورة",
 	errDuplicateQr:
 		"عذراً! رمز الـ QR هذا مستخدم مسبقاً لغرفة أخرى. يرجى إدخال رمز فريد.",
 	confirmDeleteTable: "هل أنت متأكد من رغبتك في حذف الغرفة: (",

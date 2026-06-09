@@ -3,6 +3,7 @@
 import AdminModal from "@/components/partials/modals/admin_modal";
 import { PrimaryButton } from "@/components/button/primary_button";
 import { LogoIcon, PrintIcon } from "@/components/icons";
+import DownloadIcon from "@/components/icons/DownloadIcon";
 import { useLanguage } from "@/config/i18n";
 import RoomModel from "@/models/data_models/room_model";
 
@@ -27,6 +28,16 @@ export default function PrintQrModal({
 
     const handlePrintLabel = () => {
         window.print();
+    };
+
+    const handleDownloadLabel = () => {
+        if (!previewQrUrl || !selectedRoom) return;
+        const link = document.createElement("a");
+        link.href = previewQrUrl;
+        link.download = `QR_${selectedRoom.name.replace(/\s+/g, '_')}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -217,14 +228,16 @@ export default function PrintQrModal({
                         </div>
                     </div>
 
-                    <div className="pt-2 flex justify-end gap-2 text-sm no-print">
+                    <div className="pt-2 flex flex-wrap justify-end gap-2 text-sm no-print">
+
                         <PrimaryButton
-                            type="button"
-                            onClick={onClose}
-                            variant="secondary"
+                            onClick={handleDownloadLabel}
+                            disabled={isGeneratingQr || !previewQrUrl}
                             size="md"
+                            variant="secondary"
                         >
-                            {t("reservations.btnDismissPreview")}
+                            <DownloadIcon className="w-4 h-4" />
+                            <span>{t("reservations.btnDownloadLabel")}</span>
                         </PrimaryButton>
                         <PrimaryButton
                             onClick={handlePrintLabel}
