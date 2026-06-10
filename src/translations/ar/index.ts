@@ -13,6 +13,7 @@ import { home } from "./home";
 import { errors } from "./errors";
 import { apiMessages } from "./api_messages";
 import { validation } from "./validation";
+import { news } from "./news";
 
 const ar = {
 	common,
@@ -30,6 +31,7 @@ const ar = {
 	errors,
 	apiMessages,
 	validation,
+	news,
 };
 
 export default ar;

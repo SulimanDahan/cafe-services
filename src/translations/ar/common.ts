@@ -55,4 +55,5 @@ export const common = {
 	to: "إلى",
 	of: "من",
 	entries: "عناصر",
+	undo: "تراجع",
 };

@@ -93,6 +93,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
 						item_id: item.id,
 						item_price: dbItem.price,
 						quantity: item.quantity,
+						notes: item.notes,
 						// Auto-accept the order if the setting is enabled
 						accepted: autoAccept,
 					},

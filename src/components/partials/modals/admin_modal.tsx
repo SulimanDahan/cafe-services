@@ -61,7 +61,7 @@ export default function AdminModal({
                     {/* Close Button */}
                     <button
                         onClick={onClose}
-                        className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} text-zinc-400 hover:text-white transition-colors cursor-pointer`}
+                        className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} text-zinc-400 hover:text-white transition-colors cursor-pointer z-9999`}
                     >
                         <CloseIcon className="w-5 h-5" />
                     </button>

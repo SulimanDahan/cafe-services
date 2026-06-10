@@ -4,6 +4,7 @@ export const orderSchema = z.object({
  reservation_id: z.string().uuid({ message: "validation.reservationIdRequired" }),
  item_id: z.string().uuid({ message: "validation.itemIdRequired" }),
  quantity: z.number().int().min(1, { message: "validation.quantityMinOne" }),
+ notes: z.string().trim().optional(),
  accepted: z.boolean().optional(),
 });
 
@@ -13,6 +14,7 @@ export const orderBulkSchema = z.object({
  z.object({
  id: z.string().uuid({ message: "validation.itemIdRequired" }),
  quantity: z.number().int().min(1, { message: "validation.quantityMinOne" }),
+ notes: z.string().trim().optional(),
  })
  ).min(1, { message: "validation.atLeastOneItem" }),
 });

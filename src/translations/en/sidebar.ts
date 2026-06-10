@@ -8,4 +8,5 @@ export const sidebar = {
 	users: "Staff Users",
 	settings: "Global Settings",
 	rooms: "Rooms",
+	news: "News & Announcements",
 };

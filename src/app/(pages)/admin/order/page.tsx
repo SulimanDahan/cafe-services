@@ -421,6 +421,11 @@ export default function AdminOrdersOperations() {
                                                                 `common.${settings.currency_name}`,
                                                             )}
                                                         </p>
+                                                        {o.notes && (
+                                                            <p className="text-[11px] text-amber-500 font-bold mt-1.5 bg-amber-500/10 inline-block px-2 py-0.5 rounded-md border border-amber-500/20">
+                                                                {t("orders.notePrefix") || "ملاحظة: "}{o.notes}
+                                                            </p>
+                                                        )}
                                                     </div>
 
                                                     <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">

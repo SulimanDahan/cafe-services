@@ -31,6 +31,11 @@ interface MenuItemCardProps {
     currencyLabel: string;
     /** Display label for the Add Order button */
     addOrderLabel: string;
+    note?: string;
+    /** Callback function to handle note changes */
+    onChangeNote?: (note: string) => void;
+    /** Placeholder for the note input */
+    notePlaceholder?: string;
 }
 
 /**
@@ -44,6 +49,9 @@ export default function MenuItemCard({
     onPlaceOrder,
     currencyLabel,
     addOrderLabel,
+    note = "",
+    onChangeNote,
+    notePlaceholder,
 }: MenuItemCardProps) {
     return (
         <div className="rounded-3xl border border-white/10 bg-surface p-4 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between gap-4 group shadow-md overflow-hidden">
@@ -70,14 +78,25 @@ export default function MenuItemCard({
                     <span className="px-2.5 py-1 rounded-full text-[9px] font-black bg-[#0d0f17] text-primary-hover/90 border border-white/5 shrink-0">
                         {item.group?.name}
                     </span>
-                    <span className="text-xs font-black text-primary-hover whitespace-nowrap">
-                        {Number(item.price).toLocaleString("en-US")}{" "}
-                        {currencyLabel}
-                    </span>
+                    {Number(item.price) > 0 && (
+                        <span className="text-xs font-black text-primary-hover whitespace-nowrap">
+                            {Number(item.price).toLocaleString("en-US")}{" "}
+                            {currencyLabel}
+                        </span>
+                    )}
                 </div>
                 <h3 className="text-sm font-black text-white group-hover:text-primary-light transition-colors line-clamp-2">
                     {item.name}
                 </h3>
+                {onChangeNote && (
+                    <input 
+                        type="text"
+                        value={note}
+                        onChange={(e) => onChangeNote(e.target.value)}
+                        placeholder={notePlaceholder || "أضف ملاحظة (اختياري)..."}
+                        className="w-full mt-2 bg-[#0d0f17] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 transition-all"
+                    />
+                )}
             </div>
             <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-3">
                 <div className="flex items-center bg-[#0d0f17] border border-white/10 rounded-full p-0.5 shrink-0">

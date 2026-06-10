@@ -15,6 +15,7 @@ export const ADMIN_NOTIFICATION_PAGE_ROUTE: string = `${MAIN_ADMIN_ROUTE}/notifi
 export const ADMIN_USER_PAGE_ROUTE: string = `${MAIN_ADMIN_ROUTE}/user`;
 export const ADMIN_SETTINGS_PAGE_ROUTE: string = `${MAIN_ADMIN_ROUTE}/settings`;
 export const ADMIN_ROOM_PAGE_ROUTE: string = `${MAIN_ADMIN_ROUTE}/room`;
+export const ADMIN_NEWS_PAGE_ROUTE: string = `${MAIN_ADMIN_ROUTE}/news`;
 
 // user routes
 export const MAIN_PAGE_ROUTE: string = '/';

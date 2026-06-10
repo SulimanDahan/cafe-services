@@ -8,4 +8,5 @@ export const sidebar = {
 	users: "المستخدمين",
 	settings: "الإعدادات",
 	rooms: "إدارة الغرف",
+	news: "الأخبار والإعلانات",
 };

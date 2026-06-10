@@ -68,21 +68,22 @@ model Item {
 }
 
 model Reservation {
-  id            String   @id @default(uuid())
-  number        Int      @unique @default(autoincrement())
-  date_time     DateTime @default(now())
+  id            String          @id @default(uuid())
+  number        Int             @unique @default(autoincrement())
+  date_time     DateTime        @default(now())
   client_name   String
   phone         String
   room_id       String
-  order_passkey Int      @unique
-  accepted      Boolean  @default(false)
-  activated     Boolean  @default(false)
-  completed     Boolean  @default(false)
-  rejected      Boolean  @default(false)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @default(now()) @updatedAt
+  order_passkey Int             @unique
+  accepted      Boolean         @default(false)
+  activated     Boolean         @default(false)
+  completed     Boolean         @default(false)
+  rejected      Boolean         @default(false)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @default(now()) @updatedAt
   orders        Order[]
-  room          Room     @relation(fields: [room_id], references: [id])
+  room          Room            @relation(fields: [room_id], references: [id])
+  clientReports clientReports[]
 }
 
 model Order {
@@ -91,6 +92,7 @@ model Order {
   item_id        String
   item_price     Decimal     @default(0)
   quantity       Int         @default(1)
+  notes          String?
   accepted       Boolean     @default(false)
   created_at     DateTime    @default(now())
   updated_at     DateTime    @default(now()) @updatedAt
@@ -110,4 +112,24 @@ model Settings {
   updated_at                         DateTime @default(now()) @updatedAt
   force_client_order_session_passKey Boolean  @default(false)
   auto_accept_orders                 Boolean  @default(false)
+}
+
+model News {
+  id         String   @id @default(uuid())
+  news_text  String
+  start_date DateTime @default(now())
+  end_date   DateTime @default(now())
+  is_disable Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model clientReports {
+  id             String      @id @default(uuid())
+  message_text   String
+  is_read        Boolean     @default(false)
+  reservation_id String
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @default(now()) @updatedAt
+  reservation    Reservation @relation(fields: [reservation_id], references: [id])
 }

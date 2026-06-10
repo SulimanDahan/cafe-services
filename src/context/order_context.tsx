@@ -1,6 +1,7 @@
 "use client";
 
-import { ORDER_API_ROUTE, NOTIFICATION_STREAM_API_ROUTE } from "@/config/api_routes";
+import { ORDER_API_ROUTE } from "@/config/api_routes";
+import { sharedSSE } from "@/lib/sse_client";
 import OrderModel from "@/models/data_models/order_model";
 import { type ReactNode, useEffect, useMemo } from "react";
 import {
@@ -44,7 +45,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
  useEffect(() => {
  fetchAllOrders();
 
- const eventSource = new EventSource(NOTIFICATION_STREAM_API_ROUTE);
+ sharedSSE.connect();
  const onNewOrder = (event: MessageEvent) => {
  try {
  const newOrder = JSON.parse(event.data);
@@ -66,13 +67,13 @@ export function OrderProvider({ children }: { children: ReactNode }) {
  }
  };
 
- eventSource.addEventListener("new-order", onNewOrder);
- eventSource.addEventListener("order-deleted", onOrderDeleted);
+ sharedSSE.addEventListener("new-order", onNewOrder);
+ sharedSSE.addEventListener("order-deleted", onOrderDeleted);
 
  return () => {
- eventSource.removeEventListener("new-order", onNewOrder);
- eventSource.removeEventListener("order-deleted", onOrderDeleted);
- eventSource.close();
+ sharedSSE.removeEventListener("new-order", onNewOrder);
+ sharedSSE.removeEventListener("order-deleted", onOrderDeleted);
+ sharedSSE.disconnect();
  };
  }, [fetchAllOrders, setOrders]);
 

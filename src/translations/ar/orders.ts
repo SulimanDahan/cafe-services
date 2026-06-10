@@ -148,4 +148,6 @@ export const orders = {
 	confirmSend: "تأكيد وإرسال الطلبات",
 	btnUnlockRoom: "تسجيل الدخول وفتح الجلسة",
 	orderAcceptedSuccess: "تم اعتماد طلبك والبدء في تجهيزه!",
+	notePlaceholder: "أضف ملاحظة (اختياري)...",
+	notePrefix: "ملاحظة: ",
 };

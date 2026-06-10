@@ -25,6 +25,8 @@ export const validation = {
  perPageMinOne: "Per page must be at least 1",
  expiryMinOne: "Expiry minutes must be at least 1",
  clientExpiryMinOne: "Client session expiry must be at least 1 minute",
+ endDateBeforeStartDate: "End date must be on or after start date",
+ maxLength500: "Maximum length is 500 characters",
 } as const;
 
 export default validation;

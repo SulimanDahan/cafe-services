@@ -1,8 +1,8 @@
 "use client";
 import {
     NOTIFICATION_API_ROUTE,
-    NOTIFICATION_STREAM_API_ROUTE,
 } from "@/config/api_routes";
+import { sharedSSE } from "@/lib/sse_client";
 import { useEffect, useState, useRef } from "react";
 import { BellIcon } from "./icons";
 import { useLanguage } from "@/config/i18n";
@@ -30,20 +30,21 @@ export default function NotificationCenter() {
 
     // Connect to Real-time SSE Stream
     useEffect(() => {
-        const eventSource = new EventSource(NOTIFICATION_STREAM_API_ROUTE);
+        sharedSSE.connect();
 
         // Initial load of previous notifications
-        eventSource.addEventListener("initial-notifications", (event: MessageEvent) => {
+        const onInitialNotifications = (event: MessageEvent) => {
             try {
                 const data = JSON.parse(event.data);
                 setNotifications(data);
             } catch (err) {
                 console.error("Error parsing initial notifications:", err);
             }
-        });
+        };
+        sharedSSE.addEventListener("initial-notifications", onInitialNotifications);
 
         // Handle new real-time notification
-        eventSource.addEventListener("new-notification", (event: MessageEvent) => {
+        const onNewNotification = (event: MessageEvent) => {
             try {
                 const notification = JSON.parse(event.data);
 
@@ -65,10 +66,11 @@ export default function NotificationCenter() {
             } catch (err) {
                 console.error("Error parsing new notification:", err);
             }
-        });
+        };
+        sharedSSE.addEventListener("new-notification", onNewNotification);
 
         // Listen for recurring pending status to repeat chime for unapproved items
-        eventSource.addEventListener("pending-status", (event: MessageEvent) => {
+        const onPendingStatus = (event: MessageEvent) => {
             try {
                 const data = JSON.parse(event.data);
                 if (data.pendingReservations > 0 || data.pendingOrders > 0) {
@@ -77,15 +79,15 @@ export default function NotificationCenter() {
             } catch (err) {
                 console.error("Error parsing pending status:", err);
             }
-        });
-
-        eventSource.onerror = (err) => {
-            console.warn("SSE Connection lost. Retrying...", err);
         };
+        sharedSSE.addEventListener("pending-status", onPendingStatus);
 
         // Close connection on unmount
         return () => {
-            eventSource.close();
+            sharedSSE.removeEventListener("initial-notifications", onInitialNotifications);
+            sharedSSE.removeEventListener("new-notification", onNewNotification);
+            sharedSSE.removeEventListener("pending-status", onPendingStatus);
+            sharedSSE.disconnect();
         };
     }, []);
 

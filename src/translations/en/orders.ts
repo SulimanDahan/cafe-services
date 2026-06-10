@@ -147,4 +147,6 @@ export const orders = {
 	confirmSend: "Confirm and Send Orders",
 	btnUnlockRoom: "Log in and Unlock Session",
 	orderAcceptedSuccess: "Your order has been approved and is being prepared!",
+	notePlaceholder: "Add a note (optional)...",
+	notePrefix: "Note: ",
 };

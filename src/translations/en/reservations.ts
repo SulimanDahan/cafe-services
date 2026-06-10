@@ -92,4 +92,12 @@ export const reservations = {
 		")? All ordering channels associated with it will be removed.",
 	roomAvailable: "Room Available",
 	roomOccupied: "Room Occupied",
+	tabActiveRooms: "Rooms Management",
+	tabHistory: "Reservation Archive",
+	tabDetails: "Reservation Details",
+	tabOrders: "Orders",
+	tabReports: "Reports",
+	noReports: "No reports",
+	noOrders: "No orders",
+	filterByDate: "Date",
 };

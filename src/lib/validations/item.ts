@@ -6,7 +6,7 @@ export const itemSchema = z.object({
         (val) => (typeof val === "string" ? parseFloat(val) : val),
         z
             .number({ message: "validation.priceRequired" })
-            .min(1, { message: "validation.priceMinOne" }),
+            .min(0, { message: "validation.priceMinZero" }),
     ),
     group_id: z.string().uuid({ message: "validation.categoryIdRequired" }),
     is_disable: z.boolean().optional(),

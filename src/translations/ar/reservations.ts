@@ -99,4 +99,11 @@ export const reservations = {
 	confirmDeleteTableSuffix: ")؟ سيتم قفل إمكانية الطلب المرتبطة بها.",
 	roomAvailable: "غرفة متاحة وفارغة",
 	roomOccupied: "غرفة مشغولة (يوجد عميل)",
+	tabActiveRooms: "إدارة الغرف",
+	tabHistory: "أرشيف الحجوزات",
+	tabDetails: "تفاصيل الحجز",
+	tabOrders: "الطلبات",
+	tabReports: "البلاغات",
+	noReports: "لا توجد بلاغات",
+	filterByDate: "التاريخ",
 };

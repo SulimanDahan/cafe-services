@@ -13,8 +13,9 @@ import { home } from "./home";
 import { errors } from "./errors";
 import { apiMessages } from "./api_messages";
 import { validation } from "./validation";
+import { news } from "./news";
 
-const en = {
+export const en = {
  common,
  sidebar,
  login,
@@ -30,6 +31,7 @@ const en = {
  errors,
  apiMessages,
  validation,
+ news,
 };
 
 export default en;

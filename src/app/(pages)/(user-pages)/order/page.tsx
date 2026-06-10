@@ -76,7 +76,7 @@ export default function CustomerOrderPage() {
     const [isAdminAppBlock, setIsAdminAppBlock] = useState(false);
 
     const [orders, setOrders] = useState<Order[]>([]);
-    const [cartItems, setCartItems] = useState<{ item: MenuItem; quantity: number }[]>([]);
+    const [cartItems, setCartItems] = useState<{ item: MenuItem; quantity: number; notes?: string }[]>([]);
     const [isConfirming, setIsConfirming] = useState(false);
 
     const [activeSession, setActiveSession] = useState<Reservation | null>(null);
@@ -86,6 +86,7 @@ export default function CustomerOrderPage() {
         { id: string; name: string }[]
     >([]);
     const [quantities, setQuantities] = useState<Record<string, number>>({});
+    const [notes, setNotes] = useState<Record<string, string>>({});
 
     const [activeCategory, setActiveCategory] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
@@ -480,13 +481,14 @@ export default function CustomerOrderPage() {
         }
 
         const qty = quantities[item.id] || 1;
+        const itemNote = notes[item.id] || "";
 
         setCartItems(prev => {
-            const existing = prev.find(c => c.item.id === item.id);
+            const existing = prev.find(c => c.item.id === item.id && c.notes === itemNote);
             if (existing) {
-                return prev.map(c => c.item.id === item.id ? { ...c, quantity: c.quantity + qty } : c);
+                return prev.map(c => (c.item.id === item.id && c.notes === itemNote) ? { ...c, quantity: c.quantity + qty } : c);
             }
-            return [...prev, { item, quantity: qty }];
+            return [...prev, { item, quantity: qty, notes: itemNote }];
         });
 
         setActionMessage({
@@ -495,10 +497,11 @@ export default function CustomerOrderPage() {
                 .replace("{name}", item.name),
         });
         setQuantities((prev) => ({ ...prev, [item.id]: 1 }));
+        setNotes((prev) => ({ ...prev, [item.id]: "" }));
     };
 
-    const handleRemoveFromCart = (itemId: string) => {
-        setCartItems(prev => prev.filter(c => c.item.id !== itemId));
+    const handleRemoveFromCart = (itemId: string, itemNotes?: string) => {
+        setCartItems(prev => prev.filter(c => !(c.item.id === itemId && c.notes === itemNotes)));
     };
 
     const handleConfirmOrders = async () => {
@@ -513,7 +516,7 @@ export default function CustomerOrderPage() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         reservation_id: activeSession.id,
-                        items: cartItems.map(c => ({ id: c.item.id, quantity: c.quantity })),
+                        items: cartItems.map(c => ({ id: c.item.id, quantity: c.quantity, notes: c.notes })),
                     }),
                 },
             );
@@ -842,6 +845,9 @@ export default function CustomerOrderPage() {
                                             addOrderLabel={t(
                                                 "orders.btnAddOrder",
                                             )}
+                                            note={notes[item.id] || ""}
+                                            onChangeNote={(val) => setNotes(prev => ({ ...prev, [item.id]: val }))}
+                                            notePlaceholder={t("orders.notePlaceholder") || "أضف ملاحظة (اختياري)..."}
                                         />
                                     ))}
                                 </div>
@@ -882,16 +888,19 @@ export default function CustomerOrderPage() {
                                         </div>
 
                                         <div className="space-y-3 relative z-10 max-h-60 overflow-y-auto pr-1">
-                                            {cartItems.map((cartItem) => (
-                                                <div key={cartItem.item.id} className="flex justify-between items-center bg-[#131522] border border-white/5 p-3 rounded-2xl">
+                                            {cartItems.map((cartItem, idx) => (
+                                                <div key={`${cartItem.item.id}-${idx}`} className="flex justify-between items-center bg-[#131522] border border-white/5 p-3 rounded-2xl">
                                                     <div className="flex flex-col gap-0.5">
                                                         <span className="text-sm font-bold text-white">{cartItem.item.name}</span>
                                                         <span className="text-xs font-medium text-amber-500">
                                                             {cartItem.quantity} x {Number(cartItem.item.price)} {t(`common.${settings.currency_name}`)}
                                                         </span>
+                                                        {cartItem.notes && (
+                                                            <span className="text-[10px] text-zinc-400 mt-1">{t("orders.notePrefix") || "ملاحظة: "}{cartItem.notes}</span>
+                                                        )}
                                                     </div>
                                                     <button
-                                                        onClick={() => handleRemoveFromCart(cartItem.item.id)}
+                                                        onClick={() => handleRemoveFromCart(cartItem.item.id, cartItem.notes)}
                                                         className="h-8 w-8 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/20 transition-colors"
                                                     >
                                                         <span className="text-xs font-bold">✕</span>

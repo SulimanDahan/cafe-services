@@ -25,6 +25,8 @@ export const validation = {
  perPageMinOne: "عدد العناصر في الصفحة يجب أن يكون 1 على الأقل",
  expiryMinOne: "مدة الجلسة يجب أن تكون دقيقة واحدة على الأقل",
  clientExpiryMinOne: "مدة جلسة العميل يجب أن تكون دقيقة واحدة على الأقل",
+ endDateBeforeStartDate: "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء",
+ maxLength500: "الحد الأقصى لطول النص هو 500 حرف",
 } as const;
 
 export default validation;

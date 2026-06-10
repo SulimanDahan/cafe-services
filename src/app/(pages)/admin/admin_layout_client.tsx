@@ -8,14 +8,16 @@ import NotificationCenter from "@/components/notification_center";
 import PWAInstallBanner from "@/components/PWAInstallBanner";
 import { MAIN_ADMIN_ROUTE } from "@/config/page_routes";
 import { AdminDrawerLinks } from "@/components/partials/admin_drawer_links";
-import { LOGOUT_API_ROUTE, ME_API_ROUTE } from "@/config/api_routes";
+import { LOGOUT_API_ROUTE } from "@/config/api_routes";
 import PageLoader from "@/components/partials/PageLoader";
 import { RoomProvider } from "@/context/room_context";
 import { OrderProvider } from "@/context/order_context";
 import { ItemProvider } from "@/context/item_context";
 import { ItemGroupProvider } from "@/context/item_group_context";
 import { ReservationProvider } from "@/context/reservation_context";
-import { UserProvider } from "@/context/user_context";
+import { useUser } from "@/context/user_context";
+import { NewsProvider } from "@/context/news_context";
+import { ReportProvider } from "@/context/report_context";
 
 interface LayoutProps {
     children: ReactNode;
@@ -35,33 +37,9 @@ export default function AdminLayoutClient({ children }: LayoutProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [prevPathname, setPrevPathname] = useState(pathname);
     const [isCustomerAppBlock, setIsCustomerAppBlock] = useState(false);
-    const [username, setUsername] = useState<string | null>(null);
-    const [isAdmin, setIsAdmin] = useState<boolean>(false);
-
-    // Fetch user info
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await fetch(ME_API_ROUTE);
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.success && json.data?.user?.username) {
-                        setUsername(json.data.user.username);
-                        setIsAdmin(json.data.user.is_admin ?? false);
-                    }
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        // Don't fetch on the login page itself
-        if (
-            pathname !== MAIN_ADMIN_ROUTE &&
-            pathname !== `${MAIN_ADMIN_ROUTE}/`
-        ) {
-            fetchUser();
-        }
-    }, [pathname]);
+    const { user } = useUser();
+    const username = user?.username || null;
+    const isAdmin = user?.is_admin || false;
 
     // Multi-PWA scope sandboxing and manifest swap
     useEffect(() => {
@@ -241,95 +219,98 @@ export default function AdminLayoutClient({ children }: LayoutProps) {
     );
 
     return (
-        <UserProvider>
-            <RoomProvider>
-                <OrderProvider>
-                    <ItemGroupProvider>
-                        <ItemProvider>
-                            <ReservationProvider>
-                                <div
-                                    className="h-dvh overflow-hidden bg-background text-zinc-100 font-sans flex flex-row"
-                                    dir={isRtl ? "rtl" : "ltr"}
-                                >
-                                    {/* Persistent Desktop Sidebar Drawer on the Side (w-64) */}
-                                    <aside
-                                        className={`hidden lg:block w-64 shrink-0 sticky top-0 h-dvh z-30 ${isRtl ? "border-l border-white/10" : "border-r border-white/10"}`}
+        <RoomProvider>
+            <OrderProvider>
+                <ItemGroupProvider>
+                    <ItemProvider>
+                        <ReservationProvider>
+                            <NewsProvider>
+                                <ReportProvider>
+                                    <div
+                                        className="h-dvh overflow-hidden bg-background text-zinc-100 font-sans flex flex-row"
+                                        dir={isRtl ? "rtl" : "ltr"}
                                     >
-                                        {sidebarContent}
-                                    </aside>
-
-                                    {/* Unified Top Header for Mobile & Desktop */}
-                                    <div className="flex-1 flex flex-col h-full max-h-full overflow-hidden min-w-0">
-                                        <header className="h-16 border-b border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-20">
-                                            <div className="flex items-center gap-3">
-                                                {/* Hamburger toggle button - Mobile Only */}
-                                                <button
-                                                    onClick={() =>
-                                                        setIsMobileOpen(
-                                                            !isMobileOpen,
-                                                        )
-                                                    }
-                                                    className="lg:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all duration-150 focus:outline-none cursor-pointer"
-                                                    aria-label="Toggle menu"
-                                                >
-                                                    <MenuIcon className="w-5 h-5" />
-                                                </button>
-
-                                                {/* Brand Logo - Mobile Only */}
-                                                <div className="lg:hidden flex items-center gap-2">
-                                                    <LogoIcon className="w-10 h-10 shrink-0 drop-shadow-md text-primary" />
-                                                    <span className="text-sm font-black text-white">
-                                                        {t("common.logoTitle")}
-                                                    </span>
-                                                </div>
-
-                                                {/* Desktop Admin Status - Desktop Only */}
-                                                <div className="hidden lg:flex items-center gap-2.5">
-                                                    <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                                                    <span className="text-xs font-black text-zinc-300 tracking-wider uppercase">
-                                                        {username ||
-                                                            t(
-                                                                "common.adminStatus",
-                                                            )}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Notification Center Integration on top right/left */}
-                                            <div className="flex items-center gap-3.5">
-                                                <NotificationCenter />
-                                            </div>
-                                        </header>
-
-                                        {/* Mobile Drawer Slide-in Menu Backdrop */}
-                                        {isMobileOpen && (
-                                            <div
-                                                className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
-                                                onClick={() =>
-                                                    setIsMobileOpen(false)
-                                                }
-                                            />
-                                        )}
-
-                                        {/* Mobile Drawer Menu Content */}
+                                        {/* Persistent Desktop Sidebar Drawer on the Side (w-64) */}
                                         <aside
-                                            className={`lg:hidden fixed top-0 bottom-0 z-50 transition-transform duration-300 h-dvh shrink-0 w-64 border-white/10 ${isRtl
-                                                ? "right-0 border-l"
-                                                : "left-0 border-r"
-                                                } ${isMobileOpen
-                                                    ? "translate-x-0"
-                                                    : isRtl
-                                                        ? "translate-x-full"
-                                                        : "-translate-x-full"
-                                                }`}
+                                            className={`hidden lg:block w-64 shrink-0 sticky top-0 h-dvh z-30 ${isRtl ? "border-l border-white/10" : "border-r border-white/10"}`}
                                         >
                                             {sidebarContent}
                                         </aside>
 
-                                        {/* Main Content Pane */}
-                                        <main className="flex-1 overflow-y-auto p-4 sm:p-8 min-w-0">
-                                            {children}
-                                        </main>
+                                        {/* Unified Top Header for Mobile & Desktop */}
+                                        <div className="flex-1 flex flex-col h-full max-h-full overflow-hidden min-w-0">
+                                            <header className="h-16 border-b border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-20">
+                                                <div className="flex items-center gap-3">
+                                                    {/* Hamburger toggle button - Mobile Only */}
+                                                    <button
+                                                        onClick={() =>
+                                                            setIsMobileOpen(
+                                                                !isMobileOpen,
+                                                            )
+                                                        }
+                                                        className="lg:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all duration-150 focus:outline-none cursor-pointer"
+                                                        aria-label="Toggle menu"
+                                                    >
+                                                        <MenuIcon className="w-5 h-5" />
+                                                    </button>
+
+                                                    {/* Brand Logo - Mobile Only */}
+                                                    <div className="lg:hidden flex items-center gap-2">
+                                                        <LogoIcon className="w-10 h-10 shrink-0 drop-shadow-md text-primary" />
+                                                        <span className="text-sm font-black text-white">
+                                                            {t("common.logoTitle")}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Desktop Admin Status - Desktop Only */}
+                                                    <div className="hidden lg:flex items-center gap-2.5">
+                                                        <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                                                        <span className="text-xs font-black text-zinc-300 tracking-wider uppercase">
+                                                            {username ||
+                                                                t(
+                                                                    "common.adminStatus",
+                                                                )}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Notification Center Integration on top right/left */}
+                                                <div className="flex items-center gap-3.5">
+                                                    <NotificationCenter />
+                                                </div>
+                                            </header>
+
+                                            {/* Mobile Drawer Slide-in Menu Backdrop */}
+                                            {isMobileOpen && (
+                                                <div
+                                                    className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
+                                                    onClick={() =>
+                                                        setIsMobileOpen(false)
+                                                    }
+                                                />
+                                            )}
+
+                                            {/* Mobile Drawer Menu Content */}
+                                            <aside
+                                                className={`lg:hidden fixed top-0 bottom-0 z-50 transition-transform duration-300 h-dvh shrink-0 w-64 border-white/10 ${isRtl
+                                                    ? "right-0 border-l"
+                                                    : "left-0 border-r"
+                                                    } ${isMobileOpen
+                                                        ? "translate-x-0"
+                                                        : isRtl
+                                                            ? "translate-x-full"
+                                                            : "-translate-x-full"
+                                                    }`}
+                                            >
+                                                {sidebarContent}
+                                            </aside>
+
+                                            {/* Main Content Pane */}
+                                            <main className="flex-1 overflow-y-auto p-4 sm:p-8 min-w-0">
+                                                {children}
+                                            </main>
+                                        </div>
+
                                     </div>
 
                                     {/* Dynamic PWA Installation Promotion */}
@@ -337,12 +318,12 @@ export default function AdminLayoutClient({ children }: LayoutProps) {
 
                                     {/* Full Screen Page Transition Overlay Loader */}
                                     {isLoading && <PageLoader />}
-                                </div>
-                            </ReservationProvider>
-                        </ItemProvider>
-                    </ItemGroupProvider>
-                </OrderProvider>
-            </RoomProvider>
-        </UserProvider>
+                                </ReportProvider>
+                            </NewsProvider>
+                        </ReservationProvider>
+                    </ItemProvider>
+                </ItemGroupProvider>
+            </OrderProvider>
+        </RoomProvider>
     );
 }

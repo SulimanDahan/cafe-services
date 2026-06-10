@@ -40,3 +40,6 @@ export { default as DisableIcon } from "./DisableIcon";
 export { default as TvIcon } from "./TvIcon";
 export { default as WifiIcon } from "./WifiIcon";
 export { default as HookahIcon } from "./HookahIcon";
+export { default as EmptyOrdersIcon } from "./EmptyOrdersIcon";
+export { default as EmptyReportsIcon } from "./EmptyReportsIcon";
+export { default as CameraUploadIcon } from "./CameraUploadIcon";

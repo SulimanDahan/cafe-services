@@ -10,6 +10,7 @@ type OrderModel = {
  item_id: string;
  item_price: number;
  quantity: number;
+ notes?: string | null;
  accepted: boolean;
  created_at: Date;
  updated_at: Date;
@@ -25,6 +26,7 @@ export const initialOrderState: OrderModel = {
  quantity: 0,
  item_price: 0,
  reservation_id: "",
+ notes: null,
  accepted: false,
  created_at: new Date(),
  updated_at: new Date(),

@@ -13,7 +13,7 @@ export function ActionIconButton({
  className = "",
  ...props
 }: ActionIconButtonProps) {
- const baseStyles = "p-1.5 rounded-lg border transition-all duration-200 flex items-center justify-center";
+ const baseStyles = "p-1.5 aspect-square rounded-lg border transition-all duration-200 flex items-center justify-center";
  
  const variants = {
  edit: "bg-zinc-800 border-white/10 text-zinc-400 hover:bg-primary/10 hover:border-primary/30 hover:text-primary-light",

@@ -13,8 +13,8 @@ interface InputFieldProps extends React.InputHTMLAttributes<
 export const InputField = React.forwardRef<
     HTMLInputElement | HTMLSelectElement,
     InputFieldProps
->(({ label, isSelect, options, ...props }, ref) => {
-    const className =
+>(({ label, isSelect, options, className: customClassName, ...props }, ref) => {
+    const baseClassName =
         "w-full bg-background border border-white/10 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all duration-200";
 
     return (
@@ -28,7 +28,7 @@ export const InputField = React.forwardRef<
                 <div className="relative">
                     <select
                         ref={ref as React.Ref<HTMLSelectElement>}
-                        className={`${className} appearance-none cursor-pointer`}
+                        className={`${baseClassName} appearance-none cursor-pointer ${customClassName || ""}`}
                         {...(props as React.SelectHTMLAttributes<HTMLSelectElement>)}
                     >
                         {options?.map((opt) => (
@@ -48,7 +48,7 @@ export const InputField = React.forwardRef<
             ) : (
                 <input
                     ref={ref as React.Ref<HTMLInputElement>}
-                    className={className}
+                    className={`${baseClassName} ${customClassName || ""}`}
                     {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
                 />
             )}

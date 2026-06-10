@@ -1,40 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import AdminHeader from "@/components/headers/admin_header";
 import SearchInput from "@/components/SearchInput";
 import { useLanguage } from "@/config/i18n";
 import { useSettings } from "@/context/settings_context";
 import { useReservation } from "@/context/reservation_context";
 import { useRoom } from "@/context/room_context";
-import {
-    CheckIcon,
-    TrashIcon,
-    UndoCircleIcon,
-    EnableCircleIcon,
-    EditIcon,
-} from "@/components/icons";
+import { useOrder } from "@/context/order_context";
+import { useReport } from "@/context/report_context";
 import ReservationModel from "@/models/data_models/reservation_model";
 import ErrorModal from "@/components/partials/modals/error_modal";
-import AdminReservationModal from "@/components/partials/modals/admin/AdminReservationModal";
-import { PrimaryButton } from "@/components/button/primary_button";
+import CombinedReservationModal from "@/components/partials/modals/admin/CombinedReservationModal";
 import { Badge } from "@/components/badge";
 import Pagination from "@/components/Pagination";
 import TabBar from "@/components/tab_bar";
 import Table, { TableColumn } from "@/components/table";
-import { ActionIconButton } from "@/components/button/action_icon_button";
-import PlusIcon from "@/components/icons/PlusIcon";
+import RoomCard from "@/components/card/room_card";
+// import RoomCard from "@/components/card/room_card";
 
-/**
- * Admin Reservations Control Panel.
- * Connected to DB via ReservationContext and RoomContext.
- */
 export default function ReservationsAdmin() {
     const { t, isRtl } = useLanguage();
     const { settings } = useSettings();
     const {
         reservations,
-        total,
+        total: totalReservations,
         totalPages,
         isReservationsLoading,
         fetchAllReservations,
@@ -42,97 +32,86 @@ export default function ReservationsAdmin() {
         updateReservation,
         acceptReservation,
         activateReservation,
-        rejectReservation,
-        deleteReservation,
+        // checkoutReservation,
         undoReservationAction,
     } = useReservation();
     const { rooms, fetchAllRooms } = useRoom();
+    const { orders, fetchAllOrders, updateOrder, deleteOrder } = useOrder();
+    const { reportsList, fetchAllReports, updateReport } = useReport();
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [activeTab, setActiveTab] = useState("all");
-    const [showPast, setShowPast] = useState(false);
+    const [isDateFilterEnabled, setIsDateFilterEnabled] = useState(false);
+    const [dateFilter, setDateFilter] = useState(() => new Date().toISOString().split('T')[0]);
+    const [mainTab, setMainTab] = useState("grid"); // grid | history
     const [currentPage, setCurrentPage] = useState(1);
 
-    const columns: TableColumn[] = [
-        { key: "client_name", label: t("reservations.columnClient") },
-        { key: "phone", label: t("reservations.columnPhone") },
-        ...(settings.force_client_order_session_passKey
-            ? [
-                  {
-                      key: "order_passkey",
-                      label: t("reservations.columnPasskey") || "Passkey",
-                  },
-              ]
-            : []),
-        { key: "date_time", label: t("reservations.columnDateTime") },
-        { key: "room", label: t("reservations.columnRoom") },
-        {
-            key: "status",
-            label: t("reservations.columnStatus"),
-            align: "center",
-        },
-        { key: "actions", label: t("common.actions"), align: "center" },
-    ];
-
-    // Form Modal Toggles
+    // Modal States
     const [isResOpen, setIsResOpen] = useState(false);
     const [editingRes, setEditingRes] = useState<ReservationModel | null>(null);
+    const [initialRoomIdForAdd, setInitialRoomIdForAdd] = useState<string>("");
     const [errorModalMsg, setErrorModalMsg] = useState<string | null>(null);
 
-    // React Hook Form values interface
-    interface ReservationFormValues {
-        client_name: string;
-        phone: string;
-        room_id: string;
-        date_time: string;
-    }
+    const perPage = settings?.per_page || 10;
 
-    const perPage = settings.per_page || 10;
-
-    // Compute set of room IDs that currently have an active (activated, not completed) reservation
-    const activeRoomIds = new Set(
-        reservations
-            .filter((r) => r.activated && !r.completed && !r.rejected)
-            .map((r) => r.room_id),
-    );
-
-    // Server-fetch reservations when page, search, tab or showPast changes
-    useEffect(() => {
-        const params: Record<string, string> = {
-            page: String(currentPage),
-            per_page: String(perPage),
-            all: String(showPast),
-        };
-        if (searchQuery) params.search = searchQuery;
-        if (activeTab !== "all") params.status = activeTab;
-        fetchAllReservations(params);
-    }, [
-        currentPage,
-        searchQuery,
-        activeTab,
-        showPast,
-        perPage,
-        fetchAllReservations,
-    ]);
-
-    // Fetch rooms once for dropdown (not paginated)
+    // Fetch rooms and reports on mount
     useEffect(() => {
         fetchAllRooms({ fetch_all: "true" });
-    }, [fetchAllRooms]);
+        fetchAllReports({ fetch_all: "true", per_page: "1000" });
+    }, [fetchAllRooms, fetchAllReports]);
 
-    const handleOpenAddForm = () => {
-        setEditingRes(null);
-        setIsResOpen(true);
-    };
+    // Fetch reservations depending on tab
+    const fetchReservations = useCallback(async () => {
+        if (mainTab === "grid") {
+            // Fetch all active/pending reservations to match with rooms
+            await fetchAllReservations({
+                fetch_all: "true",
+                status: "active_and_pending", // Might need backend support, but usually we just fetch all without pagination for grid or just fetch the active ones
+                all: "true"
+            });
+        } else {
+            // Fetch paginated history (completed/rejected)
+            await fetchAllReservations({
+                page: String(currentPage),
+                per_page: String(perPage),
+                all: "true",
+                status: "history",
+                search: searchQuery,
+                ...(isDateFilterEnabled && dateFilter ? { date: dateFilter } : {})
+            });
+        }
+    }, [mainTab, currentPage, perPage, searchQuery, dateFilter, isDateFilterEnabled, fetchAllReservations]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchReservations();
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [fetchReservations]);
+
+    const roomStatuses = useMemo(() => {
+        const map = new Map<string, "accepted" | "active" | "pending">();
+        reservations
+            .filter((r) => !r.completed && !r.rejected)
+            .forEach((r) => {
+                if (r.activated) map.set(r.room_id, "active");
+                else if (r.accepted) map.set(r.room_id, "accepted");
+                else map.set(r.room_id, "pending");
+            });
+        return map;
+    }, [reservations]);
+
 
     const handleOpenEditForm = (res: ReservationModel) => {
         setEditingRes(res);
         setIsResOpen(true);
     };
 
-    const handleSaveReservation = async (
-        data: ReservationFormValues,
-    ): Promise<boolean> => {
+    const currentReservation = useMemo(() => {
+        if (!editingRes) return null;
+        return reservations.find(r => r.id === editingRes.id) || editingRes;
+    }, [reservations, editingRes]);
+
+    const handleSaveReservation = async (data: { client_name: string; phone: string; room_id: string; date_time: string; }): Promise<boolean> => {
         let success = false;
         if (editingRes) {
             success = await updateReservation(editingRes.id, {
@@ -154,428 +133,230 @@ export default function ReservationsAdmin() {
 
         if (!success) {
             setErrorModalMsg(t("common.errorOccurred"));
+        } else {
+            fetchReservations();
         }
         return success;
     };
 
+    // const handleCheckout = async (id: string) => {
+    //     const success = await checkoutReservation(id);
+    //     if (success) {
+    //         fetchReservations();
+    //     } else {
+    //         setErrorModalMsg(t("orders.msgCheckoutSuccessFailed") || "Checkout failed");
+    //     }
+    // };
+
     const handleAccept = async (id: string) => {
         const success = await acceptReservation(id);
-        if (!success) {
-            setErrorModalMsg(t("apiMessages.error.roomAlreadyActive"));
-        }
+        if (!success) setErrorModalMsg(t("apiMessages.error.roomAlreadyActive"));
+        else fetchReservations();
     };
 
     const handleActivate = async (id: string) => {
         const success = await activateReservation(id);
-        if (!success) {
-            setErrorModalMsg(t("apiMessages.error.roomAlreadyActive"));
-        }
+        if (!success) setErrorModalMsg(t("apiMessages.error.roomAlreadyActive"));
+        else fetchReservations();
     };
 
-    const handleReject = async (id: string) => {
-        if (
-            confirm(
-                t("reservations.confirmReject") || t("common.confirmDelete"),
-            )
-        ) {
-            const success = await rejectReservation(id);
-            if (!success) {
-                setErrorModalMsg(t("common.errorOccurred"));
-            }
-        }
+    const handleComplete = async (id: string) => {
+        const success = await updateReservation(id, { completed: true });
+        if (!success) setErrorModalMsg(t("common.errorOccurred"));
+        else fetchReservations();
     };
 
-    const handleDelete = async (id: string) => {
-        if (confirm(t("common.confirmDelete"))) {
-            await deleteReservation(id);
-        }
-    };
-
-    const handleUndoAction = async (
-        id: string,
-        action: "accept" | "activate" | "complete" | "reject",
-    ) => {
+    const handleUndoAction = async (id: string, action: "accept" | "activate" | "complete" | "reject") => {
         const result = await undoReservationAction(id, action);
-        if (!result.success) {
-            setErrorModalMsg(t(result.error || "common.errorOccurred"));
-        }
+        if (!result.success) setErrorModalMsg(t(result.error || "common.errorOccurred"));
+        else fetchReservations();
+    };
+
+    // Orders Actions
+    const handleApproveOrder = async (orderId: string) => {
+        await updateOrder(orderId, { accepted: true });
+        fetchAllOrders();
+    };
+    const handleUnapproveOrder = async (orderId: string) => {
+        await updateOrder(orderId, { accepted: false });
+        fetchAllOrders();
+    };
+    const handleDeleteOrder = async (orderId: string) => {
+        await deleteOrder(orderId);
+        fetchAllOrders();
+    };
+
+    // Reports Actions
+    const handleMarkReportRead = async (reportId: string) => {
+        await updateReport(reportId, { is_read: true });
+        fetchAllReports({ fetch_all: "true", per_page: "1000" });
     };
 
     const formatDate = (date: Date | string) => {
         const d = new Date(date);
         return d.toLocaleDateString(isRtl ? "ar-SA" : "en-US", {
             day: "numeric",
-            month: "long",
-            year: "numeric",
+            month: "short",
+            year: "numeric"
         });
     };
 
+    const historyColumns: TableColumn[] = [
+        { key: "client_name", label: t("reservations.columnClient") },
+        { key: "phone", label: t("reservations.columnPhone") },
+        { key: "date_time", label: t("reservations.columnDateTime") },
+        { key: "room", label: t("reservations.columnRoom") },
+        { key: "status", label: t("reservations.columnStatus"), align: "center" },
+    ];
+
     return (
         <div className="space-y-6">
-            {/* Top Header */}
             <AdminHeader
                 title={t("reservations.title")}
                 subtitle={t("reservations.subtitle")}
             >
-                <PrimaryButton onClick={handleOpenAddForm} size="md">
-                    <PlusIcon className="w-4 h-4" />
-                    <span>{t("reservations.addReservation")}</span>
-                </PrimaryButton>
+                <TabBar
+                    tabs={[
+                        { id: "grid", label: t("reservations.tabActiveRooms") || "Live Rooms" },
+                        { id: "history", label: t("reservations.tabHistory") || "Past Reservations" },
+                    ]}
+                    activeTab={mainTab}
+                    onChange={(id) => { setMainTab(id); setCurrentPage(1); }}
+                />
             </AdminHeader>
 
-            {/* Filters Panel */}
-            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
-                {/* Status Sub-Tabs and search bar */}
-                <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
-                    {/* Subtabs */}
-                    {/* Subtabs */}
-                    <TabBar
-                        tabs={[
-                            {
-                                id: "all",
-                                label: `${t("reservations.filterAll")} (${total})`,
-                            },
-                            {
-                                id: "pending",
-                                label: t("reservations.filterPending"),
-                            },
-                            {
-                                id: "confirmed",
-                                label: t("reservations.filterAccepted"),
-                            },
-                            {
-                                id: "active",
-                                label: t("reservations.filterActive"),
-                            },
-                            {
-                                id: "completed",
-                                label: t("reservations.filterCompleted"),
-                            },
-                            {
-                                id: "rejected",
-                                label: t("reservations.filterRejected"),
-                            },
-                        ]}
-                        activeTab={activeTab}
-                        onChange={(id) => {
-                            setActiveTab(id);
-                            setCurrentPage(1);
-                        }}
-                    />
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                        <label className="flex items-center gap-2.5 px-4 py-2 rounded-2xl border border-white/5 bg-[#0d0f17]/50 hover:bg-[#0d0f17]/80 cursor-pointer transition-all duration-200 select-none text-zinc-300">
-                            <input
-                                type="checkbox"
-                                checked={showPast}
-                                onChange={(e) => setShowPast(e.target.checked)}
-                                className="w-4 h-4 rounded border-white/10 bg-background text-primary focus:ring-0 focus:ring-offset-0 accent-primary cursor-pointer"
+            {mainTab === "grid" ? (
+                // GRID VIEW
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {rooms.filter(room => !room.is_disable).map((room) => {
+                        // Find the active/pending reservation for this room
+                        const res = reservations.find(r => r.room_id === room.id && !r.completed && !r.rejected);
+
+                        // Notifications
+                        const roomOrders = res ? orders.filter(o => o.reservation_id === res.id) : [];
+                        const unapprovedOrdersCount = roomOrders.filter(o => !o.accepted).length;
+
+                        const roomReports = res ? reportsList.filter(r => r.reservation_id === res.id) : [];
+                        const unreadReportsCount = roomReports.filter(r => !r.is_read).length;
+
+                        return (
+                            <RoomCard
+                                key={room.id}
+                                room={room}
+                                reservation={res}
+                                unapprovedOrdersCount={unapprovedOrdersCount}
+                                unreadReportsCount={unreadReportsCount}
+                                onClick={() => {
+                                    if (res) handleOpenEditForm(res);
+                                    else {
+                                        // Open add form with this room pre-selected
+                                        setEditingRes(null);
+                                        setInitialRoomIdForAdd(room.id);
+                                        setIsResOpen(true);
+                                    }
+                                }}
                             />
-                            <span className="text-xs font-extrabold whitespace-nowrap">
-                                {t("reservations.showPast")}
-                            </span>
-                        </label>
-                        <SearchInput
-                            value={searchQuery}
-                            onChange={(v) => {
-                                setSearchQuery(v);
-                                setCurrentPage(1);
-                            }}
-                            placeholder={t("reservations.searchRes")}
-                        />
-                    </div>
+                        );
+                    })}
                 </div>
+            ) : (
+                // HISTORY VIEW
+                <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="w-full sm:w-72">
+                            <SearchInput
+                                value={searchQuery}
+                                onChange={(v) => { setSearchQuery(v); setCurrentPage(1); }}
+                                placeholder={t("reservations.searchRes")}
+                            />
+                        </div>
+                        <div className="w-full sm:w-auto flex items-center gap-3">
+                            <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-zinc-300">
+                                <input 
+                                    type="checkbox" 
+                                    checked={isDateFilterEnabled}
+                                    onChange={(e) => { setIsDateFilterEnabled(e.target.checked); setCurrentPage(1); }}
+                                    className="w-4 h-4 rounded border-white/10 bg-[#0d0f17] text-primary focus:ring-primary/50 cursor-pointer"
+                                />
+                                {t("reservations.filterByDate") || "حسب التاريخ"}
+                            </label>
+                            <input
+                                type="date"
+                                value={dateFilter}
+                                disabled={!isDateFilterEnabled}
+                                onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }}
+                                className={`w-full sm:w-auto bg-[#0d0f17] border border-white/10 rounded-2xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:border-primary transition-all duration-200 ${!isDateFilterEnabled ? 'opacity-50 cursor-not-allowed text-zinc-500' : 'text-white'}`}
+                            />
+                        </div>
+                    </div>
 
-                {/* Reservations Table */}
-                <Table
-                    columns={columns}
-                    isLoading={isReservationsLoading}
-                    dataLength={reservations.length}
-                >
-                    {reservations.map(
-                        (res: ReservationModel, index: number) => (
+                    <Table
+                        columns={historyColumns}
+                        isLoading={isReservationsLoading}
+                        dataLength={totalReservations}
+                    >
+                        {reservations.map((res: ReservationModel) => (
                             <tr
-                                key={index}
-                                className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200"
+                                key={res.id}
+                                onClick={() => handleOpenEditForm(res)}
+                                className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200 cursor-pointer"
                             >
-                                <td
-                                    className={`py-4 px-4 font-bold text-white group-hover:text-primary-light transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
-                                >
+                                <td className={`py-4 px-4 font-bold text-white group-hover:text-primary-light transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
                                     {res.client_name}
                                 </td>
-                                <td
-                                    className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
-                                >
+                                <td className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
                                     {res.phone}
                                 </td>
-                                {settings.force_client_order_session_passKey && (
-                                    <td
-                                        className={`py-4 px-4 font-black text-amber-500 text-sm tracking-wider whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
-                                    >
-                                        {res.order_passkey ? res.order_passkey.toString() : "—"}
-                                    </td>
-                                )}
-                                <td
-                                    className={`py-4 px-4 text-zinc-400 text-xs font-semibold whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
-                                >
+                                <td className={`py-4 px-4 text-zinc-400 text-xs font-semibold whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
                                     {formatDate(res.date_time)}
                                 </td>
-                                <td
-                                    className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
-                                >
+                                <td className={`py-4 px-4 text-zinc-300 font-bold text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}>
                                     {res.room?.name ?? t("common.unknown")}
                                 </td>
                                 <td className="py-4 px-4 text-center whitespace-nowrap">
-                                    <Badge
-                                        variant={
-                                            res.rejected
-                                                ? "error"
-                                                : res.completed
-                                                  ? "zinc"
-                                                  : res.activated
-                                                    ? "success"
-                                                    : res.accepted
-                                                      ? "info"
-                                                      : "amber"
-                                        }
-                                        pulse={
-                                            !res.rejected &&
-                                            (!res.accepted ||
-                                                (res.activated &&
-                                                    !res.completed))
-                                        }
-                                    >
-                                        {res.rejected
-                                            ? t("reservations.statusRejected")
-                                            : res.completed
-                                              ? t(
-                                                    "reservations.statusCompleted",
-                                                )
-                                              : res.activated
-                                                ? t("reservations.statusActive")
-                                                : res.accepted
-                                                  ? t(
-                                                        "reservations.statusAccepted",
-                                                    )
-                                                  : t(
-                                                        "reservations.statusPending",
-                                                    )}
+                                    <Badge variant={res.rejected ? "error" : "zinc"}>
+                                        {res.rejected ? t("reservations.statusRejected") : t("reservations.statusCompleted")}
                                     </Badge>
                                 </td>
-                                <td className="py-4 px-4 text-center whitespace-nowrap">
-                                    <div className="flex items-center justify-center gap-2">
-                                        {!res.accepted &&
-                                            !res.completed &&
-                                            !res.rejected && (
-                                                <>
-                                                    <ActionIconButton
-                                                        variant="accept"
-                                                        icon={
-                                                            <CheckIcon className="w-4 h-4" />
-                                                        }
-                                                        onClick={() =>
-                                                            handleAccept(res.id)
-                                                        }
-                                                        title={t(
-                                                            "reservations.btnConfirmRes",
-                                                        )}
-                                                    />
-                                                    <ActionIconButton
-                                                        variant="disable"
-                                                        icon={
-                                                            <svg
-                                                                className="w-4 h-4"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={
-                                                                        2
-                                                                    }
-                                                                    d="M6 18L18 6M6 6l12 12"
-                                                                />
-                                                            </svg>
-                                                        }
-                                                        onClick={() =>
-                                                            handleReject(res.id)
-                                                        }
-                                                        title={t(
-                                                            "reservations.btnRejectRes",
-                                                        )}
-                                                    />
-                                                </>
-                                            )}
-                                        {res.accepted &&
-                                            !res.activated &&
-                                            !res.completed &&
-                                            !res.rejected && (
-                                                <ActionIconButton
-                                                    variant="enable"
-                                                    icon={
-                                                        <EnableCircleIcon className="w-4 h-4" />
-                                                    }
-                                                    onClick={() =>
-                                                        handleActivate(res.id)
-                                                    }
-                                                    title={t(
-                                                        "reservations.btnActivateRes",
-                                                    )}
-                                                />
-                                            )}
-                                        {!res.activated &&
-                                            !res.completed &&
-                                            !res.rejected && (
-                                                <>
-                                                    <ActionIconButton
-                                                        variant="edit"
-                                                        icon={
-                                                            <EditIcon className="w-4 h-4" />
-                                                        }
-                                                        onClick={() =>
-                                                            handleOpenEditForm(
-                                                                res,
-                                                            )
-                                                        }
-                                                        title={t("common.edit")}
-                                                    />
-                                                    <ActionIconButton
-                                                        variant="delete"
-                                                        icon={
-                                                            <TrashIcon className="w-4 h-4" />
-                                                        }
-                                                        onClick={() =>
-                                                            handleDelete(res.id)
-                                                        }
-                                                        title={t(
-                                                            "common.delete",
-                                                        )}
-                                                    />
-                                                </>
-                                            )}
-                                        {res.accepted &&
-                                            !res.activated &&
-                                            !res.completed &&
-                                            !res.rejected && (
-                                                <ActionIconButton
-                                                    variant="edit"
-                                                    icon={
-                                                        <UndoCircleIcon className="w-4 h-4" />
-                                                    }
-                                                    onClick={() =>
-                                                        handleUndoAction(
-                                                            res.id,
-                                                            "accept",
-                                                        )
-                                                    }
-                                                    title={t(
-                                                        "reservations.btnUndoAccept",
-                                                    )}
-                                                />
-                                            )}
-                                        {res.activated &&
-                                            !res.completed &&
-                                            !res.rejected && (
-                                                <ActionIconButton
-                                                    variant="edit"
-                                                    icon={
-                                                        <UndoCircleIcon className="w-4 h-4" />
-                                                    }
-                                                    onClick={() =>
-                                                        handleUndoAction(
-                                                            res.id,
-                                                            "activate",
-                                                        )
-                                                    }
-                                                    title={t(
-                                                        "reservations.btnUndoActivate",
-                                                    )}
-                                                />
-                                            )}
-                                        {res.completed && !res.rejected && (
-                                            <ActionIconButton
-                                                variant="edit"
-                                                icon={
-                                                    <UndoCircleIcon className="w-4 h-4" />
-                                                }
-                                                onClick={() => {
-                                                    if (
-                                                        confirm(
-                                                            t(
-                                                                "reservations.confirmUndoComplete",
-                                                            ),
-                                                        )
-                                                    ) {
-                                                        handleUndoAction(
-                                                            res.id,
-                                                            "complete",
-                                                        );
-                                                    }
-                                                }}
-                                                title={t(
-                                                    "reservations.btnUndoComplete",
-                                                )}
-                                            />
-                                        )}
-                                        {res.rejected && (
-                                            <ActionIconButton
-                                                variant="edit"
-                                                icon={
-                                                    <UndoCircleIcon className="w-4 h-4" />
-                                                }
-                                                onClick={() =>
-                                                    handleUndoAction(
-                                                        res.id,
-                                                        "reject",
-                                                    )
-                                                }
-                                                title={t(
-                                                    "reservations.btnUndoReject",
-                                                )}
-                                            />
-                                        )}
-                                    </div>
-                                </td>
                             </tr>
-                        ),
-                    )}
-                </Table>
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalItems={total}
-                    itemsPerPage={perPage}
-                    onPageChange={setCurrentPage}
-                />
-            </div>
+                        ))}
+                    </Table>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        totalItems={totalReservations}
+                        itemsPerPage={perPage}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            )}
 
-            <AdminReservationModal
+            <CombinedReservationModal
                 isOpen={isResOpen}
                 onClose={() => {
                     setIsResOpen(false);
                     setEditingRes(null);
+                    setInitialRoomIdForAdd("");
                 }}
                 onSave={handleSaveReservation}
                 rooms={rooms}
-                activeRoomIds={activeRoomIds}
-                initialData={
-                    editingRes
-                        ? {
-                              client_name: editingRes.client_name,
-                              phone: editingRes.phone,
-                              room_id: editingRes.room_id,
-                              order_passkey: editingRes.order_passkey,
-                              date_time: new Date(
-                                  editingRes.date_time,
-                              ).toISOString(),
-                          }
-                        : null
-                }
+                reservation={currentReservation}
+                initialRoomId={initialRoomIdForAdd}
+                orders={currentReservation ? orders.filter(o => o.reservation_id === currentReservation.id) : []}
+                reports={currentReservation ? reportsList.filter(r => r.reservation_id === currentReservation.id) : []}
+                roomStatuses={roomStatuses}
+                onAccept={handleAccept}
+                onActivate={handleActivate}
+                onComplete={handleComplete}
+                // onCheckout={handleCheckout}
+                onApproveOrder={handleApproveOrder}
+                onUnapproveOrder={handleUnapproveOrder}
+                onDeleteOrder={handleDeleteOrder}
+                onMarkReportRead={handleMarkReportRead}
+                onUndoAction={handleUndoAction}
             />
 
-            {/* Error Modal */}
             <ErrorModal
                 isOpen={!!errorModalMsg}
                 onClose={() => setErrorModalMsg(null)}

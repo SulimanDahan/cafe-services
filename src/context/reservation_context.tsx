@@ -2,8 +2,8 @@
 
 import {
     RESERVATION_API_ROUTE,
-    NOTIFICATION_STREAM_API_ROUTE,
 } from "@/config/api_routes";
+import { sharedSSE } from "@/lib/sse_client";
 import ReservationModel from "@/models/data_models/reservation_model";
 import { type ReactNode, useEffect, useMemo } from "react";
 import {
@@ -66,7 +66,7 @@ export function ReservationProvider({ children }: { children: ReactNode }) {
 
     // Listen to SSE for real-time updates
     useEffect(() => {
-        const eventSource = new EventSource(NOTIFICATION_STREAM_API_ROUTE);
+        sharedSSE.connect();
         const onNewReservation = (event: MessageEvent) => {
             try {
                 const newRes = JSON.parse(event.data);
@@ -79,14 +79,14 @@ export function ReservationProvider({ children }: { children: ReactNode }) {
             }
         };
 
-        eventSource.addEventListener("new-reservation", onNewReservation);
+        sharedSSE.addEventListener("new-reservation", onNewReservation);
 
         return () => {
-            eventSource.removeEventListener(
+            sharedSSE.removeEventListener(
                 "new-reservation",
                 onNewReservation,
             );
-            eventSource.close();
+            sharedSSE.disconnect();
         };
     }, [setReservations]);
 

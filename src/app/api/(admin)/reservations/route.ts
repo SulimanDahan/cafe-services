@@ -21,11 +21,24 @@ export async function GET(request: Request) {
 		const search = searchParams.get("search") || "";
 		const status = searchParams.get("status") || "all"; // all | pending | confirmed
 		const all = searchParams.get("all") === "true"; // include past reservations
+		const filterDate = searchParams.get("date");
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const where: any = {};
 
-		if (!all) {
+		if (filterDate) {
+			const dateObj = new Date(filterDate);
+			if (!isNaN(dateObj.getTime())) {
+				const startOfDay = new Date(dateObj);
+				startOfDay.setHours(0, 0, 0, 0);
+				const endOfDay = new Date(dateObj);
+				endOfDay.setHours(23, 59, 59, 999);
+				where.date_time = {
+					gte: startOfDay,
+					lte: endOfDay,
+				};
+			}
+		} else if (!all) {
 			const todayStart = new Date();
 			todayStart.setHours(0, 0, 0, 0);
 			where.OR = [

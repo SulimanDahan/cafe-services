@@ -10,7 +10,7 @@ import { PrimaryButton } from "@/components/button/primary_button";
 import { InputField } from "@/components/input";
 import ItemModel from "@/models/data_models/item_model";
 import Image from "next/image";
-import { TrashIcon } from "@/components/icons";
+import { TrashIcon, CameraUploadIcon } from "@/components/icons";
 import { compressImage } from "@/lib/imageUtils";
 
 interface ItemFormValues {
@@ -159,8 +159,8 @@ export default function ItemModal({
                     />
 
                     {imagePreview ? (
-                        <div 
-                            className="relative w-full h-40 rounded-2xl overflow-hidden border border-white/10 group cursor-pointer" 
+                        <div
+                            className="relative w-full h-40 rounded-2xl overflow-hidden border border-white/10 group cursor-pointer"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <Image src={imagePreview} alt="Preview" fill className="object-cover transition-transform group-hover:scale-105" />
@@ -177,12 +177,12 @@ export default function ItemModal({
                             </button>
                         </div>
                     ) : (
-                        <div 
+                        <div
                             onClick={() => fileInputRef.current?.click()}
                             className="w-full h-40 rounded-2xl bg-surface-lighter/50 border-2 border-dashed border-white/10 hover:border-primary/50 hover:bg-surface-lighter transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer"
                         >
-                            <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                                <span className="text-2xl">📸</span>
+                            <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                <CameraUploadIcon className="w-7 h-7" />
                             </div>
                             <span className="text-zinc-400 text-sm font-bold">انقر هنا لاختيار أو رفع صورة</span>
                         </div>
@@ -210,9 +210,9 @@ export default function ItemModal({
                     id="itemPrice"
                     type="number"
                     step="1"
-                    min="1"
+                    min="0"
                     {...register("price")}
-                    placeholder="3500"
+                    placeholder="0"
                 />
                 {errors.price?.message && (
                     <p className="text-[10px] text-red-400 font-medium mt-1">

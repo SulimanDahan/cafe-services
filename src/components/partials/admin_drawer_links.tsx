@@ -3,11 +3,11 @@ import {
     ADMIN_ITEM_GROUP_PAGE_ROUTE,
     ADMIN_ITEM_PAGE_ROUTE,
     ADMIN_NOTIFICATION_PAGE_ROUTE,
-    ADMIN_ORDER_PAGE_ROUTE,
     ADMIN_RESERVATION_PAGE_ROUTE,
     ADMIN_ROOM_PAGE_ROUTE,
     ADMIN_SETTINGS_PAGE_ROUTE,
     ADMIN_USER_PAGE_ROUTE,
+    ADMIN_NEWS_PAGE_ROUTE,
 } from "@/config/page_routes";
 import {
     BellIcon,
@@ -15,11 +15,11 @@ import {
     DashboardIcon,
     ItemGroupIcon,
     ItemIcon,
-    OrderIcon,
     SettingsIcon,
     UsersIcon,
 } from "../icons";
 import RoomIcon from "../icons/RoomIcon";
+import MegaphoneIcon from "../icons/MegaphoneIcon";
 import DrawerButton from "@/components/button/drawer_button";
 
 // Dynamic navigation links utilizing individual imported React icon components and translation handles
@@ -61,9 +61,9 @@ export const AdminDrawerLinks = ({
             icon: <CalendarIcon size={20} className="shrink-0" />,
         },
         {
-            name: t("sidebar.orders"),
-            path: ADMIN_ORDER_PAGE_ROUTE,
-            icon: <OrderIcon size={20} className="shrink-0" />,
+            name: t("sidebar.news"),
+            path: ADMIN_NEWS_PAGE_ROUTE,
+            icon: <MegaphoneIcon size={20} className="shrink-0" />,
         },
         {
             name: t("sidebar.users"),
