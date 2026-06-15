@@ -57,6 +57,9 @@ export const settings = {
 	toggleAutoAcceptOrders: "Auto-Accept Customer Orders",
 	toggleAutoAcceptOrdersDesc:
 		"When enabled, every order placed by a customer will be automatically accepted and approved without requiring manual review from the admin.",
+	toggleShowItemImages: "Display Item Images",
+	toggleShowItemImagesDesc:
+		"Enable displaying item images in the client menu and show the image upload option in the admin panel.",
 	sectionBackup: "Database Backup",
 	sectionBackupDesc: "Download a complete database snapshot in SQL format to save or restore on another server.",
 	btnDownloadBackup: "Download Backup Now (SQL)",

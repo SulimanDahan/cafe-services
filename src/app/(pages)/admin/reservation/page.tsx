@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import AdminHeader from "@/components/headers/admin_header";
 import SearchInput from "@/components/SearchInput";
 import { useLanguage } from "@/config/i18n";
@@ -17,8 +17,7 @@ import Pagination from "@/components/Pagination";
 import TabBar from "@/components/tab_bar";
 import Table, { TableColumn } from "@/components/table";
 import RoomCard from "@/components/card/room_card";
-// import RoomCard from "@/components/card/room_card";
-
+import { InputField } from "@/components/input";
 export default function ReservationsAdmin() {
     const { t, isRtl } = useLanguage();
     const { settings } = useSettings();
@@ -34,14 +33,16 @@ export default function ReservationsAdmin() {
         activateReservation,
         // checkoutReservation,
         undoReservationAction,
+        deleteReservation,
     } = useReservation();
-    const { rooms, fetchAllRooms } = useRoom();
+    const { rooms, fetchAllRooms, isRoomsLoading } = useRoom();
     const { orders, fetchAllOrders, updateOrder, deleteOrder } = useOrder();
     const { reportsList, fetchAllReports, updateReport } = useReport();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isDateFilterEnabled, setIsDateFilterEnabled] = useState(false);
     const [dateFilter, setDateFilter] = useState(() => new Date().toISOString().split('T')[0]);
+    const [roomFilter, setRoomFilter] = useState("");
     const [mainTab, setMainTab] = useState("grid"); // grid | history
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -50,17 +51,27 @@ export default function ReservationsAdmin() {
     const [editingRes, setEditingRes] = useState<ReservationModel | null>(null);
     const [initialRoomIdForAdd, setInitialRoomIdForAdd] = useState<string>("");
     const [errorModalMsg, setErrorModalMsg] = useState<string | null>(null);
+    const [isPageReady, setIsPageReady] = useState(false);
 
     const perPage = settings?.per_page || 10;
 
-    // Fetch rooms and reports on mount
+    // Fetch rooms, reports, and orders on mount
     useEffect(() => {
         fetchAllRooms({ fetch_all: "true" });
-        fetchAllReports({ fetch_all: "true", per_page: "1000" });
-    }, [fetchAllRooms, fetchAllReports]);
+        fetchAllReports({ fetch_all: "true", per_page: perPage.toString() });
+        fetchAllOrders({ fetch_all: "true", per_page: perPage.toString() });
+    }, [fetchAllRooms, fetchAllReports, fetchAllOrders, perPage]);
 
     // Fetch reservations depending on tab
+    const lastFetchRef = useRef<{ time: number; params: string }>({ time: 0, params: "" });
     const fetchReservations = useCallback(async () => {
+        const params = JSON.stringify({ mainTab, currentPage, perPage, searchQuery, dateFilter, isDateFilterEnabled, roomFilter });
+        const now = Date.now();
+        if (lastFetchRef.current.params === params && now - lastFetchRef.current.time < 500) {
+            return;
+        }
+        lastFetchRef.current = { time: now, params };
+
         if (mainTab === "grid") {
             // Fetch all active/pending reservations to match with rooms
             await fetchAllReservations({
@@ -69,17 +80,19 @@ export default function ReservationsAdmin() {
                 all: "true"
             });
         } else {
-            // Fetch paginated history (completed/rejected)
+            // Fetch paginated history (completed)
             await fetchAllReservations({
                 page: String(currentPage),
                 per_page: String(perPage),
                 all: "true",
                 status: "history",
                 search: searchQuery,
-                ...(isDateFilterEnabled && dateFilter ? { date: dateFilter } : {})
+                ...(isDateFilterEnabled && dateFilter ? { date: dateFilter } : {}),
+                ...(roomFilter ? { room_id: roomFilter } : {})
             });
         }
-    }, [mainTab, currentPage, perPage, searchQuery, dateFilter, isDateFilterEnabled, fetchAllReservations]);
+        setIsPageReady(true);
+    }, [mainTab, currentPage, perPage, searchQuery, dateFilter, isDateFilterEnabled, roomFilter, fetchAllReservations]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -91,7 +104,7 @@ export default function ReservationsAdmin() {
     const roomStatuses = useMemo(() => {
         const map = new Map<string, "accepted" | "active" | "pending">();
         reservations
-            .filter((r) => !r.completed && !r.rejected)
+            .filter((r) => !r.completed)
             .forEach((r) => {
                 if (r.activated) map.set(r.room_id, "active");
                 else if (r.accepted) map.set(r.room_id, "accepted");
@@ -144,7 +157,7 @@ export default function ReservationsAdmin() {
     //     if (success) {
     //         fetchReservations();
     //     } else {
-    //         setErrorModalMsg(t("orders.msgCheckoutSuccessFailed") || "Checkout failed");
+    //         setErrorModalMsg(t("orders.msgCheckoutSuccessFailed"));
     //     }
     // };
 
@@ -166,10 +179,20 @@ export default function ReservationsAdmin() {
         else fetchReservations();
     };
 
-    const handleUndoAction = async (id: string, action: "accept" | "activate" | "complete" | "reject") => {
+    const handleUndoAction = async (id: string, action: "accept" | "activate" | "complete") => {
         const result = await undoReservationAction(id, action);
         if (!result.success) setErrorModalMsg(t(result.error || "common.errorOccurred"));
         else fetchReservations();
+    };
+
+    const handleDeleteReservation = async (id: string) => {
+        const success = await deleteReservation(id);
+        if (!success) setErrorModalMsg(t("apiMessages.error.cannotDeleteActiveReservation"));
+        else {
+            fetchReservations();
+            setIsResOpen(false);
+            setEditingRes(null);
+        }
     };
 
     // Orders Actions
@@ -210,15 +233,15 @@ export default function ReservationsAdmin() {
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col h-[calc(100vh-96px)] sm:h-[calc(100vh-128px)] space-y-6">
             <AdminHeader
                 title={t("reservations.title")}
                 subtitle={t("reservations.subtitle")}
             >
                 <TabBar
                     tabs={[
-                        { id: "grid", label: t("reservations.tabActiveRooms") || "Live Rooms" },
-                        { id: "history", label: t("reservations.tabHistory") || "Past Reservations" },
+                        { id: "grid", label: t("reservations.tabActiveRooms") },
+                        { id: "history", label: t("reservations.tabHistory") },
                     ]}
                     activeTab={mainTab}
                     onChange={(id) => { setMainTab(id); setCurrentPage(1); }}
@@ -228,41 +251,49 @@ export default function ReservationsAdmin() {
 
             {mainTab === "grid" ? (
                 // GRID VIEW
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {rooms.filter(room => !room.is_disable).map((room) => {
-                        // Find the active/pending reservation for this room
-                        const res = reservations.find(r => r.room_id === room.id && !r.completed && !r.rejected);
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto min-h-0 pb-12">
+                    {!isPageReady || isRoomsLoading || isReservationsLoading ? (
+                        Array.from({ length: 8 }).map((_, i) => (
+                            <div key={i} className="h-48 rounded-2xl bg-white/5 animate-pulse border border-white/10" />
+                        ))
+                    ) : (
+                        rooms
+                            .filter(room => !room.is_disable)
+                            .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+                            .map((room) => {
+                                const res = reservations.find(r => r.room_id === room.id && !r.completed);
 
-                        // Notifications
-                        const roomOrders = res ? orders.filter(o => o.reservation_id === res.id) : [];
-                        const unapprovedOrdersCount = roomOrders.filter(o => !o.accepted).length;
+                                // Notifications
+                                const roomOrders = res ? orders.filter(o => o.reservation_id === res.id) : [];
+                                const unapprovedOrdersCount = roomOrders.filter(o => !o.accepted).length;
 
-                        const roomReports = res ? reportsList.filter(r => r.reservation_id === res.id) : [];
-                        const unreadReportsCount = roomReports.filter(r => !r.is_read).length;
+                                const roomReports = res ? reportsList.filter(r => r.reservation_id === res.id) : [];
+                                const unreadReportsCount = roomReports.filter(r => !r.is_read).length;
 
-                        return (
-                            <RoomCard
-                                key={room.id}
-                                room={room}
-                                reservation={res}
-                                unapprovedOrdersCount={unapprovedOrdersCount}
-                                unreadReportsCount={unreadReportsCount}
-                                onClick={() => {
-                                    if (res) handleOpenEditForm(res);
-                                    else {
-                                        // Open add form with this room pre-selected
-                                        setEditingRes(null);
-                                        setInitialRoomIdForAdd(room.id);
-                                        setIsResOpen(true);
-                                    }
-                                }}
-                            />
-                        );
-                    })}
+                                return (
+                                    <RoomCard
+                                        key={room.id}
+                                        room={room}
+                                        reservation={res}
+                                        unapprovedOrdersCount={unapprovedOrdersCount}
+                                        unreadReportsCount={unreadReportsCount}
+                                        onClick={() => {
+                                            if (res) handleOpenEditForm(res);
+                                            else {
+                                                // Open add form with this room pre-selected
+                                                setEditingRes(null);
+                                                setInitialRoomIdForAdd(room.id);
+                                                setIsResOpen(true);
+                                            }
+                                        }}
+                                    />
+                                );
+                            })
+                    )}
                 </div>
             ) : (
                 // HISTORY VIEW
-                <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
+                <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md flex flex-col flex-1 min-h-0 gap-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="w-full sm:w-72">
                             <SearchInput
@@ -271,23 +302,40 @@ export default function ReservationsAdmin() {
                                 placeholder={t("reservations.searchRes")}
                             />
                         </div>
-                        <div className="w-full sm:w-auto flex items-center gap-3">
-                            <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-zinc-300">
-                                <input 
-                                    type="checkbox" 
-                                    checked={isDateFilterEnabled}
-                                    onChange={(e) => { setIsDateFilterEnabled(e.target.checked); setCurrentPage(1); }}
-                                    className="w-4 h-4 rounded border-white/10 bg-[#0d0f17] text-primary focus:ring-primary/50 cursor-pointer"
+                        <div className="w-full sm:w-auto flex flex-wrap items-center gap-3">
+                            <div className="flex items-center gap-3">
+                                <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-zinc-300">
+                                    <input
+                                        type="checkbox"
+                                        checked={isDateFilterEnabled}
+                                        onChange={(e) => { setIsDateFilterEnabled(e.target.checked); setCurrentPage(1); }}
+                                        className="w-4 h-4 rounded border-white/10 bg-[#0d0f17] text-primary focus:ring-primary/50 cursor-pointer"
+                                    />
+                                    {t("reservations.filterByDate")}
+                                </label>
+                                <input
+                                    type="date"
+                                    value={dateFilter}
+                                    disabled={!isDateFilterEnabled}
+                                    onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }}
+                                    style={{ colorScheme: "dark" }}
+                                    className={`w-full sm:w-auto bg-[#0d0f17] border border-white/10 rounded-2xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:border-primary transition-all duration-200 ${!isDateFilterEnabled ? 'opacity-50 cursor-not-allowed text-zinc-500' : 'text-white'} [&::-webkit-calendar-picker-indicator]:invert-[0.8]`}
                                 />
-                                {t("reservations.filterByDate") || "حسب التاريخ"}
-                            </label>
-                            <input
-                                type="date"
-                                value={dateFilter}
-                                disabled={!isDateFilterEnabled}
-                                onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }}
-                                className={`w-full sm:w-auto bg-[#0d0f17] border border-white/10 rounded-2xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:border-primary transition-all duration-200 ${!isDateFilterEnabled ? 'opacity-50 cursor-not-allowed text-zinc-500' : 'text-white'}`}
-                            />
+                            </div>
+                            <div className="w-full sm:w-48">
+                                <InputField
+                                    isSelect
+                                    value={roomFilter}
+                                    onChange={(e) => { setRoomFilter(e.target.value); setCurrentPage(1); }}
+                                    options={[
+                                        { id: "", name: t("reservations.allRooms") },
+                                        ...rooms
+                                            .filter(room => !room.is_disable)
+                                            .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+                                            .map(room => ({ id: room.id, name: room.name }))
+                                    ]}
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -295,6 +343,7 @@ export default function ReservationsAdmin() {
                         columns={historyColumns}
                         isLoading={isReservationsLoading}
                         dataLength={totalReservations}
+                        wrapperClassName="flex-1 min-h-0"
                     >
                         {reservations.map((res: ReservationModel) => (
                             <tr
@@ -315,8 +364,8 @@ export default function ReservationsAdmin() {
                                     {res.room?.name ?? t("common.unknown")}
                                 </td>
                                 <td className="py-4 px-4 text-center whitespace-nowrap">
-                                    <Badge variant={res.rejected ? "error" : "zinc"}>
-                                        {res.rejected ? t("reservations.statusRejected") : t("reservations.statusCompleted")}
+                                    <Badge variant="zinc">
+                                        {t("reservations.statusCompleted")}
                                     </Badge>
                                 </td>
                             </tr>
@@ -355,6 +404,7 @@ export default function ReservationsAdmin() {
                 onDeleteOrder={handleDeleteOrder}
                 onMarkReportRead={handleMarkReportRead}
                 onUndoAction={handleUndoAction}
+                onDelete={handleDeleteReservation}
             />
 
             <ErrorModal

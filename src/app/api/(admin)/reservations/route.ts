@@ -22,9 +22,14 @@ export async function GET(request: Request) {
 		const status = searchParams.get("status") || "all"; // all | pending | confirmed
 		const all = searchParams.get("all") === "true"; // include past reservations
 		const filterDate = searchParams.get("date");
+		const roomId = searchParams.get("room_id");
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const where: any = {};
+
+		if (roomId) {
+			where.room_id = roomId;
+		}
 
 		if (filterDate) {
 			const dateObj = new Date(filterDate);
@@ -43,7 +48,7 @@ export async function GET(request: Request) {
 			todayStart.setHours(0, 0, 0, 0);
 			where.OR = [
 				{ date_time: { gte: todayStart } },
-				{ activated: true, completed: false, rejected: false },
+				{ activated: true, completed: false },
 			];
 		}
 
@@ -51,37 +56,27 @@ export async function GET(request: Request) {
 			where.accepted = false;
 			where.activated = false;
 			where.completed = false;
-			where.rejected = false;
 		}
 		if (status === "confirmed") {
 			where.accepted = true;
 			where.activated = false;
 			where.completed = false;
-			where.rejected = false;
 		}
 		if (status === "active") {
 			where.accepted = true;
 			where.activated = true;
 			where.completed = false;
-			where.rejected = false;
 		}
 		if (status === "completed") {
 			where.accepted = true;
 			where.activated = true;
 			where.completed = true;
-			where.rejected = false;
 		}
 		if (status === "in_progress") {
 			where.accepted = true;
 			where.completed = false;
-			where.rejected = false;
 		}
-		if (status === "rejected") {
-			where.accepted = false;
-			where.activated = false;
-			where.completed = false;
-			where.rejected = true;
-		}
+
 
 		if (search) {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -198,7 +193,6 @@ export async function POST(request: Request) {
 				accepted: data.accepted ?? true,
 				activated: data.activated ?? false,
 				completed: data.completed ?? false,
-				rejected: data.rejected ?? false,
 			},
 			include: { room: true },
 		});

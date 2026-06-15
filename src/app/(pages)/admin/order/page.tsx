@@ -113,18 +113,18 @@ export default function AdminOrdersOperations() {
     const handleUnapproveOrder = async (orderId: string) => {
         const success = await updateOrder(orderId, { accepted: false });
         if (success) {
-            setToast({ text: t("orders.msgOrderUnapproveSuccess") || "تم التراجع عن اعتماد الطلب" });
+            setToast({ text: t("orders.msgOrderUnapproveSuccess") });
         } else {
-            setToast({ text: t("orders.msgOrderUnapproveFailed") || "فشل التراجع عن الاعتماد", isError: true });
+            setToast({ text: t("orders.msgOrderUnapproveFailed"), isError: true });
         }
     };
 
     const handleDeleteOrder = async (orderId: string) => {
         const success = await deleteOrder(orderId);
         if (success) {
-            setToast({ text: t("orders.msgOrderDeleteSuccess") || "تم حذف الطلب بنجاح" });
+            setToast({ text: t("orders.msgOrderDeleteSuccess") });
         } else {
-            setToast({ text: t("orders.msgOrderDeleteFailed") || "فشل حذف الطلب", isError: true });
+            setToast({ text: t("orders.msgOrderDeleteFailed"), isError: true });
         }
     };
 
@@ -423,7 +423,7 @@ export default function AdminOrdersOperations() {
                                                         </p>
                                                         {o.notes && (
                                                             <p className="text-[11px] text-amber-500 font-bold mt-1.5 bg-amber-500/10 inline-block px-2 py-0.5 rounded-md border border-amber-500/20">
-                                                                {t("orders.notePrefix") || "ملاحظة: "}{o.notes}
+                                                                {t("orders.notePrefix")}{o.notes}
                                                             </p>
                                                         )}
                                                     </div>
@@ -455,7 +455,7 @@ export default function AdminOrdersOperations() {
                                                                 {activeTab === "active" && (
                                                                     <button
                                                                         onClick={() => handleUnapproveOrder(o.id)}
-                                                                        title={t("orders.btnUnapprove") || "التراجع عن الاعتماد"}
+                                                                        title={t("orders.btnUnapprove")}
                                                                         className="p-1.5 rounded-full text-zinc-500 hover:text-amber-400 hover:bg-amber-400/10 transition-all cursor-pointer"
                                                                     >
                                                                         <UndoCircleIcon className="w-4 h-4" />
@@ -481,7 +481,7 @@ export default function AdminOrdersOperations() {
                                                                     {/* Delete button — only for unapproved orders */}
                                                                     <button
                                                                         onClick={() => handleDeleteOrder(o.id)}
-                                                                        title={t("orders.btnDeleteOrder") || "حذف الطلب"}
+                                                                        title={t("orders.btnDeleteOrder")}
                                                                         className="p-1.5 rounded-full text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-all cursor-pointer"
                                                                     >
                                                                         <TrashIcon className="w-4 h-4" />

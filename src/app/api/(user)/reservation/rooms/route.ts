@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Public GET endpoint for fetching available rooms.
  * Used exclusively by the customer-facing homepage booking modal.

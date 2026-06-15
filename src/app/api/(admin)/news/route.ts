@@ -21,6 +21,20 @@ export async function GET(request: Request) {
         );
         const search = searchParams.get("search") || "";
 
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        // Auto-disable expired news
+        await prisma.news.updateMany({
+            where: {
+                is_disable: false,
+                end_date: { lt: now },
+            },
+            data: {
+                is_disable: true,
+            },
+        });
+
         const where = search
             ? {
                   news_text: {

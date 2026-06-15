@@ -13,6 +13,7 @@ import {
     ClockIcon,
     LockIcon,
     CheckIcon,
+    ItemIcon,
 } from "@/components/icons";
 import LanguageIcon from "@/components/icons/LanguageIcon";
 import RowsIcon from "@/components/icons/RowsIcon";
@@ -45,6 +46,7 @@ export default function SettingsAdmin() {
         client_session_expiry_minutes: string;
         force_client_order_session_passKey: boolean;
         auto_accept_orders: boolean;
+        show_item_images: boolean;
     }
 
     // React Hook Form
@@ -74,6 +76,7 @@ export default function SettingsAdmin() {
             force_client_order_session_passKey:
                 settings.force_client_order_session_passKey ?? false,
             auto_accept_orders: settings.auto_accept_orders ?? false,
+            show_item_images: settings.show_item_images ?? true,
         },
     });
 
@@ -102,6 +105,7 @@ export default function SettingsAdmin() {
                     force_client_order_session_passKey:
                         settings.force_client_order_session_passKey ?? false,
                     auto_accept_orders: settings.auto_accept_orders ?? false,
+                    show_item_images: settings.show_item_images ?? true,
                 },
                 { keepDirtyValues: true },
             );
@@ -150,6 +154,7 @@ export default function SettingsAdmin() {
             force_client_order_session_passKey:
                 data.force_client_order_session_passKey,
             auto_accept_orders: data.auto_accept_orders,
+            show_item_images: data.show_item_images,
         });
 
         if (success) {
@@ -183,7 +188,7 @@ export default function SettingsAdmin() {
             : []),
         {
             id: "backup",
-            label: t("settings.sectionBackup") || "Backup",
+            label: t("settings.sectionBackup"),
             icon: <WarningIcon className="w-4 h-4" />,
         },
     ];
@@ -343,6 +348,33 @@ export default function SettingsAdmin() {
                             <span className="text-[10px] text-zinc-500 font-bold block mt-3 leading-normal border-t border-white/5 pt-2">
                                 {t("settings.perPageDesc")}
                             </span>
+                        </div>
+                    </div>
+
+                    {/* Show Item Images Switch */}
+                    <div className="border-t border-white/10 pt-6 mt-4">
+                        <div className="flex items-center justify-between p-5 rounded-2xl border border-white/5 bg-background/30 hover:border-white/10 transition-all duration-300">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-primary/10 text-primary-hover rounded-xl">
+                                    <ItemIcon className="w-5 h-5" />
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-xs font-black text-white">
+                                        {t("settings.toggleShowItemImages")}
+                                    </span>
+                                    <span className="text-[10px] text-zinc-500 font-bold leading-relaxed max-w-lg">
+                                        {t("settings.toggleShowItemImagesDesc")}
+                                    </span>
+                                </div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input
+                                    type="checkbox"
+                                    {...register("show_item_images")}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:content-[''] after:content-[''] after:absolute after:top-0.5 after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-checked:after:bg-background peer-checked:after:border-transparent after:inset-s-0.5 peer-checked:after:inset-s-5.5"></div>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -556,7 +588,7 @@ export default function SettingsAdmin() {
                             <WarningIcon className="w-5 h-5" />
                         </div>
                         <h2 className="text-base font-black text-white">
-                            {t("settings.sectionBackup") || "Database Backup"}
+                            {t("settings.sectionBackup")}
                         </h2>
                     </div>
 
@@ -565,10 +597,10 @@ export default function SettingsAdmin() {
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="space-y-1">
                                     <span className="text-xs font-black text-white block">
-                                        {t("settings.sectionBackup") || "Database Backup"}
+                                        {t("settings.sectionBackup")}
                                     </span>
                                     <span className="text-[10px] text-zinc-500 font-bold block max-w-lg leading-relaxed">
-                                        {t("settings.sectionBackupDesc") || "Download a complete database snapshot in SQL format."}
+                                        {t("settings.sectionBackupDesc")}
                                     </span>
                                 </div>
                                 <a
@@ -590,7 +622,7 @@ export default function SettingsAdmin() {
                                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                                         />
                                     </svg>
-                                    <span>{t("settings.btnDownloadBackup") || "Download Backup (SQL)"}</span>
+                                    <span>{t("settings.btnDownloadBackup")}</span>
                                 </a>
                             </div>
                         </div>

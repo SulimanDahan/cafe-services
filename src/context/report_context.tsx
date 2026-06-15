@@ -2,7 +2,8 @@
 
 import { REPORTS_API_ROUTE } from "@/config/api_routes";
 import ReportModel from "@/models/data_models/report_model";
-import { type ReactNode, useMemo } from "react";
+import { sharedSSE } from "@/lib/sse_client";
+import { type ReactNode, useMemo, useEffect } from "react";
 import {
     createGenericContext,
     useGenericCrudLogic,
@@ -36,9 +37,32 @@ export function ReportProvider({ children }: { children: ReactNode }) {
         add: addReport,
         update: updateReport,
         deleteItem: deleteReport,
+        setList: setReportsList,
     } = useGenericCrudLogic<ReportModel>({
         apiRoute: REPORTS_API_ROUTE,
     });
+
+    useEffect(() => {
+        sharedSSE.connect();
+        const onNewReport = (event: MessageEvent) => {
+            try {
+                const newReport = JSON.parse(event.data);
+                setReportsList(prev => {
+                    if (prev.some(r => r.id === newReport.id)) return prev;
+                    return [newReport, ...prev];
+                });
+            } catch (e) {
+                console.error("Error parsing new report from SSE:", e);
+            }
+        };
+
+        sharedSSE.addEventListener("new-report", onNewReport);
+
+        return () => {
+            sharedSSE.removeEventListener("new-report", onNewReport);
+            sharedSSE.disconnect();
+        };
+    }, [setReportsList]);
 
     const value = useMemo(
         () => ({

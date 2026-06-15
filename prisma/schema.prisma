@@ -55,16 +55,18 @@ model ItemGroup {
 }
 
 model Item {
-  id         String    @id @default(uuid())
-  name       String    @unique
-  price      Decimal   @default(0)
-  group_id   String
-  is_disable Boolean   @default(false)
-  image      String?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @default(now()) @updatedAt
-  group      ItemGroup @relation(fields: [group_id], references: [id])
-  orders     Order[]
+  id                  String    @id @default(uuid())
+  name                String    @unique
+  price               Decimal   @default(0)
+  group_id            String
+  is_disable          Boolean   @default(false)
+  image               String?
+  discount_percentage Int       @default(0)
+  discount_value      Decimal   @default(0)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @default(now()) @updatedAt
+  group               ItemGroup @relation(fields: [group_id], references: [id])
+  orders              Order[]
 }
 
 model Reservation {
@@ -78,7 +80,6 @@ model Reservation {
   accepted      Boolean         @default(false)
   activated     Boolean         @default(false)
   completed     Boolean         @default(false)
-  rejected      Boolean         @default(false)
   created_at    DateTime        @default(now())
   updated_at    DateTime        @default(now()) @updatedAt
   orders        Order[]
@@ -112,6 +113,7 @@ model Settings {
   updated_at                         DateTime @default(now()) @updatedAt
   force_client_order_session_passKey Boolean  @default(false)
   auto_accept_orders                 Boolean  @default(false)
+  show_item_images                   Boolean  @default(false)
 }
 
 model News {

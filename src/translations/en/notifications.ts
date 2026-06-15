@@ -42,4 +42,6 @@ export const notifications = {
 	newOrderMessage: "There is a new order for room '{room}'",
 	orderCancelledTitle: "Order Cancelled",
 	orderCancelledMessage: "An order for '{item}' in room '{room}' has been cancelled",
+	newReportTitle: "New Client Report",
+	newReportMessage: "New report from room '{room}': {message}",
 };

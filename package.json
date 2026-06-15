@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "next dev",
+		"dev": "next dev  --hostname 0.0.0.0 --port 80",
 		"dev:win": "next dev --webpack",
 		"dev:https": "npx next dev --experimental-https",
 		"build": "next build",

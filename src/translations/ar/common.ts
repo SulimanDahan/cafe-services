@@ -56,4 +56,5 @@ export const common = {
 	of: "من",
 	entries: "عناصر",
 	undo: "تراجع",
+	markAsRead: "قرئ",
 };

@@ -27,6 +27,7 @@ export default function NotificationCenter() {
     const [isOpen, setIsOpen] = useState(false);
     const [toasts, setToasts] = useState<Notification[]>([]);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const hasPendingItemsRef = useRef<boolean>(false);
 
     // Connect to Real-time SSE Stream
     useEffect(() => {
@@ -54,8 +55,10 @@ export default function NotificationCenter() {
                 // Push as active toast
                 setToasts((prev) => [...prev, notification]);
 
-                // Play audio chime
-                playAdminChime();
+                // Play audio chime ONLY if repeating chime is not already active
+                if (!hasPendingItemsRef.current) {
+                    playAdminChime();
+                }
 
                 // Auto remove toast after 5 seconds
                 setTimeout(() => {
@@ -73,7 +76,10 @@ export default function NotificationCenter() {
         const onPendingStatus = (event: MessageEvent) => {
             try {
                 const data = JSON.parse(event.data);
-                if (data.pendingReservations > 0 || data.pendingOrders > 0) {
+                const hasPending = data.pendingReservations > 0 || data.pendingOrders > 0 || data.pendingReports > 0;
+                hasPendingItemsRef.current = hasPending;
+
+                if (hasPending) {
                     playAdminChime();
                 }
             } catch (err) {

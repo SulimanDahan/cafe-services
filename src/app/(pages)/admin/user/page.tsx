@@ -185,7 +185,7 @@ export default function UsersAdmin() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col h-[calc(100vh-96px)] sm:h-[calc(100vh-128px)] space-y-6">
             {/* Top header */}
             <AdminHeader
                 title={t("users.title")}
@@ -198,7 +198,7 @@ export default function UsersAdmin() {
             </AdminHeader>
 
             {/* Filters Panel (High-contrast glassmorphism) */}
-            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
+            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md flex flex-col flex-1 min-h-0 gap-6">
                 <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                     <SearchInput
                         value={searchQuery}
@@ -218,6 +218,7 @@ export default function UsersAdmin() {
                     columns={columns}
                     isLoading={isUsersLoading}
                     dataLength={total}
+                    wrapperClassName="flex-1 min-h-0"
                 >
                     {users.map((user) => (
                         <tr

@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
 		if (!resolvedRoomId && qr_code) {
 			const room = await prisma.room.findUnique({
-				where: { qr_code: qr_code },
+				where: { qr_code: qr_code.trim().toLowerCase() },
 			});
 			if (!room) {
 				return NextResponse.json(
@@ -72,7 +72,6 @@ export async function POST(req: NextRequest) {
 			accepted: boolean;
 			activated: boolean;
 			completed: boolean;
-			date_time?: { gte: Date; lte: Date };
 			order_passkey?: number;
 		} = {
 			room_id: resolvedRoomId,
@@ -83,21 +82,6 @@ export async function POST(req: NextRequest) {
 
 		if (checkPasskey) {
 			whereClause.order_passkey = Number(passkey);
-		} else {
-			// Get today's start and end date in UTC+3 (Cafe local time)
-			const utc3Time = new Date(
-				new Date().getTime() + 3 * 60 * 60 * 1000,
-			);
-			const yyyy = utc3Time.getUTCFullYear();
-			const mm = String(utc3Time.getUTCMonth() + 1).padStart(2, "0");
-			const dd = String(utc3Time.getUTCDate()).padStart(2, "0");
-			const todayStart = new Date(`${yyyy}-${mm}-${dd}T00:00:00+03:00`);
-			const todayEnd = new Date(`${yyyy}-${mm}-${dd}T23:59:59.999+03:00`);
-
-			whereClause.date_time = {
-				gte: todayStart,
-				lte: todayEnd,
-			};
 		}
 
 		const activeReservation = await prisma.reservation.findFirst({
@@ -108,6 +92,21 @@ export async function POST(req: NextRequest) {
 		});
 
 		if (!activeReservation) {
+			const pendingReservation = await prisma.reservation.findFirst({
+				where: {
+					room_id: resolvedRoomId,
+					accepted: false,
+					completed: false,
+				},
+			});
+
+			if (pendingReservation) {
+				return NextResponse.json(
+					{ error: t("apiMessages.error.pendingReservation") },
+					{ status: 403 },
+				);
+			}
+
 			const errorMsg = checkPasskey
 				? t("apiMessages.error.reservationNotActivated")
 				: t("apiMessages.error.noActivatedReservation");
@@ -115,7 +114,8 @@ export async function POST(req: NextRequest) {
 		}
 
 		// Compute client session expiry based on settings
-		const clientExpiryMinutes = settings?.client_session_expiry_minutes ?? 360;
+		const clientExpiryMinutes =
+			settings?.client_session_expiry_minutes ?? 360;
 		const sessionExpiresAt = new Date(
 			Date.now() + clientExpiryMinutes * 60 * 1000,
 		);
@@ -132,7 +132,8 @@ export async function POST(req: NextRequest) {
 		const response = NextResponse.json({ session });
 		response.cookies.set(ORDER_COOKIE_NAME, activeReservation.id, {
 			httpOnly: true,
-			secure: isProduction && process.env.ALLOW_INSECURE_COOKIES !== "true",
+			secure:
+				isProduction && process.env.ALLOW_INSECURE_COOKIES !== "true",
 			sameSite: "lax",
 			path: "/",
 			maxAge: clientExpiryMinutes * 60,

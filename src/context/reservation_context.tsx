@@ -33,12 +33,10 @@ interface ReservationContextType {
     activateReservation: (id: string) => Promise<boolean>;
     /** Checkout: marks reservation as completed */
     checkoutReservation: (id: string) => Promise<boolean>;
-    /** Reject: marks reservation as rejected */
-    rejectReservation: (id: string) => Promise<boolean>;
     /** Undo a specific action */
     undoReservationAction: (
         id: string,
-        action: "accept" | "activate" | "complete" | "reject",
+        action: "accept" | "activate" | "complete",
     ) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -98,9 +96,9 @@ export function ReservationProvider({ children }: { children: ReactNode }) {
             totalPages,
             isLoading: false,
             isListLoading: isReservationsLoading,
-            setData: () => {},
+            setData: () => { },
             setList: setReservations,
-            clear: () => {},
+            clear: () => { },
             refresh: async () => null,
             fetchAll: fetchAllReservations,
             add: addReservation,
@@ -139,18 +137,15 @@ export function useReservation(): ReservationContextType {
         ctx.update(id, { activated: true });
     const checkoutReservation = (id: string) =>
         ctx.update(id, { completed: true });
-    const rejectReservation = (id: string) =>
-        ctx.update(id, { rejected: true });
 
     const undoReservationAction = async (
         id: string,
-        action: "accept" | "activate" | "complete" | "reject",
+        action: "accept" | "activate" | "complete",
     ): Promise<{ success: boolean; error?: string }> => {
         const payload = {
             accept: { accepted: false },
             activate: { activated: false },
             complete: { completed: false },
-            reject: { rejected: false },
         }[action];
 
         try {
@@ -191,7 +186,6 @@ export function useReservation(): ReservationContextType {
         acceptReservation,
         activateReservation,
         checkoutReservation,
-        rejectReservation,
         undoReservationAction,
     };
 }

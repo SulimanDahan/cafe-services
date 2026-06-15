@@ -15,6 +15,8 @@ import {
     ORDER_USER_API_ROUTE,
     ORDER_SESSION_API_ROUTE,
     ORDER_LOGOUT_API_ROUTE,
+    REPORT_USER_API_ROUTE,
+    NEWS_API_ROUTE,
 } from "./config/api_routes";
 import { AUTH_COOKIE_NAME } from "./config/constants";
 import { prisma } from "./lib/prisma";
@@ -41,6 +43,8 @@ const PUBLIC_API_EXCEPTIONS = [
     { path: ORDER_ITEMS_USER_API_ROUTE, method: "GET" },
     { path: ORDER_SESSION_API_ROUTE, method: "GET" }, // Client session check (cookie-based)
     { path: ORDER_LOGOUT_API_ROUTE, method: "POST" }, // Client logout (clears cookie)
+    { path: REPORT_USER_API_ROUTE, method: "POST" },
+    { path: `${NEWS_API_ROUTE}/public`, method: "GET" },
 ];
 
 function isAdminApiRoute(pathname: string, method: string) {

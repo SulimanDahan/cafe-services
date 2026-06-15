@@ -1,4 +1,4 @@
-import { newsSchema } from "@/lib/validations/news";
+import { newsSchema, newsBaseSchema } from "@/lib/validations/news";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
@@ -15,8 +15,8 @@ export async function PUT(
         );
     try {
         const body = await request.json();
-        // Allow partial updates
-        const validation = newsSchema.partial().safeParse(body);
+        // Allow partial updates using the base object schema (ZodEffects don't have .partial())
+        const validation = newsBaseSchema.partial().safeParse(body);
 
         if (!validation.success) {
             return NextResponse.json(

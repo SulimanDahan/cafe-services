@@ -6,7 +6,10 @@ export const loginSchema = z.object({
 });
 
 export const orderLoginSchema = z.object({
- room_id: z.string().uuid({ message: "validation.roomIdRequired" }).optional(),
+ room_id: z.preprocess(
+  (val) => (val === "" ? undefined : val),
+  z.string().uuid({ message: "validation.roomIdRequired" }).optional()
+ ),
  qr_code: z.string().optional(),
  passkey: z.preprocess(
  (val) => (typeof val === "string" ? parseInt(val, 10) : val),

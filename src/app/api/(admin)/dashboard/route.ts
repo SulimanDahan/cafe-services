@@ -88,12 +88,36 @@ export async function GET(req: NextRequest) {
 			whereOrder.created_at = { gte: start, lte: end };
 		}
 
+		// Auto-disable expired news
+		const nowForNews = new Date();
+		nowForNews.setHours(0, 0, 0, 0);
+		await prisma.news.updateMany({
+			where: {
+				is_disable: false,
+				end_date: { lt: nowForNews },
+			},
+			data: {
+				is_disable: true,
+			},
+		});
+
 		const [
 			totalReservations,
 			pendingReservations,
 			acceptedReservations,
+			completedReservations,
+			activeRooms,
 			totalRooms,
+			inactiveRooms,
+			activeItems,
 			totalItems,
+			inactiveItems,
+			totalNews,
+			activeNews,
+			inactiveNews,
+			totalUsers,
+			adminUsers,
+			staffUsers,
 			recentReservations,
 			orders,
 		] = await Promise.all([
@@ -103,7 +127,6 @@ export async function GET(req: NextRequest) {
 					...whereReservation,
 					accepted: false,
 					completed: false,
-					rejected: false, // Don't count rejected as pending
 				},
 			}),
 			prisma.reservation.count({
@@ -113,8 +136,24 @@ export async function GET(req: NextRequest) {
 					completed: false,
 				},
 			}),
+			prisma.reservation.count({
+				where: {
+					...whereReservation,
+					completed: true,
+				},
+			}),
 			prisma.room.count({ where: { is_disable: false } }),
+			prisma.room.count(),
+			prisma.room.count({ where: { is_disable: true } }),
 			prisma.item.count({ where: { is_disable: false } }),
+			prisma.item.count(),
+			prisma.item.count({ where: { is_disable: true } }),
+			prisma.news.count(),
+			prisma.news.count({ where: { is_disable: false } }),
+			prisma.news.count({ where: { is_disable: true } }),
+			prisma.user.count(),
+			prisma.user.count({ where: { is_admin: true } }),
+			prisma.user.count({ where: { is_admin: false } }),
 			prisma.reservation.findMany({
 				where: whereReservation,
 				orderBy: { created_at: "desc" },
@@ -153,8 +192,19 @@ export async function GET(req: NextRequest) {
 				totalReservations,
 				pendingReservations,
 				acceptedReservations,
+				completedReservations,
 				totalRooms,
+				activeRooms,
+				inactiveRooms,
 				totalItems,
+				activeItems,
+				inactiveItems,
+				totalNews,
+				activeNews,
+				inactiveNews,
+				totalUsers,
+				adminUsers,
+				staffUsers,
 				totalRevenue,
 				totalOrderedUnits,
 			},

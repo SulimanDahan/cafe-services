@@ -31,4 +31,6 @@ export const item = {
     colImage: "الصورة",
     noImage: "لا صورة",
     formLabelImage: "صورة الصنف",
+    formLabelDiscountPercentage: "نسبة الخصم (%)",
+    formLabelDiscountValue: "قيمة الخصم",
 };

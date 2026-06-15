@@ -40,6 +40,7 @@ body {
   background: var(--color-background);
   color: #ededed;
   font-family: var(--font-cairo), sans-serif;
+  overflow-x: hidden;
 }
 
 /* Premium minimalist custom scrollbar styling */
@@ -93,5 +94,23 @@ table thead th {
 .animate-fade-in-up {
   animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
+}
+
+@keyframes marqueeLTR {
+  0% {
+    transform: translate3d(100vw, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+@keyframes marqueeRTL {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(100vw, 0, 0);
+  }
 }
 

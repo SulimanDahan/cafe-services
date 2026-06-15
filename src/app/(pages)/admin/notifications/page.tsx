@@ -114,7 +114,7 @@ export default function NotificationsAdmin() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col h-[calc(100vh-96px)] sm:h-[calc(100vh-128px)] space-y-6">
             {/* Top Header */}
             <AdminHeader
                 title={t("notifications.title")}
@@ -134,7 +134,7 @@ export default function NotificationsAdmin() {
             </AdminHeader>
 
             {/* Filters Panel (High-contrast glassmorphism) */}
-            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
+            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md flex flex-col flex-1 min-h-0 gap-6">
                 <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:max-w-xl">
                         <SearchInput
@@ -156,6 +156,7 @@ export default function NotificationsAdmin() {
                     columns={columns}
                     isLoading={isLogsLoading}
                     dataLength={total}
+                    wrapperClassName="flex-1 min-h-0"
                 >
                     {logs.map((log) => (
                         <tr

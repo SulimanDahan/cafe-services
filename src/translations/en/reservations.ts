@@ -100,4 +100,5 @@ export const reservations = {
 	noReports: "No reports",
 	noOrders: "No orders",
 	filterByDate: "Date",
+	allRooms: "All rooms",
 };

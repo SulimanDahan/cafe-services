@@ -10,7 +10,7 @@ const UserHeader = () => {
     const { t } = useLanguage();
 
     return (
-        <header className="sticky top-4 z-40 max-w-7xl w-[calc(100%-2rem)] px-4 md:px-6 lg:px-8 mx-auto rounded-3xl border border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl shadow-2xl transition-all duration-300">
+        <header className="relative mt-4 z-40 max-w-7xl w-[calc(100%-2rem)] px-4 md:px-6 lg:px-8 mx-auto rounded-3xl border border-white/10 bg-[#0d0f17]/90 backdrop-blur-xl shadow-2xl transition-all duration-300">
             <div className="px-6 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-6">
                     {/* Logo */}

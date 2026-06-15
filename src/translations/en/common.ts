@@ -53,4 +53,5 @@ export const common = {
 	pwaInstallBtn: "Install Now",
 	pwaDismissBtn: "Dismiss",
 	undo: "Undo",
+	markAsRead: "Read",
 };

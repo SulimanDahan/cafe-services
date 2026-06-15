@@ -30,7 +30,7 @@ export default function ActiveOrdersList({
     btnCancelTitle,
     onCancelOrder,
 }: ActiveOrdersListProps) {
-    const { t } = useLanguage();
+    const { t, isRtl } = useLanguage();
 
     return (
         <div className="rounded-card border border-white/10 bg-surface p-5.5 shadow-xl space-y-4">
@@ -45,9 +45,7 @@ export default function ActiveOrdersList({
                 {orders.length > 0 ? (
                     orders.map((o) => {
                         const dateStr = o.created_at || o.createdAt || "";
-                        const timeStr = dateStr.includes(" ")
-                            ? dateStr.split(" ").slice(2).join(" ")
-                            : dateStr;
+                        const timeStr = dateStr;
 
                         return (
                             <div
@@ -58,18 +56,19 @@ export default function ActiveOrdersList({
                                     <p className="text-xs font-black text-white group-hover/item:text-primary-light transition-colors leading-snug">
                                         {o.item_name}
                                     </p>
-                                    <p className="text-[10px] text-zinc-400 font-bold">
-                                        {o.quantity} ×{" "}
-                                        {o.item_price.toLocaleString("en-US")}{" "}
-                                        {currencyLabel}
+                                    <p className="text-[10px] text-zinc-400 font-bold flex items-center gap-1 justify-start">
+                                        <span dir="ltr" className="inline-block font-sans">
+                                            {isRtl ? `${o.item_price.toLocaleString("en-US")} x ${o.quantity}` : `${o.quantity} x ${o.item_price.toLocaleString("en-US")}`}
+                                        </span>
+                                        <span>{currencyLabel}</span>
                                     </p>
-                                    <p className="text-[9px] text-zinc-500 font-medium font-mono">
+                                    <p className="text-[9px] text-zinc-500 font-medium font-mono" dir="ltr">
                                         {timeStr}
                                     </p>
                                 </div>
 
                                 <div className="flex items-center justify-between sm:justify-end gap-2 border-t border-white/5 pt-2 sm:border-t-0 sm:pt-0">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 md:flex-col justify-between w-full lg:gap-4">
                                         {o.accepted ? (
                                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black bg-green-500/10 border border-green-500/20 text-green-400">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />

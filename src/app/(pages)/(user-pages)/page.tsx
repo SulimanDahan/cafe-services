@@ -36,6 +36,10 @@ export default function Home() {
                     `${ROOMS_USER_API_ROUTE}?t=${Date.now()}`,
                     {
                         cache: "no-store",
+                        headers: {
+                            "Cache-Control": "no-cache, no-store, must-revalidate",
+                            Pragma: "no-cache",
+                        },
                     },
                 );
                 if (res.ok) {
@@ -43,8 +47,8 @@ export default function Home() {
                     const roomsList = Array.isArray(resData)
                         ? resData
                         : resData && Array.isArray(resData.data)
-                          ? resData.data
-                          : [];
+                            ? resData.data
+                            : [];
                     setRooms(roomsList.filter((r: Room) => !r.is_disable));
                 }
             } catch (err) {

@@ -80,6 +80,7 @@ export default function CustomerOrderPage() {
     const [isConfirming, setIsConfirming] = useState(false);
 
     const [activeSession, setActiveSession] = useState<Reservation | null>(null);
+    const [sessionChecked, setSessionChecked] = useState(false);
 
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [itemGroups, setItemGroups] = useState<
@@ -89,6 +90,7 @@ export default function CustomerOrderPage() {
     const [notes, setNotes] = useState<Record<string, string>>({});
 
     const [activeCategory, setActiveCategory] = useState<string>("all");
+    const [mainTab, setMainTab] = useState<"items" | "cart">("items");
     const [searchQuery, setSearchQuery] = useState("");
     const [actionMessage, setActionMessage] = useState<{
         text: string;
@@ -96,6 +98,11 @@ export default function CustomerOrderPage() {
     } | null>(null);
 
     const previousOrdersRef = useRef<Order[]>([]);
+
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [reportMessageText, setReportMessageText] = useState("");
+    const [reportLoading, setReportLoading] = useState(false);
+    const [reportError, setReportError] = useState("");
 
 
     useEffect(() => {
@@ -112,7 +119,7 @@ export default function CustomerOrderPage() {
             if (newlyAccepted) {
                 playCustomerChime();
                 setActionMessage({
-                    text: t("orders.orderAcceptedSuccess") || "Your order has been approved!",
+                    text: t("orders.orderAcceptedSuccess"),
                     isError: false,
                 });
             }
@@ -150,23 +157,30 @@ export default function CustomerOrderPage() {
                             item_price: Number(o.item_price),
                             quantity: o.quantity,
                             accepted: o.accepted,
-                            created_at: new Date(o.created_at).toLocaleString(
-                                isRtl ? "ar-SA" : "en-US",
-                                {
-                                    day: "numeric",
-                                    month: "long",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                },
-                            ),
+                            created_at: (() => {
+                                const d = new Date(o.created_at);
+                                const day = String(d.getDate()).padStart(2, '0');
+                                const month = String(d.getMonth() + 1).padStart(2, '0');
+                                const year = d.getFullYear();
+                                const time = d.toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+                                return `${day}/${month}/${year} - ${time}`;
+                            })(),
                         }),
                     );
                     setOrders(mappedOrders);
                 }
             } else if (ordersRes.status === 403) {
                 const data = await ordersRes.json();
-                if (data.sessionExpired) {
+                if (data.roomChanged) {
+                    // Fetch updated session details containing new room name and ID
+                    const sessionRes = await fetch(ORDER_SESSION_API_ROUTE, { cache: "no-store" });
+                    if (sessionRes.ok) {
+                        const sessionData = await sessionRes.json();
+                        if (sessionData.session) {
+                            setActiveSession(sessionData.session);
+                        }
+                    }
+                } else if (data.sessionExpired) {
                     setActiveSession(null);
                     // Clear the server-side HttpOnly cookie
                     fetch(ORDER_LOGOUT_API_ROUTE, { method: "POST" }).catch(() => null);
@@ -179,7 +193,7 @@ export default function CustomerOrderPage() {
         } catch (err) {
             console.error("Failed to fetch menu or orders:", err);
         }
-    }, [activeSession, isRtl, t]);
+    }, [activeSession, t]);
 
     // حالات الـ QR الكاميرا والمحاكاة
     const [scanLoading, setScanLoading] = useState(false);
@@ -234,6 +248,14 @@ export default function CustomerOrderPage() {
     useEffect(() => {
         const restoreSession = async () => {
             try {
+                // التحقق مما إذا كان هناك رمز QR جديد في الرابط
+                const params = new URLSearchParams(window.location.search);
+                const qr = params.get("qr");
+                if (qr) {
+                    // إذا كان هناك رمز QR جديد، نتجاهل استرداد الجلسة القديمة من الـ Cookie
+                    return;
+                }
+
                 const res = await fetch(ORDER_SESSION_API_ROUTE, { cache: "no-store" });
                 if (res.ok) {
                     const data = await res.json();
@@ -243,6 +265,8 @@ export default function CustomerOrderPage() {
                 }
             } catch {
                 // silent — no session to restore
+            } finally {
+                setSessionChecked(true);
             }
         };
         restoreSession();
@@ -284,6 +308,7 @@ export default function CustomerOrderPage() {
     // محاولة تسجيل الدخول التلقائي من الرابط الذكي
     useEffect(() => {
         if (
+            sessionChecked &&
             settingsLoaded &&
             urlQrCode &&
             !activeSession &&
@@ -297,7 +322,7 @@ export default function CustomerOrderPage() {
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [settingsLoaded, urlQrCode, forcePasskeySetting, activeSession]);
+    }, [sessionChecked, settingsLoaded, urlQrCode, forcePasskeySetting, activeSession]);
 
     // البيئة وعزل الـ PWA
     useEffect(() => {
@@ -466,9 +491,19 @@ export default function CustomerOrderPage() {
 
     const handleLogOutSession = async () => {
         setActiveSession(null);
+        setUrlQrCode(null);
         // Clear the server-side HttpOnly cookie
         await fetch(ORDER_LOGOUT_API_ROUTE, { method: "POST" }).catch(() => null);
         setActionMessage({ text: t("orders.logoutSession") });
+
+        // Remove the qr parameter from the URL
+        if (typeof window !== "undefined") {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has("qr")) {
+                url.searchParams.delete("qr");
+                window.history.replaceState({}, "", url.toString() || window.location.pathname);
+            }
+        }
     };
 
     const handlePlaceOrder = async (item: MenuItem) => {
@@ -527,13 +562,45 @@ export default function CustomerOrderPage() {
                 setActionMessage({
                     text: t("orders.itemAddedToTable")
                         .replace("{qty}", cartItems.reduce((sum, c) => sum + c.quantity, 0).toString())
-                        .replace("{name}", t("orders.pendingCart") || "Items"),
+                        .replace("{name}", t("orders.pendingCart")),
                 });
             } else {
-                setActionMessage({
-                    text: t("orders.failedToPlaceOrder"),
-                    isError: true,
-                });
+                let roomChanged = false;
+                let sessionExpired = false;
+                let errMsg = t("orders.failedToPlaceOrder");
+                try {
+                    const errData = await res.json();
+                    if (errData?.roomChanged) {
+                        roomChanged = true;
+                    } else if (errData?.sessionExpired || res.status === 403) {
+                        sessionExpired = true;
+                    }
+                    if (errData?.error) {
+                        errMsg = errData.error;
+                    }
+                } catch { }
+
+                if (roomChanged) {
+                    const sessionRes = await fetch(ORDER_SESSION_API_ROUTE, { cache: "no-store" });
+                    if (sessionRes.ok) {
+                        const sessionData = await sessionRes.json();
+                        if (sessionData.session) {
+                            setActiveSession(sessionData.session);
+                        }
+                    }
+                } else if (sessionExpired) {
+                    setActiveSession(null);
+                    fetch(ORDER_LOGOUT_API_ROUTE, { method: "POST" }).catch(() => null);
+                    setActionMessage({
+                        text: t("orders.sessionEndedByReception"),
+                        isError: true,
+                    });
+                } else {
+                    setActionMessage({
+                        text: errMsg,
+                        isError: true,
+                    });
+                }
             }
         } catch {
             setActionMessage({ text: "Network error", isError: true });
@@ -562,14 +629,77 @@ export default function CustomerOrderPage() {
                     isError: true,
                 });
             } else {
-                setActionMessage({
-                    text: t("orders.errCancelOrder"),
-                    isError: true,
-                });
+                let roomChanged = false;
+                let sessionExpired = false;
+                let errMsg = t("orders.errCancelOrder");
+                try {
+                    const errData = await res.json();
+                    if (errData?.roomChanged) {
+                        roomChanged = true;
+                    } else if (errData?.sessionExpired || res.status === 403) {
+                        sessionExpired = true;
+                    }
+                    if (errData?.error) {
+                        errMsg = errData.error;
+                    }
+                } catch { }
+
+                if (roomChanged) {
+                    const sessionRes = await fetch(ORDER_SESSION_API_ROUTE, { cache: "no-store" });
+                    if (sessionRes.ok) {
+                        const sessionData = await sessionRes.json();
+                        if (sessionData.session) {
+                            setActiveSession(sessionData.session);
+                        }
+                    }
+                } else if (sessionExpired) {
+                    setActiveSession(null);
+                    fetch(ORDER_LOGOUT_API_ROUTE, { method: "POST" }).catch(() => null);
+                    setActionMessage({
+                        text: t("orders.sessionEndedByReception"),
+                        isError: true,
+                    });
+                } else {
+                    setActionMessage({
+                        text: errMsg,
+                        isError: true,
+                    });
+                }
             }
         } catch (err) {
             console.error("Failed to cancel order:", err);
             setActionMessage({ text: "Network error", isError: true });
+        }
+    };
+
+    const handleSendReport = async () => {
+        if (!activeSession || !reportMessageText.trim()) return;
+        setReportLoading(true);
+        setReportError("");
+        try {
+            const res = await fetch("/api/report", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message_text: reportMessageText.trim(),
+                    reservation_id: activeSession.id,
+                }),
+            });
+            if (res.ok) {
+                setActionMessage({
+                    text: t("orders.reportSentSuccess") || (isRtl ? "تم إرسال بلاغك بنجاح!" : "Your report has been sent successfully!"),
+                    isError: false,
+                });
+                setIsReportModalOpen(false);
+                setReportMessageText("");
+            } else {
+                const data = await res.json();
+                setReportError(data.error || "Failed to send report");
+            }
+        } catch {
+            setReportError("Network error");
+        } finally {
+            setReportLoading(false);
         }
     };
 
@@ -661,8 +791,7 @@ export default function CustomerOrderPage() {
             )}
 
 
-
-            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 py-14 flex flex-col items-center justify-center relative">
+            <main className={`flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-8 flex flex-col items-center relative ${!activeSession ? "justify-center py-14" : "justify-start pt-6 pb-14"}`}>
                 {!activeSession ? (
                     <>
                         <div className="absolute w-80 h-80 rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
@@ -769,35 +898,88 @@ export default function CustomerOrderPage() {
                     </>
                 ) : (
                     <>
-                        <div className="w-full rounded-card border border-green-500/30 bg-surface/60 p-6 sm:p-8 shadow-2xl relative overflow-hidden mb-6">
-                            <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-green-500/5 blur-[120px] pointer-events-none" />
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
-                                <div className="space-y-1.5">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-green-500/10 border border-green-500/25 text-green-400 shadow-sm uppercase">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                        <div className="w-full rounded-[20px] border border-green-500/20 bg-[#0d0f17] p-4 sm:p-5 shadow-lg relative overflow-hidden mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 blur-3xl pointer-events-none" />
+                            <div className="relative z-10 flex flex-col gap-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                                    <span className="text-[10px] font-black text-green-400 uppercase tracking-wide">
                                         {t("orders.bookingVerified")}
                                     </span>
-                                    <h1 className="text-xl sm:text-2xl font-black text-white">{`${t("orders.welcomeGuestPrefix")} ${activeSession!.client_name}`}</h1>
-                                    <p className="text-xs text-zinc-400 font-medium">{`${t("orders.assignedLocationPrefix")} (${activeSession!.room_name}) — ${t("orders.refNumberPrefix")} ${activeSession!.number}`}</p>
                                 </div>
-                                <PrimaryButton
-                                    onClick={handleLogOutSession}
-                                    className="px-5 py-2.5 rounded-full border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-400 font-extrabold text-xs transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0"
-                                >
-                                    <LogoutIcon />
-                                    <span>{t("orders.endSession")}</span>
-                                </PrimaryButton>
+                                <h1 className="text-base sm:text-lg font-black text-white">
+                                    {t("orders.welcomeGuestPrefix")}{" "}
+                                    <span className="text-primary">{activeSession!.client_name}</span>
+                                </h1>
+                                <p className="text-[11px] sm:text-xs text-zinc-400 font-medium">{`${t("orders.assignedLocationPrefix")} (${activeSession!.room_name})`}</p>
                             </div>
+                            <PrimaryButton
+                                onClick={handleLogOutSession}
+                                className="w-full sm:w-auto px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-400 font-bold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
+                            >
+                                <LogoutIcon />
+                                <span>{t("orders.endSession")}</span>
+                            </PrimaryButton>
+                        </div>
+
+                        <div className="w-[calc(100%+2rem)] -mx-4 px-4 flex flex-col items-center gap-3 lg:hidden mb-6 sticky top-(--ticker-offset-mobile,0px) z-50 bg-[#0f111a]/90 backdrop-blur-xl py-3 border-b border-white/5 shadow-2xl transition-all duration-300">
+                            <TabBar
+                                tabs={[
+                                    { id: "items", label: t("orders.tabItems") },
+                                    {
+                                        id: "cart",
+                                        label: t("orders.tabCart"),
+                                        icon: cartItems.length > 0 ? (
+                                            <span className="flex h-4 w-4 bg-amber-500 text-black text-[10px] items-center justify-center rounded-full font-black">
+                                                {cartItems.length}
+                                            </span>
+                                        ) : undefined
+                                    }
+                                ]}
+                                activeTab={mainTab}
+                                onChange={(id) => setMainTab(id as "items" | "cart")}
+                            />
+
+                            {mainTab === "items" && (
+                                <div className="w-full flex flex-col items-center gap-3 animate-fade-in">
+                                    <TabBar
+                                        tabs={[
+                                            {
+                                                id: "all",
+                                                label: t("orders.catAll"),
+                                            },
+                                            ...itemGroups.map((group) => ({
+                                                id: group.id,
+                                                label: group.name,
+                                            })),
+                                        ]}
+                                        activeTab={activeCategory}
+                                        onChange={setActiveCategory}
+                                    />
+                                    <div className="w-full relative">
+                                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                            <span className="text-zinc-500 font-bold text-lg">⌕</span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder={t("common.search")}
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="w-full bg-[#131522] border border-white/10 rounded-2xl py-2.5 pr-10 pl-4 text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-in w-full">
                             {/* قائمة المشروبات والمأكولات */}
-                            <div className="lg:col-span-8 space-y-6">
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-1">
-                                    <h2 className="text-lg font-black text-white flex items-center gap-2">
+                            <div className={`lg:col-span-8 space-y-6 ${mainTab === "items" ? "block" : "hidden lg:block"}`}>
+                                <div className="hidden lg:flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-0 sticky top-(--ticker-offset-desktop,0px) z-40 bg-transparent py-2 mb-4">
+                                    {/* <h2 className="text-lg font-black text-white flex items-center gap-2">
                                         <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
                                         {t("orders.cateringMenuTitle")}
-                                    </h2>
+                                    </h2> */}
                                     <TabBar
                                         tabs={[
                                             {
@@ -814,20 +996,20 @@ export default function CustomerOrderPage() {
                                     />
                                 </div>
 
-                                <div className="animate-fade-in relative">
+                                <div className="hidden lg:block animate-fade-in relative">
                                     <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                                         <span className="text-zinc-500 font-bold text-lg">⌕</span>
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder={t("common.search") || "ابحث عن صنف..."}
+                                        placeholder={t("common.search")}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="w-full bg-surface-container border border-white/10 rounded-2xl py-3 pr-10 pl-4 text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold"
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
                                     {filteredItems.map((item) => (
                                         <MenuItemCard
                                             key={item.id}
@@ -847,26 +1029,23 @@ export default function CustomerOrderPage() {
                                             )}
                                             note={notes[item.id] || ""}
                                             onChangeNote={(val) => setNotes(prev => ({ ...prev, [item.id]: val }))}
-                                            notePlaceholder={t("orders.notePlaceholder") || "أضف ملاحظة (اختياري)..."}
+                                            notePlaceholder={t("orders.notePlaceholder")}
+                                            showImage={settings.show_item_images !== false}
                                         />
                                     ))}
                                 </div>
                             </div>
 
                             {/* الفاتورة والطلبات النشطة */}
-                            <div className="lg:col-span-4 space-y-6">
+                            <div className={`lg:col-span-4 space-y-6 ${mainTab === "cart" ? "block" : "hidden lg:block"}`}>
                                 <Billing
                                     basketTotalLabel={t("orders.basketTotal")}
                                     totalBill={totalBill}
                                     currencyLabel={t(
                                         `common.${settings.currency_name}`,
                                     )}
-                                    bookingIdLabel={t("orders.bookingIdLabel")}
-                                    reservationNumber={activeSession!.number}
                                     guestNameLabel={t("orders.guestNameLabel")}
                                     clientName={activeSession!.client_name}
-                                    tableLocLabel={t("orders.tableLocLabel")}
-                                    roomName={activeSession!.room_name}
                                     totalOrderedLabel={t(
                                         "orders.totalOrderedLabel",
                                     )}
@@ -874,7 +1053,6 @@ export default function CustomerOrderPage() {
                                         (sum, o) => sum + o.quantity,
                                         0,
                                     ) + cartItems.reduce((sum, c) => sum + c.quantity, 0)}
-                                    unitUnits={t("orders.unitUnits")}
                                 />
 
                                 {/* سلة الطلبات غير المؤكدة */}
@@ -884,7 +1062,7 @@ export default function CustomerOrderPage() {
 
                                         <div className="flex items-center gap-2 relative z-10">
                                             <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-                                            <h3 className="text-sm font-black text-white">{t("orders.pendingCart") || "سلة الطلبات المؤقتة"}</h3>
+                                            <h3 className="text-sm font-black text-white">{t("orders.pendingCart")}</h3>
                                         </div>
 
                                         <div className="space-y-3 relative z-10 max-h-60 overflow-y-auto pr-1">
@@ -892,11 +1070,14 @@ export default function CustomerOrderPage() {
                                                 <div key={`${cartItem.item.id}-${idx}`} className="flex justify-between items-center bg-[#131522] border border-white/5 p-3 rounded-2xl">
                                                     <div className="flex flex-col gap-0.5">
                                                         <span className="text-sm font-bold text-white">{cartItem.item.name}</span>
-                                                        <span className="text-xs font-medium text-amber-500">
-                                                            {cartItem.quantity} x {Number(cartItem.item.price)} {t(`common.${settings.currency_name}`)}
+                                                        <span className="text-xs font-medium text-amber-500 flex items-center gap-1 justify-start">
+                                                            <span dir="ltr" className="inline-block font-sans">
+                                                                {isRtl ? `${Number(cartItem.item.price)} x ${cartItem.quantity}` : `${cartItem.quantity} x ${Number(cartItem.item.price)}`}
+                                                            </span>
+                                                            <span>{t(`common.${settings.currency_name}`)}</span>
                                                         </span>
                                                         {cartItem.notes && (
-                                                            <span className="text-[10px] text-zinc-400 mt-1">{t("orders.notePrefix") || "ملاحظة: "}{cartItem.notes}</span>
+                                                            <span className="text-[10px] text-zinc-400 mt-1">{t("orders.notePrefix")}{cartItem.notes}</span>
                                                         )}
                                                     </div>
                                                     <button
@@ -916,7 +1097,7 @@ export default function CustomerOrderPage() {
                                                 className="w-full justify-center group"
                                             >
                                                 <span className="font-extrabold tracking-wide">
-                                                    {isConfirming ? t("common.loading") : (t("orders.confirmSend") || "تأكيد وإرسال الطلبات")}
+                                                    {isConfirming ? t("common.loading") : t("orders.confirmSend")}
                                                 </span>
                                             </PrimaryButton>
                                         </div>
@@ -938,6 +1119,105 @@ export default function CustomerOrderPage() {
                     </>
                 )}
             </main>
+
+            {/* Floating Report Button */}
+            {activeSession && (
+                <button
+                    onClick={() => setIsReportModalOpen(true)}
+                    className={`fixed bottom-6 ${isRtl ? "left-6" : "right-6"} z-40 h-14 w-14 rounded-full bg-primary text-background hover:bg-primary-hover shadow-2xl hover:shadow-primary/30 flex items-center justify-center border border-primary/20 transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer group`}
+                    title={t("orders.btnReportTooltip") || (isRtl ? "إرسال بلاغ أو شكوى" : "Send Report or Complaint")}
+                >
+                    <svg className="w-6 h-6 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </button>
+            )}
+
+            {/* Report / Complaint Modal */}
+            {isReportModalOpen && (
+                <div
+                    className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+                    dir={isRtl ? "rtl" : "ltr"}
+                >
+                    <div className="max-w-md w-full rounded-[28px] border border-white/15 bg-surface/95 backdrop-blur-xl p-6 shadow-2xl relative space-y-4 text-start animate-fade-in-up">
+                        {/* Close button */}
+                        <button
+                            onClick={() => !reportLoading && setIsReportModalOpen(false)}
+                            className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors disabled:opacity-20 cursor-pointer"
+                            disabled={reportLoading}
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        {/* Title */}
+                        <div className="text-center pb-2 border-b border-white/5">
+                            <h2 className="text-base font-black text-white flex items-center justify-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                {t("orders.reportModalTitle") || (isRtl ? "إرسال بلاغ أو شكوى" : "Send Report / Complaint")}
+                            </h2>
+                            <p className="text-[10px] text-zinc-400 mt-1">
+                                {t("orders.reportModalSub")
+                                    ? t("orders.reportModalSub").replace("{room}", activeSession?.room_name || "")
+                                    : (isRtl
+                                        ? `سيتم إرسال هذا البلاغ مباشرةً للإدارة عن الغرفة (${activeSession?.room_name})`
+                                        : `This report will be sent directly to management for room (${activeSession?.room_name})`
+                                    )
+                                }
+                            </p>
+                        </div>
+
+                        {/* Content */}
+                        <div className="space-y-3">
+                            <label className="text-xs font-bold text-zinc-400 block">
+                                {t("orders.reportMessageLabel") || (isRtl ? "مضمون البلاغ أو الشكوى:" : "Report / Complaint message:")}
+                            </label>
+                            <textarea
+                                value={reportMessageText}
+                                onChange={(e) => setReportMessageText(e.target.value)}
+                                placeholder={t("orders.reportPlaceholder") || (isRtl ? "اكتب تفاصيل بلاغك هنا (مثال: نحتاج مساعدة، أو هناك مشكلة في الخدمة)..." : "Write details of your complaint here...")}
+                                rows={4}
+                                disabled={reportLoading}
+                                className="w-full bg-[#0d0f17] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all resize-none h-32"
+                            />
+
+                            {reportError && (
+                                <p className="text-[11px] text-red-400 font-medium text-center bg-red-500/10 py-2 rounded-xl border border-red-500/20">
+                                    {reportError}
+                                </p>
+                            )}
+
+                            {/* Buttons */}
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsReportModalOpen(false)}
+                                    disabled={reportLoading}
+                                    className="px-5 py-2.5 rounded-full border border-white/10 bg-transparent text-zinc-300 hover:text-white text-xs font-black transition-all cursor-pointer disabled:opacity-40"
+                                >
+                                    {t("orders.btnCancel") || (isRtl ? "إلغاء" : "Cancel")}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleSendReport}
+                                    disabled={reportLoading || !reportMessageText.trim()}
+                                    className="px-5 py-2.5 rounded-full bg-primary hover:bg-primary-hover text-background font-black text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    {reportLoading ? (
+                                        <>
+                                            <div className="animate-spin h-3.5 w-3.5 border-2 border-background border-t-transparent rounded-full" />
+                                            <span>{t("orders.sending") || (isRtl ? "جاري الإرسال..." : "Sending...")}</span>
+                                        </>
+                                    ) : (
+                                        <span>{t("orders.btnSubmitReport") || (isRtl ? "إرسال البلاغ" : "Submit Report")}</span>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

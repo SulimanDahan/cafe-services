@@ -42,4 +42,6 @@ export const notifications = {
 	newOrderMessage: "يوجد طلب جديد للغرفة رقم '{room}'",
 	orderCancelledTitle: "إلغاء طلب",
 	orderCancelledMessage: "تم إلغاء طلب '{item}' للغرفة '{room}'",
+	newReportTitle: "بلاغ جديد",
+	newReportMessage: "يوجد بلاغ جديد من الغرفة '{room}': {message}",
 };

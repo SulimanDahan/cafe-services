@@ -8,6 +8,7 @@ export type SettingsModel = {
 	client_session_expiry_minutes: number;
 	force_client_order_session_passKey: boolean;
 	auto_accept_orders: boolean;
+	show_item_images: boolean;
 	created_at: Date;
 	updated_at: Date;
 };
@@ -22,6 +23,7 @@ export const initialSettings: SettingsModel = {
 	client_session_expiry_minutes: 0,
 	force_client_order_session_passKey: false,
 	auto_accept_orders: false,
+	show_item_images: false,
 	created_at: new Date(),
 	updated_at: new Date(),
 };

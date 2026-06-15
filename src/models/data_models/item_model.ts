@@ -11,6 +11,8 @@ type ItemModel = {
 	group_id: string;
 	is_disable: boolean;
 	image?: string | null;
+	discount_percentage: number;
+	discount_value: number;
 	created_at: Date;
 	updated_at: Date;
 	/** Included via Prisma relation */
@@ -24,6 +26,8 @@ export const initialItemState: ItemModel = {
 	group_id: "",
 	image: null,
 	is_disable: false,
+	discount_percentage: 0,
+	discount_value: 0,
 	created_at: new Date(),
 	updated_at: new Date(),
 };

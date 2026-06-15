@@ -17,6 +17,8 @@ interface ItemFormValues {
     name: string;
     price: string;
     group_id: string;
+    discount_percentage: string;
+    discount_value: string;
 }
 
 interface ItemModalProps {
@@ -26,6 +28,7 @@ interface ItemModalProps {
     editingItem: ItemModel | null;
     groups: { id: string; name: string }[];
     currencyName: string;
+    showImages: boolean;
 }
 
 export default function ItemModal({
@@ -35,6 +38,7 @@ export default function ItemModal({
     editingItem,
     groups,
     currencyName,
+    showImages,
 }: ItemModalProps) {
     const { t } = useLanguage();
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -47,6 +51,8 @@ export default function ItemModal({
         handleSubmit,
         formState: { errors },
         reset,
+        getValues,
+        setValue,
     } = useForm<ItemFormValues>({
         resolver: zodResolver(
             itemSchema,
@@ -55,6 +61,8 @@ export default function ItemModal({
             name: "",
             price: "",
             group_id: "",
+            discount_percentage: "0",
+            discount_value: "0",
         },
     });
 
@@ -67,6 +75,8 @@ export default function ItemModal({
                     name: editingItem.name,
                     price: String(editingItem.price),
                     group_id: editingItem.group_id,
+                    discount_percentage: String(editingItem.discount_percentage || 0),
+                    discount_value: String(editingItem.discount_value || 0),
                 });
                 (() => setImagePreview(editingItem.image || null))();
             } else {
@@ -74,6 +84,8 @@ export default function ItemModal({
                     name: "",
                     price: "",
                     group_id: groups[0]?.id ?? "",
+                    discount_percentage: "0",
+                    discount_value: "0",
                 });
                 (() => setImagePreview(null))();
             }
@@ -120,6 +132,8 @@ export default function ItemModal({
         formData.append("name", data.name);
         formData.append("price", data.price);
         formData.append("group_id", data.group_id);
+        formData.append("discount_percentage", data.discount_percentage);
+        formData.append("discount_value", data.discount_value);
 
         if (imageFile) {
             formData.append("image", imageFile);
@@ -145,49 +159,51 @@ export default function ItemModal({
                 className="space-y-4"
             >
                 {/* Image Upload */}
-                <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-zinc-300">
-                        {t("item.formLabelImage")}
-                    </label>
+                {showImages && (
+                    <div className="flex flex-col gap-2">
+                        <label className="text-xs font-bold text-zinc-300">
+                            {t("item.formLabelImage")}
+                        </label>
 
-                    <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        onChange={handleImageChange}
-                        className="hidden"
-                    />
+                        <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={handleImageChange}
+                            className="hidden"
+                        />
 
-                    {imagePreview ? (
-                        <div
-                            className="relative w-full h-40 rounded-2xl overflow-hidden border border-white/10 group cursor-pointer"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <Image src={imagePreview} alt="Preview" fill className="object-cover transition-transform group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span className="text-white text-sm font-bold bg-black/50 px-4 py-2 rounded-full">تغيير الصورة</span>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={(e) => { e.stopPropagation(); handleRemoveImage(); }}
-                                className="absolute top-2 right-2 bg-red-500/90 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-transform hover:scale-110"
-                                title="إزالة الصورة"
+                        {imagePreview ? (
+                            <div
+                                className="relative w-full h-40 rounded-2xl overflow-hidden border border-white/10 group cursor-pointer"
+                                onClick={() => fileInputRef.current?.click()}
                             >
-                                <TrashIcon className="w-4 h-4" />
-                            </button>
-                        </div>
-                    ) : (
-                        <div
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full h-40 rounded-2xl bg-surface-lighter/50 border-2 border-dashed border-white/10 hover:border-primary/50 hover:bg-surface-lighter transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer"
-                        >
-                            <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                                <CameraUploadIcon className="w-7 h-7" />
+                                <Image src={imagePreview} alt="Preview" fill className="object-cover transition-transform group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span className="text-white text-sm font-bold bg-black/50 px-4 py-2 rounded-full">تغيير الصورة</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); handleRemoveImage(); }}
+                                    className="absolute top-2 right-2 bg-red-500/90 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                                    title="إزالة الصورة"
+                                >
+                                    <TrashIcon className="w-4 h-4" />
+                                </button>
                             </div>
-                            <span className="text-zinc-400 text-sm font-bold">انقر هنا لاختيار أو رفع صورة</span>
-                        </div>
-                    )}
-                </div>
+                        ) : (
+                            <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-full h-40 rounded-2xl bg-surface-lighter/50 border-2 border-dashed border-white/10 hover:border-primary/50 hover:bg-surface-lighter transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer"
+                            >
+                                <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                    <CameraUploadIcon className="w-7 h-7" />
+                                </div>
+                                <span className="text-zinc-400 text-sm font-bold">انقر هنا لاختيار أو رفع صورة</span>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Item Name */}
                 <InputField
@@ -219,6 +235,57 @@ export default function ItemModal({
                         {t(String(errors.price.message))}
                     </p>
                 )}
+
+                {/* Discount Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <InputField
+                            label={t("item.formLabelDiscountPercentage")}
+                            id="itemDiscountPercentage"
+                            type="number"
+                            step="1"
+                            min="0"
+                            max="100"
+                            {...register("discount_percentage", {
+                                onChange: (e) => {
+                                    const pct = Number(e.target.value) || 0;
+                                    const prc = Number(getValues("price")) || 0;
+                                    setValue("discount_value", String((prc * pct) / 100));
+                                }
+                            })}
+                            placeholder="0"
+                        />
+                        {errors.discount_percentage?.message && (
+                            <p className="text-[10px] text-red-400 font-medium mt-1">
+                                {t(String(errors.discount_percentage.message))}
+                            </p>
+                        )}
+                    </div>
+                    <div>
+                        <InputField
+                            label={t("item.formLabelDiscountValue")}
+                            id="itemDiscountValue"
+                            type="number"
+                            step="1"
+                            min="0"
+                            {...register("discount_value", {
+                                onChange: (e) => {
+                                    const val = Number(e.target.value) || 0;
+                                    const prc = Number(getValues("price")) || 0;
+                                    if (prc > 0) {
+                                        setValue("discount_percentage", String(Math.round((val / prc) * 100)));
+                                    }
+                                }
+                            })}
+                            placeholder="0"
+                        />
+                        {errors.discount_value?.message && (
+                            <p className="text-[10px] text-red-400 font-medium mt-1">
+                                {t(String(errors.discount_value.message))}
+                            </p>
+                        )}
+                    </div>
+                </div>
 
                 {/* Item Category Selection */}
                 <InputField

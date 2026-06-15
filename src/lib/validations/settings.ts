@@ -32,6 +32,7 @@ export const settingsSchema = z.object({
 	),
 	force_client_order_session_passKey: z.boolean().optional(),
 	auto_accept_orders: z.boolean().optional(),
+	show_item_images: z.boolean().optional(),
 });
 
 export type SettingsInput = z.infer<typeof settingsSchema>;

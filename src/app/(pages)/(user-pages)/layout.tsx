@@ -5,6 +5,7 @@ import { getSystemSettings } from "@/lib/settings";
 export const dynamic = "force-dynamic";
 
 import NavigationLoader from "@/hooks/NavigationLoader";
+import NewsTicker from "@/components/NewsTicker";
 
 const UserLayout = async ({ children }: { children: React.ReactNode }) => {
 	const appSettings = await getSystemSettings();
@@ -12,7 +13,8 @@ const UserLayout = async ({ children }: { children: React.ReactNode }) => {
 	const { t } = getServerTranslations(locale);
 
 	return (
-		<div className="min-h-screen bg-background text-zinc-100 font-sans flex flex-col selection:bg-primary selection:text-black overflow-x-hidden">
+		<div className="min-h-screen bg-background text-zinc-100 font-sans flex flex-col selection:bg-primary selection:text-black">
+			<NewsTicker />
 			<NavigationLoader />
 			<UserHeader />
 			{children}

@@ -70,6 +70,14 @@ export async function PUT(request: Request, { params }: Params) {
 				body.group_id = formData.get("group_id")?.toString();
 			if (formData.has("is_disable"))
 				body.is_disable = formData.get("is_disable") === "true";
+			if (formData.has("discount_percentage"))
+				body.discount_percentage = formData
+					.get("discount_percentage")
+					?.toString();
+			if (formData.has("discount_value"))
+				body.discount_value = formData
+					.get("discount_value")
+					?.toString();
 
 			if (formData.get("remove_image") === "true") {
 				removeImage = true;
@@ -106,7 +114,13 @@ export async function PUT(request: Request, { params }: Params) {
 			(data.price !== undefined &&
 				Number(data.price) !== Number(currentItem.price)) ||
 			(data.group_id !== undefined &&
-				data.group_id !== currentItem.group_id);
+				data.group_id !== currentItem.group_id) ||
+			(data.discount_percentage !== undefined &&
+				Number(data.discount_percentage) !==
+					Number(currentItem.discount_percentage)) ||
+			(data.discount_value !== undefined &&
+				Number(data.discount_value) !==
+					Number(currentItem.discount_value));
 
 		if (ordersCount > 0 && isChangingRestrictedFields) {
 			return NextResponse.json(
@@ -168,6 +182,12 @@ export async function PUT(request: Request, { params }: Params) {
 				...(data.group_id !== undefined && { group_id: data.group_id }),
 				...(data.is_disable !== undefined && {
 					is_disable: data.is_disable,
+				}),
+				...(data.discount_percentage !== undefined && {
+					discount_percentage: data.discount_percentage,
+				}),
+				...(data.discount_value !== undefined && {
+					discount_value: data.discount_value,
 				}),
 				image: newImagePath,
 			},

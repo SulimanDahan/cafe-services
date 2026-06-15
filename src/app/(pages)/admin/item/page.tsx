@@ -46,13 +46,13 @@ export default function ItemsAdmin() {
     const { groups, fetchAllGroups } = useItemGroup();
 
     const columns: TableColumn[] = [
-        { key: "image", label: t("item.colImage"), align: "center" },
+        ...(settings.show_item_images !== false ? [{ key: "image", label: t("item.colImage"), align: "center" as const }] : []),
         { key: "name", label: t("item.colNameAr") },
         { key: "category", label: t("item.colCategory") },
         { key: "price", label: t("item.columnPrice") },
         { key: "created", label: t("item.columnCreated") },
-        { key: "status", label: t("common.status"), align: "center" },
-        { key: "actions", label: t("common.actions"), align: "center" },
+        { key: "status", label: t("common.status"), align: "center" as const },
+        { key: "actions", label: t("common.actions"), align: "center" as const },
     ];
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -146,7 +146,7 @@ export default function ItemsAdmin() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col h-[calc(100vh-96px)] sm:h-[calc(100vh-128px)] space-y-6">
             {/* Header */}
             <AdminHeader title={t("item.title")} subtitle={t("item.subtitle")}>
                 <PrimaryButton onClick={handleOpenAdd} size="md">
@@ -156,7 +156,7 @@ export default function ItemsAdmin() {
             </AdminHeader>
 
             {/* Filters Panel */}
-            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
+            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md flex flex-col flex-1 min-h-0 gap-6">
                 <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full md:max-w-2xl">
                         {/* Search Name */}
@@ -199,6 +199,7 @@ export default function ItemsAdmin() {
                     columns={columns}
                     isLoading={isItemsLoading}
                     dataLength={total}
+                    wrapperClassName="flex-1 min-h-0"
                 >
                     {items.map((item) => {
                         const group = groups.find(
@@ -209,17 +210,19 @@ export default function ItemsAdmin() {
                                 key={item.id}
                                 className="group hover:bg-[#1a1c2c]/40 transition-colors duration-200"
                             >
-                                <td className="py-4 px-4 text-center whitespace-nowrap">
-                                    {item.image ? (
-                                        <div className="relative w-10 h-10 mx-auto rounded-full overflow-hidden border border-white/10">
-                                            <Image src={item.image} alt={item.name} fill className="object-cover" />
-                                        </div>
-                                    ) : (
-                                        <div className="w-10 h-10 mx-auto rounded-full bg-surface border border-white/5 flex items-center justify-center">
-                                            <span className="text-[10px] text-zinc-500 font-bold">{t("item.noImage")}</span>
-                                        </div>
-                                    )}
-                                </td>
+                                {settings.show_item_images !== false && (
+                                    <td className="py-4 px-4 text-center whitespace-nowrap">
+                                        {item.image ? (
+                                            <div className="relative w-10 h-10 mx-auto rounded-full overflow-hidden border border-white/10">
+                                                <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                            </div>
+                                        ) : (
+                                            <div className="w-10 h-10 mx-auto rounded-full bg-surface border border-white/5 flex items-center justify-center">
+                                                <span className="text-[10px] text-zinc-500 font-bold">{t("item.noImage")}</span>
+                                            </div>
+                                        )}
+                                    </td>
+                                )}
                                 <td
                                     className={`py-4 px-4 font-bold text-white group-hover:text-primary-light transition-colors whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
                                 >
@@ -233,8 +236,23 @@ export default function ItemsAdmin() {
                                 <td
                                     className={`py-4 px-4 text-primary-hover font-black text-xs whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
                                 >
-                                    {Number(item.price).toLocaleString("en-US")}{" "}
-                                    {t(`common.${settings.currency_name}`)}
+                                    <div className="flex flex-col">
+                                        {(item.discount_percentage > 0 || item.discount_value > 0) ? (
+                                            <>
+                                                <span className="line-through text-zinc-500 text-[10px]">
+                                                    {Number(item.price).toLocaleString("en-US")} {t(`common.${settings.currency_name}`)}
+                                                </span>
+                                                <span className="text-amber-500">
+                                                    {Math.max(0, Number(item.price) - Number(item.discount_value) - (Number(item.price) * (Number(item.discount_percentage) / 100))).toLocaleString("en-US")}{" "}
+                                                    {t(`common.${settings.currency_name}`)}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span>
+                                                {Number(item.price).toLocaleString("en-US")} {t(`common.${settings.currency_name}`)}
+                                            </span>
+                                        )}
+                                    </div>
                                 </td>
                                 <td
                                     className={`py-4 px-4 text-zinc-400 text-xs font-medium whitespace-nowrap ${isRtl ? "text-right" : "text-left"}`}
@@ -328,6 +346,7 @@ export default function ItemsAdmin() {
                     .filter((g) => g.is_disable !== true)
                     .map((g) => ({ id: g.id, name: g.name }))}
                 currencyName={settings.currency_name || "YER"}
+                showImages={settings.show_item_images !== false}
             />
 
             {/* Error Modal */}

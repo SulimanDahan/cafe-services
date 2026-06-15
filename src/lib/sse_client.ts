@@ -23,6 +23,7 @@ class SharedSSEClient {
             "order-deleted",
             "initial-notifications",
             "new-notification",
+            "new-report",
             "pending-status"
         ];
 

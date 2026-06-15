@@ -17,7 +17,6 @@ export const reservationSchema = z.object({
  accepted: z.boolean().optional(),
  activated: z.boolean().optional(),
  completed: z.boolean().optional(),
- rejected: z.boolean().optional(),
 });
 
 export type ReservationInput = z.infer<typeof reservationSchema>;

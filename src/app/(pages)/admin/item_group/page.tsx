@@ -113,7 +113,7 @@ export default function ItemGroupsAdmin() {
     };
 
     return (
-        <div className="flex flex-col min-h-[calc(100vh-96px)] sm:min-h-[calc(100vh-128px)] space-y-6">
+        <div className="flex flex-col h-[calc(100vh-96px)] sm:h-[calc(100vh-128px)] space-y-6">
             {/* Header area with titles and actions */}
             <AdminHeader
                 title={t("itemGroup.title")}

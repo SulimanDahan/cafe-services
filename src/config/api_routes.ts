@@ -30,3 +30,4 @@ export const ORDER_ITEMS_USER_API_ROUTE: string = `${ORDER_USER_API_ROUTE}/items
 export const ORDER_LOGIN_API_ROUTE: string = `${ORDER_USER_API_ROUTE}/login`;
 export const ORDER_SESSION_API_ROUTE: string = `${ORDER_USER_API_ROUTE}/session`;
 export const ORDER_LOGOUT_API_ROUTE: string = `${ORDER_USER_API_ROUTE}/logout`;
+export const REPORT_USER_API_ROUTE: string = `${MAIN_API_ROUTE}/report`;

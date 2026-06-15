@@ -15,7 +15,8 @@ export const InputField = React.forwardRef<
     InputFieldProps
 >(({ label, isSelect, options, className: customClassName, ...props }, ref) => {
     const baseClassName =
-        "w-full bg-background border border-white/10 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all duration-200";
+        "w-full bg-background border border-white/10 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all duration-200" +
+        (props.type === "date" || props.type === "time" ? " [&::-webkit-calendar-picker-indicator]:invert-[0.8]" : "");
 
     return (
         <div className="space-y-1.5 w-full">
@@ -49,6 +50,7 @@ export const InputField = React.forwardRef<
                 <input
                     ref={ref as React.Ref<HTMLInputElement>}
                     className={`${baseClassName} ${customClassName || ""}`}
+                    style={{ ...(props.type === "date" || props.type === "time" ? { colorScheme: "dark" } : {}), ...props.style }}
                     {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
                 />
             )}

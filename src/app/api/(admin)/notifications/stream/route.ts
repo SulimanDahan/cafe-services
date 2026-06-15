@@ -55,11 +55,13 @@ export async function GET(req: NextRequest) {
 	const onNewReservation = (res: any) => sendEvent("new-reservation", res);
 	const onNewOrder = (order: any) => sendEvent("new-order", order);
 	const onOrderDeleted = (orderId: any) => sendEvent("order-deleted", orderId);
+	const onNewReport = (report: any) => sendEvent("new-report", report);
 
 	notificationEmitter.on("notification-created", onNotificationCreated);
 	notificationEmitter.on("new-reservation", onNewReservation);
 	notificationEmitter.on("new-order", onNewOrder);
 	notificationEmitter.on("order-deleted", onOrderDeleted);
+	notificationEmitter.on("new-report", onNewReport);
 
 	// 3. Keep Connection Alive & Monitor Pending Status
     const intervalSeconds = parseInt(process.env.ALARM_INTERVAL_SECONDS || "10", 10);
@@ -67,22 +69,30 @@ export async function GET(req: NextRequest) {
 		try {
 			writer.write(encoder.encode(": ping\n\n"));
             
-            // Check for unapproved reservations (not accepted, not rejected, not completed)
+            // Check for unapproved reservations (not accepted, not completed)
             const pendingReservations = await prisma.reservation.count({
-                where: { accepted: false, rejected: false, completed: false }
+                where: { accepted: false, completed: false }
             });
             // Check for unapproved orders belonging to active reservations
             const pendingOrders = await prisma.order.count({
                 where: { 
                     accepted: false,
                     reservation: {
-                        completed: false,
-                        rejected: false
+                        completed: false
+                    }
+                }
+            });
+            // Check for unread reports belonging to active reservations
+            const pendingReports = await prisma.clientReports.count({
+                where: {
+                    is_read: false,
+                    reservation: {
+                        completed: false
                     }
                 }
             });
             
-            sendEvent("pending-status", { pendingReservations, pendingOrders });
+            sendEvent("pending-status", { pendingReservations, pendingOrders, pendingReports });
 
 		} catch (err) {
 			console.error("Failed sending ping or pending status:", err);
@@ -95,6 +105,7 @@ export async function GET(req: NextRequest) {
 		notificationEmitter.off("new-reservation", onNewReservation);
 		notificationEmitter.off("new-order", onNewOrder);
 		notificationEmitter.off("order-deleted", onOrderDeleted);
+		notificationEmitter.off("new-report", onNewReport);
 		try {
 			writer.close();
 		} catch {

@@ -44,6 +44,14 @@ export async function PUT(
 			);
 		}
 
+		if (appSettings.id === "default") {
+			console.error("[SETTINGS] PUT: Database is using fallback settings. Cannot update. DB may need a sync.");
+			return NextResponse.json(
+				{ error: "Database is out of sync. Please run `npx prisma db push`." },
+				{ status: 500 }
+			);
+		}
+
 		console.log("[SETTINGS] PUT updating row:", appSettings.id, "with data:", JSON.stringify(data));
 
 		const result = await prisma.settings.update({
@@ -60,7 +68,7 @@ export async function PUT(
 	} catch (error) {
 		console.error("[SETTINGS] PUT error:", error);
 		return NextResponse.json(
-			{ error: "apiMessages.error.serverError" },
+			{ error: "apiMessages.error.serverError", details: error instanceof Error ? error.message : String(error) },
 			{ status: 500 },
 		);
 	}

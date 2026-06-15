@@ -162,7 +162,7 @@ export default function AdminRoomsPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col h-[calc(100vh-96px)] sm:h-[calc(100vh-128px)] space-y-6">
             {/* Page Header */}
             <AdminHeader
                 title={t("reservations.roomsPageTitle")}
@@ -174,39 +174,10 @@ export default function AdminRoomsPage() {
                 </PrimaryButton>
             </AdminHeader>
 
-            {/* Room Statistics */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="rounded-card border border-white/10 bg-surface p-6 flex flex-col justify-between gap-3 shadow-md relative overflow-hidden group hover:border-primary/20 transition-colors">
-                    <div className="absolute right-0 top-0 h-16 w-16 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-colors" />
-                    <span className="text-xs text-zinc-400 font-bold uppercase tracking-wide">
-                        {t("reservations.statTotalTables")}
-                    </span>
-                    <span className="text-4xl font-black text-white">
-                        {rooms.length}
-                    </span>
-                </div>
-                <div className="rounded-card border border-white/10 bg-surface p-6 flex flex-col justify-between gap-3 shadow-md relative overflow-hidden group hover:border-green-500/20 transition-colors">
-                    <div className="absolute right-0 top-0 h-16 w-16 bg-green-500/5 rounded-full blur-xl group-hover:bg-green-500/10 transition-colors" />
-                    <span className="text-xs text-zinc-400 font-bold uppercase tracking-wide">
-                        {t("reservations.statActiveTables")}
-                    </span>
-                    <span className="text-4xl font-black text-green-400">
-                        {rooms.filter((r) => !r.is_disable).length}
-                    </span>
-                </div>
-                <div className="rounded-card border border-white/10 bg-surface p-6 flex flex-col justify-between gap-3 shadow-md relative overflow-hidden group hover:border-red-500/20 transition-colors">
-                    <div className="absolute right-0 top-0 h-16 w-16 bg-red-500/5 rounded-full blur-xl group-hover:bg-red-500/10 transition-colors" />
-                    <span className="text-xs text-zinc-400 font-bold uppercase tracking-wide">
-                        {t("reservations.statOutOfService")}
-                    </span>
-                    <span className="text-4xl font-black text-red-400">
-                        {rooms.filter((r) => r.is_disable).length}
-                    </span>
-                </div>
-            </div>
+
 
             {/* Main Table */}
-            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md space-y-6">
+            <div className="rounded-card border border-white/10 bg-surface p-6 shadow-md flex flex-col flex-1 min-h-0 gap-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <SearchInput
                         value={searchQuery}
@@ -223,6 +194,7 @@ export default function AdminRoomsPage() {
                     isLoading={isRoomsLoading}
                     dataLength={total}
                     noDataText={t("reservations.noTablesRegistered")}
+                    wrapperClassName="flex-1 min-h-0"
                 >
                     {rooms.map((room, index) => (
                         <tr

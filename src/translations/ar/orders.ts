@@ -80,7 +80,7 @@ export const orders = {
 	catDessert: "حلويات",
 	adminAppTitle: "تطبيق مخصص للإدارة الفنية",
 	adminAppDesc:
-		"عذراً، هذا التطبيق المثبت مخصص لإدارة العمليات التشغيلية للمقهى والـ Admin فقط. لطلب الخدمات، يرجى تصفح الموقع أو مسح الرمز الخاص بغرفتك.",
+		"عذراً، هذا التطبيق المثبت مخصص لإدارة العمليات التشغيلية للاستراحة والـ Admin فقط. لطلب الخدمات، يرجى تصفح الموقع أو مسح الرمز الخاص بغرفتك.",
 	returnAdmin: "العودة للوحة الإدارة",
 	activeTableBadge: "غرفة نشطة:",
 	bookingVerified: "تم التحقق ومطابقة الحجز بنجاح",
@@ -92,7 +92,7 @@ export const orders = {
 	bookingIdLabel: "رقم الحجز المرجعي:",
 	guestNameLabel: "اسم العميل صاحب الغرفة:",
 	tableLocLabel: "موقع الغرفة الحالي:",
-	totalOrderedLabel: "إجمالي عدد الأصناف المطلوبة:",
+	totalOrderedLabel: "إجمالي كمية الأصناف المطلوبة:",
 	myActiveOrders: "طلباتك النشطة الآن",
 	noItemsOrderedYet: "لم تقم بطلب أي أصناف لغرفتك بعد!",
 	scanModalTitle: "تسجيل الدخول إلى غرفتك",
@@ -114,6 +114,7 @@ export const orders = {
 		"تم إنهاء الحجز من قبل الاستقبال وتصفية الحساب. شكراً لزيارتك!",
 	welcomeSessionUnlocked:
 		"أهلاً بك عميلنا المميز ({clientName})! تم فتح الجلسة لغرفة {tableName}.",
+	roomChangedNotification: "تم تغيير غرفتك من قِبل الإدارة إلى {tableName}.",
 	noActiveConfirmedReservation: "لا يوجد حجز نشط ومقبول لهذه الغرفة اليوم.",
 	logoutSession: "تم تسجيل الخروج وقفل الجلسة.",
 	activateSessionFirst: "يجب تفعيل الجلسة ومسح الرمز أولاً",
@@ -150,4 +151,17 @@ export const orders = {
 	orderAcceptedSuccess: "تم اعتماد طلبك والبدء في تجهيزه!",
 	notePlaceholder: "أضف ملاحظة (اختياري)...",
 	notePrefix: "ملاحظة: ",
+	reportSentSuccess: "تم إرسال بلاغك بنجاح!",
+	reportModalTitle: "إرسال بلاغ أو شكوى",
+	reportModalSub: "سيتم إرسال هذا البلاغ مباشرةً للإدارة عن الغرفة '{room}'",
+	reportMessageLabel: "مضمون البلاغ أو الشكوى:",
+	reportPlaceholder:
+		"اكتب تفاصيل بلاغك هنا (مثال: نحتاج مساعدة، أو هناك مشكلة في الخدمة)...",
+	btnSubmitReport: "إرسال البلاغ",
+	btnCancel: "إلغاء",
+	sending: "جاري الإرسال...",
+	btnReportTooltip: "إرسال بلاغ أو شكوى",
+	newsTickerLabel: "شريط الأخبار",
+	tabItems: "الاصناف",
+	tabCart: "السلة",
 };

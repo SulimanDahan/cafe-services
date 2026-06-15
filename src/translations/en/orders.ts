@@ -92,7 +92,7 @@ export const orders = {
 	bookingIdLabel: "Booking Identifier:",
 	guestNameLabel: "Guest Full Name:",
 	tableLocLabel: "Room Location:",
-	totalOrderedLabel: "Total Ordered Pieces:",
+	totalOrderedLabel: "Total Ordered Quantities:",
 	myActiveOrders: "My Active Room Orders",
 	noItemsOrderedYet: "No items ordered for this room yet!",
 	scanModalTitle: "Sign In to Your Room",
@@ -112,6 +112,8 @@ export const orders = {
 	sessionEndedByReception: "Reservation ended by reception. Thank you!",
 	welcomeSessionUnlocked:
 		"Welcome ({clientName})! Session unlocked for room {tableName}.",
+	roomChangedNotification:
+		"Your room has been changed by management to {tableName}.",
 	noActiveConfirmedReservation:
 		"No active and confirmed reservation found for this room today.",
 	logoutSession: "Logged out successfully.",
@@ -149,4 +151,18 @@ export const orders = {
 	orderAcceptedSuccess: "Your order has been approved and is being prepared!",
 	notePlaceholder: "Add a note (optional)...",
 	notePrefix: "Note: ",
+	reportSentSuccess: "Your report has been sent successfully!",
+	reportModalTitle: "Send Report / Complaint",
+	reportModalSub:
+		"This report will be sent directly to management for room '{room}'",
+	reportMessageLabel: "Report / Complaint message:",
+	reportPlaceholder:
+		"Write details of your complaint here (e.g., need assistance, issue with service)...",
+	btnSubmitReport: "Submit Report",
+	btnCancel: "Cancel",
+	sending: "Sending...",
+	btnReportTooltip: "Send Report or Complaint",
+	newsTickerLabel: "News Ticker",
+	tabItems: "Items",
+	tabCart: "Cart",
 };

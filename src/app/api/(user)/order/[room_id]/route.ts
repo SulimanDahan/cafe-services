@@ -5,7 +5,10 @@ import { getServerTranslations } from "@/lib/i18n_server";
 import { getSystemSettings } from "@/lib/settings";
 import { orderBulkSchema } from "@/lib/validations/order";
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ room_id: string }> }) {
+export async function GET(
+	req: NextRequest,
+	{ params }: { params: Promise<{ room_id: string }> },
+) {
 	try {
 		const { room_id } = await params;
 		const { searchParams } = new URL(req.url);
@@ -23,9 +26,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ room
 			where: { id: reservationId },
 		});
 
-		if (!reservation || !reservation.accepted || !reservation.activated || reservation.completed || reservation.room_id !== room_id) {
+		if (
+			!reservation ||
+			!reservation.accepted ||
+			!reservation.activated ||
+			reservation.completed
+		) {
 			return NextResponse.json(
-				{ error: "apiMessages.error.sessionExpired", sessionExpired: true },
+				{
+					error: "apiMessages.error.sessionExpired",
+					sessionExpired: true,
+				},
+				{ status: 403 },
+			);
+		}
+
+		if (reservation.room_id !== room_id) {
+			return NextResponse.json(
+				{ error: "apiMessages.error.roomChanged", roomChanged: true },
 				{ status: 403 },
 			);
 		}
@@ -49,7 +67,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ room
 	}
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ room_id: string }> }) {
+export async function POST(
+	req: NextRequest,
+	{ params }: { params: Promise<{ room_id: string }> },
+) {
 	try {
 		const { room_id } = await params;
 		const body = await req.json();
@@ -69,9 +90,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
 			include: { room: true },
 		});
 
-		if (!reservation || !reservation.accepted || !reservation.activated || reservation.completed || reservation.room_id !== room_id) {
+		if (
+			!reservation ||
+			!reservation.accepted ||
+			!reservation.activated ||
+			reservation.completed
+		) {
 			return NextResponse.json(
-				{ error: "apiMessages.error.sessionExpired", sessionExpired: true },
+				{
+					error: "apiMessages.error.sessionExpired",
+					sessionExpired: true,
+				},
+				{ status: 403 },
+			);
+		}
+
+		if (reservation.room_id !== room_id) {
+			return NextResponse.json(
+				{ error: "apiMessages.error.roomChanged", roomChanged: true },
 				{ status: 403 },
 			);
 		}
@@ -87,11 +123,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
 				where: { id: item.id },
 			});
 			if (dbItem) {
+				const basePrice = Number(dbItem.price);
+				// Type cast needed since Prisma hasn't been generated with new types in this run yet
+				const dbItemAny = dbItem;
+				const discountVal = Number(dbItemAny.discount_value || 0);
+				const discountPct = Number(dbItemAny.discount_percentage || 0);
+
+				const finalPrice = Math.max(
+					0,
+					basePrice - discountVal - basePrice * (discountPct / 100),
+				);
+
 				const order = await prisma.order.create({
 					data: {
 						reservation_id,
 						item_id: item.id,
-						item_price: dbItem.price,
+						item_price: finalPrice,
 						quantity: item.quantity,
 						notes: item.notes,
 						// Auto-accept the order if the setting is enabled
@@ -107,11 +154,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
 		// Notify Admin
 		if (reservation) {
 			const settings = await getSystemSettings();
-			const appLang = (settings?.app_lang === "ar" || !settings?.app_lang) ? "ar" : "en";
+			const appLang =
+				settings?.app_lang === "ar" || !settings?.app_lang
+					? "ar"
+					: "en";
 			const { t } = getServerTranslations(appLang);
 
 			const title = t("notifications.newOrderTitle");
-			const message = t("notifications.newOrderMessage").replace("{room}", reservation.room.name);
+			const message = t("notifications.newOrderMessage").replace(
+				"{room}",
+				reservation.room.name,
+			);
 
 			const notification = await prisma.notification.create({
 				data: {
@@ -131,7 +184,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
 	}
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ room_id: string }> }) {
+export async function DELETE(
+	req: NextRequest,
+	{ params }: { params: Promise<{ room_id: string }> },
+) {
 	try {
 		const { room_id } = await params;
 		const { searchParams } = new URL(req.url);
@@ -151,9 +207,24 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ r
 			include: { room: true },
 		});
 
-		if (!reservation || !reservation.accepted || !reservation.activated || reservation.completed || reservation.room_id !== room_id) {
+		if (
+			!reservation ||
+			!reservation.accepted ||
+			!reservation.activated ||
+			reservation.completed
+		) {
 			return NextResponse.json(
-				{ error: "apiMessages.error.sessionExpired", sessionExpired: true },
+				{
+					error: "apiMessages.error.sessionExpired",
+					sessionExpired: true,
+				},
+				{ status: 403 },
+			);
+		}
+
+		if (reservation.room_id !== room_id) {
+			return NextResponse.json(
+				{ error: "apiMessages.error.roomChanged", roomChanged: true },
 				{ status: 403 },
 			);
 		}
@@ -169,7 +240,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ r
 		});
 
 		if (!order) {
-			return NextResponse.json({ error: "apiMessages.error.orderNotFound" }, { status: 404 });
+			return NextResponse.json(
+				{ error: "apiMessages.error.orderNotFound" },
+				{ status: 404 },
+			);
 		}
 
 		if ((order as unknown as { accepted: boolean }).accepted) {
@@ -188,7 +262,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ r
 		// Notify Admin of cancellation
 		if (reservation) {
 			const settings = await getSystemSettings();
-			const appLang = (settings?.app_lang === "ar" || !settings?.app_lang) ? "ar" : "en";
+			const appLang =
+				settings?.app_lang === "ar" || !settings?.app_lang
+					? "ar"
+					: "en";
 			const { t } = getServerTranslations(appLang);
 
 			const title = t("notifications.orderCancelledTitle");

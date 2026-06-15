@@ -75,6 +75,8 @@ export async function POST(request: Request) {
 			body.price = formData.get("price")?.toString() || "0";
 			body.group_id = formData.get("group_id")?.toString() || "";
 			body.is_disable = formData.get("is_disable") === "true";
+			body.discount_percentage = formData.get("discount_percentage")?.toString() || "0";
+			body.discount_value = formData.get("discount_value")?.toString() || "0";
 
 			const file = formData.get("image");
 			if (file && file instanceof File && file.size > 0) {
@@ -120,6 +122,8 @@ export async function POST(request: Request) {
 				price: data.price ?? 0,
 				group_id: data.group_id,
 				is_disable: data.is_disable ?? false,
+				discount_percentage: data.discount_percentage ?? 0,
+				discount_value: data.discount_value ?? 0,
 				image: imagePath,
 			},
 			include: { group: true },
