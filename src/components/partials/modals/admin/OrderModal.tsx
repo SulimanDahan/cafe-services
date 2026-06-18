@@ -227,7 +227,7 @@ export default function OrderModal({
                     className="w-full bg-background border border-white/10 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all duration-200"
                   />
                   {isDropdownOpen && (
-                    <div className="absolute top-full left-0 z-[100] w-full mt-1 max-h-48 overflow-y-auto bg-[#1a1c2c] border border-white/10 rounded-2xl shadow-xl">
+                    <div className="absolute top-full left-0 z-100 w-full mt-1 max-h-48 overflow-y-auto bg-[#1a1c2c] border border-white/10 rounded-2xl shadow-xl">
                       {filteredItems.length === 0 ? (
                         <div className="p-4 text-center text-zinc-500 text-sm">
                           No items found
