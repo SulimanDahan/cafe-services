@@ -9,15 +9,19 @@ import { useReservation } from "@/context/reservation_context";
 import { useRoom } from "@/context/room_context";
 import { useOrder } from "@/context/order_context";
 import { useReport } from "@/context/report_context";
+import { useItem } from "@/context/item_context";
 import ReservationModel from "@/models/data_models/reservation_model";
+import OrderModel from "@/models/data_models/order_model";
 import ErrorModal from "@/components/partials/modals/error_modal";
 import CombinedReservationModal from "@/components/partials/modals/admin/CombinedReservationModal";
+import OrderModal from "@/components/partials/modals/admin/OrderModal";
 import { Badge } from "@/components/badge";
 import Pagination from "@/components/Pagination";
 import TabBar from "@/components/tab_bar";
 import Table, { TableColumn } from "@/components/table";
 import RoomCard from "@/components/card/room_card";
 import { InputField } from "@/components/input";
+import { type OrderInput } from "@/lib/validations/order";
 export default function ReservationsAdmin() {
     const { t, isRtl } = useLanguage();
     const { settings } = useSettings();
@@ -36,8 +40,9 @@ export default function ReservationsAdmin() {
         deleteReservation,
     } = useReservation();
     const { rooms, fetchAllRooms, isRoomsLoading } = useRoom();
-    const { orders, fetchAllOrders, updateOrder, deleteOrder } = useOrder();
+    const { orders, fetchAllOrders, updateOrder, deleteOrder, addOrder } = useOrder();
     const { reportsList, fetchAllReports, updateReport } = useReport();
+    const { items, fetchAllItems } = useItem();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isDateFilterEnabled, setIsDateFilterEnabled] = useState(false);
@@ -53,6 +58,10 @@ export default function ReservationsAdmin() {
     const [errorModalMsg, setErrorModalMsg] = useState<string | null>(null);
     const [isPageReady, setIsPageReady] = useState(false);
 
+    // Order Modal States
+    const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+    const [editingOrder, setEditingOrder] = useState<OrderModel | null>(null);
+
     const perPage = settings?.per_page || 10;
 
     // Fetch rooms, reports, and orders on mount
@@ -60,7 +69,8 @@ export default function ReservationsAdmin() {
         fetchAllRooms({ fetch_all: "true" });
         fetchAllReports({ fetch_all: "true", per_page: perPage.toString() });
         fetchAllOrders({ fetch_all: "true", per_page: perPage.toString() });
-    }, [fetchAllRooms, fetchAllReports, fetchAllOrders, perPage]);
+        fetchAllItems({ fetch_all: "true" });
+    }, [fetchAllRooms, fetchAllReports, fetchAllOrders, fetchAllItems, perPage]);
 
     // Fetch reservations depending on tab
     const lastFetchRef = useRef<{ time: number; params: string }>({ time: 0, params: "" });
@@ -196,6 +206,31 @@ export default function ReservationsAdmin() {
     };
 
     // Orders Actions
+    const handleAddOrderClick = () => {
+        setEditingOrder(null);
+        setIsOrderModalOpen(true);
+    };
+
+    const handleEditOrderClick = (order: OrderModel) => {
+        setEditingOrder(order);
+        setIsOrderModalOpen(true);
+    };
+
+    const handleSaveOrder = async (data: OrderInput) => {
+        let success = false;
+        if (editingOrder) {
+            success = await updateOrder(editingOrder.id, data);
+        } else {
+            success = await addOrder({ ...data, accepted: true });
+        }
+        if (success) {
+            fetchAllOrders();
+        } else {
+            setErrorModalMsg(t("common.errorOccurred"));
+        }
+        return success;
+    };
+
     const handleApproveOrder = async (orderId: string) => {
         await updateOrder(orderId, { accepted: true });
         fetchAllOrders();
@@ -405,7 +440,23 @@ export default function ReservationsAdmin() {
                 onMarkReportRead={handleMarkReportRead}
                 onUndoAction={handleUndoAction}
                 onDelete={handleDeleteReservation}
+                onAddOrderClick={handleAddOrderClick}
+                onEditOrderClick={handleEditOrderClick}
             />
+
+            {currentReservation && (
+                <OrderModal
+                    isOpen={isOrderModalOpen}
+                    onClose={() => {
+                        setIsOrderModalOpen(false);
+                        setEditingOrder(null);
+                    }}
+                    onSave={handleSaveOrder}
+                    order={editingOrder}
+                    items={items}
+                    reservationId={currentReservation.id}
+                />
+            )}
 
             <ErrorModal
                 isOpen={!!errorModalMsg}

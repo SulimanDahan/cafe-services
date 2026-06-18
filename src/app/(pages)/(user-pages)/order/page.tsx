@@ -14,7 +14,7 @@ import { PrimaryButton } from "@/components/button/primary_button";
 import AdminBlockOverlay from "@/components/partials/orders/admin_block_overlay";
 import Billing from "@/components/partials/orders/billing";
 import ActiveOrdersList from "@/components/partials/orders/active_orders_list";
-import { LogoutIcon, LockIcon } from "@/components/icons";
+import { LogoutIcon, LockIcon, LogoIcon } from "@/components/icons";
 import TabBar from "@/components/tab_bar";
 import MenuItemCard from "@/components/partials/orders/menu_item_card";
 import { InputField } from "@/components/input";
@@ -49,6 +49,8 @@ interface MenuItem {
     id: string;
     name: string;
     price: number | string;
+    discount_value?: number | string;
+    discount_percentage?: number | string;
     group_id: string;
     group: {
         id: string;
@@ -726,7 +728,14 @@ export default function CustomerOrderPage() {
     const totalBill = totalSavedBill + totalCartBill;
 
     const filteredItems = menuItems.filter((item) => {
-        const matchesCategory = activeCategory === "all" || item.group_id === activeCategory;
+        let matchesCategory = false;
+        if (activeCategory === "all") {
+            matchesCategory = true;
+        } else if (activeCategory === "discounts") {
+            matchesCategory = Number(item.discount_value) > 0 || Number(item.discount_percentage) > 0;
+        } else {
+            matchesCategory = item.group_id === activeCategory;
+        }
         const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
@@ -796,15 +805,15 @@ export default function CustomerOrderPage() {
                     <>
                         <div className="absolute w-80 h-80 rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
                         <div className="max-w-xl w-full rounded-card border border-white/10 bg-surface/40 p-8 sm:p-10 shadow-2xl text-center space-y-6 relative overflow-hidden backdrop-blur-sm">
-                            <div className="mx-auto h-20 w-20 rounded-3xl bg-primary/10 border border-primary/20 text-primary-hover flex items-center justify-center shadow-lg relative group">
-                                <div className="absolute inset-0 rounded-3xl border border-primary/30 animate-ping opacity-25" />
-                                <LockIcon className="animate-pulse w-10 h-10" />
+                            <div className="mx-auto flex items-center justify-center relative group py-2">
+                                <LogoIcon className="w-20 h-20 sm:w-24 sm:h-24 text-primary drop-shadow-2xl" />
                             </div>
                             <div className="space-y-3">
                                 <h1 className="text-xl sm:text-2xl font-black text-white">
                                     {t("orders.step1Title")}
                                 </h1>
-                                <p className="text-xs text-zinc-400 font-medium leading-relaxed max-w-md mx-auto">
+                                <p className="text-xs text-zinc-400 font-medium leading-relaxed max-w-md mx-auto flex items-center justify-center gap-2">
+                                    <LockIcon className="w-3.5 h-3.5" />
                                     {t("orders.step1Sub")}
                                 </p>
                             </div>
@@ -900,19 +909,19 @@ export default function CustomerOrderPage() {
                     <>
                         <div className="w-full rounded-[20px] border border-green-500/20 bg-[#0d0f17] p-4 sm:p-5 shadow-lg relative overflow-hidden mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 blur-3xl pointer-events-none" />
-                            <div className="relative z-10 flex flex-col gap-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                    <span className="text-[10px] font-black text-green-400 uppercase tracking-wide">
-                                        {t("orders.bookingVerified")}
-                                    </span>
+                            <div className="relative z-10 flex items-center gap-4 sm:gap-5">
+                                <div className="shrink-0 flex items-center justify-center">
+                                    <LogoIcon className="w-12 h-12 sm:w-16 sm:h-16 text-primary drop-shadow-xl" />
                                 </div>
-                                <h1 className="text-base sm:text-lg font-black text-white">
-                                    {t("orders.welcomeGuestPrefix")}{" "}
-                                    <span className="text-primary">{activeSession!.client_name}</span>
-                                </h1>
-                                <p className="text-[11px] sm:text-xs text-zinc-400 font-medium">{`${t("orders.assignedLocationPrefix")} (${activeSession!.room_name})`}</p>
+                                <div className="flex flex-col gap-1">
+                                    <h1 className="text-base sm:text-lg font-black text-white">
+                                        {t("orders.welcomeGuestPrefix")}{" "}
+                                        <span className="text-primary">{activeSession!.client_name}</span>
+                                    </h1>
+                                    <p className="text-[11px] sm:text-xs text-zinc-400 font-medium">{`${t("orders.assignedLocationPrefix")} (${activeSession!.room_name})`}</p>
+                                </div>
                             </div>
+
                             <PrimaryButton
                                 onClick={handleLogOutSession}
                                 className="w-full sm:w-auto px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-400 font-bold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
@@ -948,6 +957,10 @@ export default function CustomerOrderPage() {
                                                 id: "all",
                                                 label: t("orders.catAll"),
                                             },
+                                            {
+                                                id: "discounts",
+                                                label: t("orders.catDiscounts") || "عروض وتخفيضات",
+                                            },
                                             ...itemGroups.map((group) => ({
                                                 id: group.id,
                                                 label: group.name,
@@ -975,38 +988,44 @@ export default function CustomerOrderPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-in w-full">
                             {/* قائمة المشروبات والمأكولات */}
                             <div className={`lg:col-span-8 space-y-6 ${mainTab === "items" ? "block" : "hidden lg:block"}`}>
-                                <div className="hidden lg:flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-0 sticky top-(--ticker-offset-desktop,0px) z-40 bg-transparent py-2 mb-4">
+                                <div className="hidden lg:flex flex-col gap-4 sticky top-(--ticker-offset-desktop,0px) z-40 bg-[#07080a]/95 backdrop-blur-xl pt-2 pb-4 mb-6 border-b border-white/5 shadow-2xl -mx-4 px-4 sm:mx-0 sm:px-0 sm:bg-transparent sm:backdrop-blur-none sm:border-none sm:shadow-none">
                                     {/* <h2 className="text-lg font-black text-white flex items-center gap-2">
                                         <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
                                         {t("orders.cateringMenuTitle")}
                                     </h2> */}
-                                    <TabBar
-                                        tabs={[
-                                            {
-                                                id: "all",
-                                                label: t("orders.catAll"),
-                                            },
-                                            ...itemGroups.map((group) => ({
-                                                id: group.id,
-                                                label: group.name,
-                                            })),
-                                        ]}
-                                        activeTab={activeCategory}
-                                        onChange={setActiveCategory}
-                                    />
-                                </div>
+                                    <div className="bg-[#07080a]/95 backdrop-blur-xl sm:rounded-2xl sm:p-4 sm:border sm:border-white/5 sm:shadow-xl flex flex-col gap-4 w-full">
+                                        <TabBar
+                                            tabs={[
+                                                {
+                                                    id: "all",
+                                                    label: t("orders.catAll"),
+                                                },
+                                                {
+                                                    id: "discounts",
+                                                    label: t("orders.catDiscounts") || "عروض وتخفيضات",
+                                                },
+                                                ...itemGroups.map((group) => ({
+                                                    id: group.id,
+                                                    label: group.name,
+                                                })),
+                                            ]}
+                                            activeTab={activeCategory}
+                                            onChange={setActiveCategory}
+                                        />
 
-                                <div className="hidden lg:block animate-fade-in relative">
-                                    <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                                        <span className="text-zinc-500 font-bold text-lg">⌕</span>
+                                        <div className="relative w-full animate-fade-in">
+                                            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                                <span className="text-zinc-500 font-bold text-lg">⌕</span>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder={t("common.search")}
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full bg-[#131522] border border-white/10 rounded-2xl py-2.5 pr-10 pl-4 text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold shadow-inner"
+                                            />
+                                        </div>
                                     </div>
-                                    <input
-                                        type="text"
-                                        placeholder={t("common.search")}
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full bg-surface-container border border-white/10 rounded-2xl py-3 pr-10 pl-4 text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold"
-                                    />
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
@@ -1074,7 +1093,7 @@ export default function CustomerOrderPage() {
                                                             <span dir="ltr" className="inline-block font-sans">
                                                                 {isRtl ? `${Number(cartItem.item.price)} x ${cartItem.quantity}` : `${cartItem.quantity} x ${Number(cartItem.item.price)}`}
                                                             </span>
-                                                            <span>{t(`common.${settings.currency_name}`)}</span>
+                                                            <span>{`= ${(Number(cartItem.item.price) * cartItem.quantity).toLocaleString("en-US")}`} {t(`common.${settings.currency_name}`)}</span>
                                                         </span>
                                                         {cartItem.notes && (
                                                             <span className="text-[10px] text-zinc-400 mt-1">{t("orders.notePrefix")}{cartItem.notes}</span>

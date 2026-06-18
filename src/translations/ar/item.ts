@@ -8,6 +8,7 @@ export const item = {
     columnGroup: "المجموعة التابعة",
     columnCreated: "تاريخ الإضافة",
     formNameAr: "اسم الصنف",
+    formPrice: "السعر الإفرادي",
     formGroup: "المجموعة التصنيفية",
     placeholderNameAr: "مثال: قهوة كابتشينو",
     placeholderNameEn: "مثال: Cappuccino Coffee",

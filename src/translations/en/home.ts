@@ -29,12 +29,15 @@ export const home = {
 	service1Name: "Specialty Espresso Bar",
 	service1Desc:
 		"The finest single-origin coffee crops prepared with precision and care by certified professional baristas.",
+	service1Price: "15,000 - 25,000",
 	service2Name: "Fresh Pastries & Desserts",
 	service2Desc:
 		"Flaky golden French croissants, cakes, and premium pastries baked fresh daily to serve warm in your room.",
+	service2Price: "10,000 - 35,000",
 	service3Name: "Premium Catering Services",
 	service3Desc:
 		"Exquisite presentations and creative menus tailored perfectly for meetings, official conferences, and corporate parties.",
+	service3Price: "Custom Pricing",
 	service4Name: "Private Coffee Tasting",
 	service4Desc:
 		"An immersive sensory journey tasting rare coffee origins and exploring profiles with our lead master roaster.",

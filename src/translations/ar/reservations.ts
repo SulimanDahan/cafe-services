@@ -30,7 +30,7 @@ export const reservations = {
 	btnRejectRes: "رفض الحجز",
 	confirmReject: "هل أنت متأكد من رغبتك في رفض هذا الحجز؟",
 	btnActivateRes: "تنشيط (دخول العميل)",
-	btnCompleteRes: "إكمال والدفع",
+	btnCompleteRes: "الدفع والمغادرة",
 	btnUndoAccept: "تراجع عن القبول",
 	btnUndoActivate: "تراجع عن التنشيط",
 	btnUndoComplete: "تراجع عن الإكمال",
@@ -104,6 +104,7 @@ export const reservations = {
 	tabOrders: "الطلبات",
 	tabReports: "البلاغات",
 	noReports: "لا توجد بلاغات",
+	noOrders: "لا توجد طلبات",
 	filterByDate: "التاريخ",
 	allRooms: "جميع الغرف",
 };

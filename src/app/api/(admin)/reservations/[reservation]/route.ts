@@ -69,8 +69,8 @@ export async function PUT(request: Request, { params }: Params) {
 			);
 
 		// Check if room is being changed
-		if ("room_id" in body && body.room_id !== currentRes.room_id) {
-			if (!currentRes.activated || currentRes.completed) {
+		if (data.room_id && data.room_id !== currentRes.room_id) {
+			if (currentRes.completed) {
 				return NextResponse.json(
 					{ error: "apiMessages.error.cannotChangeRoomUnlessActive" },
 					{ status: 400 },
@@ -78,14 +78,17 @@ export async function PUT(request: Request, { params }: Params) {
 			}
 		}
 
-		const isEditingData =
-			"client_name" in body || "phone" in body || "date_time" in body;
-
+		let isEditingData = false;
+		if (data.client_name !== undefined && data.client_name !== currentRes.client_name) isEditingData = true;
+		if (data.phone !== undefined && data.phone !== currentRes.phone) isEditingData = true;
 		if (
-			isEditingData &&
-			(currentRes.completed ||
-				currentRes.activated)
+			data.date_time !== undefined &&
+			new Date(data.date_time).getTime() !== currentRes.date_time.getTime()
 		) {
+			isEditingData = true;
+		}
+
+		if (isEditingData && (currentRes.completed || currentRes.activated)) {
 			return NextResponse.json(
 				{ error: "apiMessages.error.cannotEditProcessedReservation" },
 				{ status: 400 },

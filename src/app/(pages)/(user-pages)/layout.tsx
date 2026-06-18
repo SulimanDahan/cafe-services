@@ -1,4 +1,4 @@
-import UserHeader from "@/components/headers/user_header";
+// import UserHeader from "@/components/headers/user_header";
 import { getServerTranslations } from "@/lib/i18n_server";
 import { getSystemSettings } from "@/lib/settings";
 
@@ -16,7 +16,7 @@ const UserLayout = async ({ children }: { children: React.ReactNode }) => {
 		<div className="min-h-screen bg-background text-zinc-100 font-sans flex flex-col selection:bg-primary selection:text-black">
 			<NewsTicker />
 			<NavigationLoader />
-			<UserHeader />
+			{/* <UserHeader /> */}
 			{children}
 
 			{/* Footer */}

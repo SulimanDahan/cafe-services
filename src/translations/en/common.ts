@@ -52,6 +52,10 @@ export const common = {
 	pwaIosAddBtn: "Add to Home Screen ➕",
 	pwaInstallBtn: "Install Now",
 	pwaDismissBtn: "Dismiss",
+	showing: "Showing",
+	to: "to",
+	of: "of",
+	entries: "entries",
 	undo: "Undo",
 	markAsRead: "Read",
 };

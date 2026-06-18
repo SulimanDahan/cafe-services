@@ -15,8 +15,22 @@ import {
 } from "@/components/icons";
 import { CupIcon } from "@/components/icons/cup_icon";
 import PWAInstallBanner from "@/components/PWAInstallBanner";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+    const router = useRouter();
+    
+    useEffect(() => {
+        router.replace("/order");
+    }, [router]);
+
+    return null;
+}
+
+// ==========================================
+// الكود القديم (تم تعطيله)
+// ==========================================
+export function OldHome() {
     const { t } = useLanguage();
     const [isBookModalOpen, setIsBookModalOpen] = useState(false);
 

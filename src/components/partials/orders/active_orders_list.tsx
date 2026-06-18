@@ -56,15 +56,17 @@ export default function ActiveOrdersList({
                                     <p className="text-xs font-black text-white group-hover/item:text-primary-light transition-colors leading-snug">
                                         {o.item_name}
                                     </p>
-                                    <p className="text-[10px] text-zinc-400 font-bold flex items-center gap-1 justify-start">
-                                        <span dir="ltr" className="inline-block font-sans">
-                                            {isRtl ? `${o.item_price.toLocaleString("en-US")} x ${o.quantity}` : `${o.quantity} x ${o.item_price.toLocaleString("en-US")}`}
-                                        </span>
-                                        <span>{currencyLabel}</span>
-                                    </p>
-                                    <p className="text-[9px] text-zinc-500 font-medium font-mono" dir="ltr">
-                                        {timeStr}
-                                    </p>
+                                    <div className="flex flex-row lg:flex-col items-center justify-between lg:items-start lg:h-full lg:justify-between">
+                                        <p className="text-[10px] text-zinc-400 font-bold flex items-center gap-1 justify-start">
+                                            <span dir="ltr" className="inline-block font-sans">
+                                                {isRtl ? `${o.item_price.toLocaleString("en-US")} x ${o.quantity}` : `${o.quantity} x ${o.item_price.toLocaleString("en-US")}`}
+                                            </span>
+                                            <span>{currencyLabel}</span>
+                                        </p>
+                                        <p className="text-[9px] text-zinc-500 font-medium font-mono" dir="ltr">
+                                            {timeStr}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center justify-between sm:justify-end gap-2 border-t border-white/5 pt-2 sm:border-t-0 sm:pt-0">

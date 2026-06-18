@@ -9,8 +9,8 @@ interface MenuItem {
     name: string;
     price: number | string;
     image?: string | null;
-    discount_percentage?: number;
-    discount_value?: number;
+    discount_percentage?: number | string;
+    discount_value?: number | string;
     group?: {
         id: string;
         name: string;
@@ -97,7 +97,7 @@ export default function MenuItemCard({
                     </h3>
                     {Number(item.price) > 0 && (
                         <div className="mt-0.5 flex flex-col lg:items-center">
-                            {((item.discount_percentage ?? 0) > 0 || (item.discount_value ?? 0) > 0) ? (
+                            {(Number(item.discount_percentage ?? 0) > 0 || Number(item.discount_value ?? 0) > 0) ? (
                                 <div className="flex flex-col items-start lg:items-center">
                                     <span className="text-[10px] font-bold text-zinc-500 line-through flex items-center gap-1">
                                         <span dir="ltr" className="inline-block font-sans">{Number(item.price).toLocaleString("en-US")}</span>

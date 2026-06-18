@@ -73,7 +73,7 @@ export async function POST(request: Request) {
 				item_id: validData.item_id,
 				item_price: item.price,
 				quantity: validData.quantity,
-				accepted: autoAccept,
+				accepted: validData.accepted ?? autoAccept,
 			},
 			include: { item: true },
 		});
