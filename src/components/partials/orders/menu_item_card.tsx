@@ -59,13 +59,13 @@ export default function MenuItemCard({
     showImage = true,
 }: MenuItemCardProps) {
     return (
-        <div className="rounded-[20px] border border-white/10 bg-surface p-3 hover:border-primary/30 transition-all duration-300 flex flex-col gap-3 group shadow-md overflow-hidden h-full">
+        <div className="rounded-[20px] border border-border bg-surface p-3 hover:border-primary/30 transition-all duration-300 flex flex-col gap-3 group shadow-md overflow-hidden h-full">
 
             {/* Top: Image + Info (Horizontal on mobile/tablet, Vertical on lg) */}
             <div className="flex flex-row lg:flex-col items-center gap-3 lg:gap-2 w-full text-start lg:text-center">
                 {/* Small Image */}
                 {showImage && (
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-[14px] lg:rounded-full shrink-0 bg-surface-lighter flex items-center justify-center overflow-hidden shadow-sm border border-white/5 lg:mb-1">
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-[14px] lg:rounded-full shrink-0 bg-surface-lighter flex items-center justify-center overflow-hidden shadow-sm border border-border-light lg:mb-1">
                         {item.image ? (
                             <>
                                 <Image
@@ -78,8 +78,8 @@ export default function MenuItemCard({
                                 <div className="absolute inset-0 bg-black/20 pointer-events-none" />
                             </>
                         ) : (
-                            <div className="flex flex-col items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity duration-300 w-full h-full bg-[#0d0f17]">
-                                <LogoIcon className="w-10 h-10 text-white transition-all" />
+                            <div className="flex flex-col items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity duration-300 w-full h-full bg-surface-darker">
+                                <LogoIcon className="w-10 h-10 text-foreground transition-all" />
                             </div>
                         )}
                     </div>
@@ -88,18 +88,18 @@ export default function MenuItemCard({
                 {/* Info */}
                 <div className="flex flex-col justify-center lg:items-center space-y-1.5 flex-1 min-w-0 w-full lg:px-1">
                     <div className="flex justify-between items-start gap-2">
-                        <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#0d0f17] text-primary-hover/90 border border-white/5 inline-block shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-surface-darker text-primary-hover/90 border border-border-light inline-block shrink-0">
                             {item.group?.name}
                         </span>
                     </div>
-                    <h3 className="text-sm font-black text-white group-hover:text-primary-light transition-colors line-clamp-2 leading-snug w-full wrap-break-word">
+                    <h3 className="text-sm font-black text-foreground group-hover:text-primary-light transition-colors line-clamp-2 leading-snug w-full wrap-break-word">
                         {item.name}
                     </h3>
                     {Number(item.price) > 0 && (
                         <div className="mt-0.5 flex flex-col lg:items-center">
                             {(Number(item.discount_percentage ?? 0) > 0 || Number(item.discount_value ?? 0) > 0) ? (
                                 <div className="flex flex-col items-start lg:items-center">
-                                    <span className="text-[10px] font-bold text-zinc-500 line-through flex items-center gap-1">
+                                    <span className="text-[10px] font-bold text-foreground-muted line-through flex items-center gap-1">
                                         <span dir="ltr" className="inline-block font-sans">{Number(item.price).toLocaleString("en-US")}</span>
                                         <span>{currencyLabel}</span>
                                     </span>
@@ -139,28 +139,28 @@ export default function MenuItemCard({
                         onChange={(e) => onChangeNote(e.target.value)}
                         placeholder={notePlaceholder || "أضف ملاحظة (اختياري)..."}
                         rows={1}
-                        className="w-full bg-black/40 border border-white/15 hover:border-white/25 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-400 focus:outline-hidden focus:border-primary/60 focus:ring-1 focus:ring-primary/60 focus:bg-[#0d0f17] transition-all resize-none shadow-inner"
+                        className="w-full bg-surface-alt border border-border hover:border-border-light rounded-xl px-3 py-2 text-xs text-foreground placeholder:text-foreground-muted focus:outline-hidden focus:border-primary/60 focus:ring-1 focus:ring-primary/60 focus:bg-surface-darker transition-all resize-none shadow-inner"
                     />
                 </div>
             )}
 
             {/* Actions (Adaptive Row on mobile/tablet, Stacked on lg) */}
-            <div className="pt-2 border-t border-white/5 flex flex-wrap lg:flex-col items-center gap-2 mt-auto">
-                <div className="flex items-center justify-between bg-[#0d0f17] border border-white/10 rounded-full p-1 shadow-inner shrink-0 w-32 lg:w-full">
+            <div className="pt-2 border-t border-border-light flex flex-wrap lg:flex-col items-center gap-2 mt-auto">
+                <div className="flex items-center justify-between bg-surface-darker border border-border rounded-full p-1 shadow-inner shrink-0 w-32 lg:w-full">
                     <button
                         type="button"
                         onClick={() => onAdjustQuantity(-1)}
-                        className="h-7 w-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 text-lg font-black transition-all shrink-0 cursor-pointer"
+                        className="h-7 w-7 rounded-full flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/10 text-lg font-black transition-all shrink-0 cursor-pointer"
                     >
                         -
                     </button>
-                    <span className="flex-1 text-center text-xs font-black text-white px-1 truncate">
+                    <span className="flex-1 text-center text-xs font-black text-foreground px-1 truncate">
                         {quantity}
                     </span>
                     <button
                         type="button"
                         onClick={() => onAdjustQuantity(1)}
-                        className="h-7 w-7 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 text-lg font-black transition-all shrink-0 cursor-pointer"
+                        className="h-7 w-7 rounded-full flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/10 text-lg font-black transition-all shrink-0 cursor-pointer"
                     >
                         +
                     </button>

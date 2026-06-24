@@ -33,10 +33,10 @@ export default function ActiveOrdersList({
     const { t, isRtl } = useLanguage();
 
     return (
-        <div className="rounded-card border border-white/10 bg-surface p-5.5 shadow-xl space-y-4">
-            <h3 className="text-sm font-black text-white border-b border-white/5 pb-3 flex items-center justify-between">
+        <div className="rounded-card border border-border bg-surface p-5.5 shadow-xl space-y-4">
+            <h3 className="text-sm font-black text-foreground border-b border-border-light pb-3 flex items-center justify-between">
                 <span>{title}</span>
-                <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#0d0f17] text-zinc-400 border border-white/5">
+                <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-surface-darker text-foreground-muted border border-border-light">
                     {orders.length}
                 </span>
             </h3>
@@ -50,26 +50,26 @@ export default function ActiveOrdersList({
                         return (
                             <div
                                 key={o.id}
-                                className="p-3 rounded-2xl bg-[#0d0f17]/60 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/item hover:border-white/10 transition-all"
+                                className="p-3 rounded-2xl bg-surface-darker/60 border border-border-light flex flex-col sm:flex-row sm:items-center justify-between gap-3 group/item hover:border-border transition-all"
                             >
                                 <div className="space-y-1">
-                                    <p className="text-xs font-black text-white group-hover/item:text-primary-light transition-colors leading-snug">
+                                    <p className="text-xs font-black text-foreground group-hover/item:text-primary-light transition-colors leading-snug">
                                         {o.item_name}
                                     </p>
                                     <div className="flex flex-row lg:flex-col items-center justify-between lg:items-start lg:h-full lg:justify-between">
-                                        <p className="text-[10px] text-zinc-400 font-bold flex items-center gap-1 justify-start">
+                                        <p className="text-[10px] text-foreground-muted font-bold flex items-center gap-1 justify-start">
                                             <span dir="ltr" className="inline-block font-sans">
                                                 {isRtl ? `${o.item_price.toLocaleString("en-US")} x ${o.quantity}` : `${o.quantity} x ${o.item_price.toLocaleString("en-US")}`}
                                             </span>
                                             <span>{currencyLabel}</span>
                                         </p>
-                                        <p className="text-[9px] text-zinc-500 font-medium font-mono" dir="ltr">
+                                        <p className="text-[9px] text-foreground-muted font-medium font-mono" dir="ltr">
                                             {timeStr}
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between sm:justify-end gap-2 border-t border-white/5 pt-2 sm:border-t-0 sm:pt-0">
+                                <div className="flex items-center justify-between sm:justify-end gap-2 border-t border-border-light pt-2 sm:border-t-0 sm:pt-0">
                                     <div className="flex items-center gap-2 md:flex-col justify-between w-full lg:gap-4">
                                         {o.accepted ? (
                                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black bg-green-500/10 border border-green-500/20 text-green-400">
@@ -107,7 +107,7 @@ export default function ActiveOrdersList({
                         );
                     })
                 ) : (
-                    <div className="py-10 text-center text-zinc-600 font-medium text-xs italic">
+                    <div className="py-10 text-center text-foreground-muted font-medium text-xs italic">
                         {noItemsLabel}
                     </div>
                 )}

@@ -105,6 +105,16 @@ export default function CustomerOrderPage() {
     const [reportMessageText, setReportMessageText] = useState("");
     const [reportLoading, setReportLoading] = useState(false);
     const [reportError, setReportError] = useState("");
+    const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+    useEffect(() => {
+        if (theme === "light") {
+            document.documentElement.classList.add("light-theme");
+        } else {
+            document.documentElement.classList.remove("light-theme");
+        }
+        return () => document.documentElement.classList.remove("light-theme");
+    }, [theme]);
 
 
     useEffect(() => {
@@ -394,11 +404,7 @@ export default function CustomerOrderPage() {
                 setActiveSession(sessionData);
                 setScanStep("success");
                 setScanLoading(false);
-                setActionMessage({
-                    text: t("orders.welcomeSessionUnlocked")
-                        .replace("{clientName}", sessionData.client_name)
-                        .replace("{tableName}", sessionData.room_name),
-                });
+
                 setTimeout(() => {
                     setScanStep("idle");
                 }, 1200);
@@ -791,7 +797,7 @@ export default function CustomerOrderPage() {
                         </div>
                         <button
                             onClick={() => setActionMessage(null)}
-                            className="text-zinc-400 hover:text-white text-sm font-black"
+                            className="text-foreground-muted hover:text-foreground text-sm font-black"
                         >
                             ✕
                         </button>
@@ -804,15 +810,15 @@ export default function CustomerOrderPage() {
                 {!activeSession ? (
                     <>
                         <div className="absolute w-80 h-80 rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
-                        <div className="max-w-xl w-full rounded-card border border-white/10 bg-surface/40 p-8 sm:p-10 shadow-2xl text-center space-y-6 relative overflow-hidden backdrop-blur-sm">
+                        <div className="max-w-xl w-full rounded-card border border-border bg-surface/40 p-8 sm:p-10 shadow-2xl text-center space-y-6 relative overflow-hidden backdrop-blur-sm">
                             <div className="mx-auto flex items-center justify-center relative group py-2">
                                 <LogoIcon className="w-20 h-20 sm:w-24 sm:h-24 text-primary drop-shadow-2xl" />
                             </div>
                             <div className="space-y-3">
-                                <h1 className="text-xl sm:text-2xl font-black text-white">
+                                <h1 className="text-xl sm:text-2xl font-black text-foreground">
                                     {t("orders.step1Title")}
                                 </h1>
-                                <p className="text-xs text-zinc-400 font-medium leading-relaxed max-w-md mx-auto flex items-center justify-center gap-2">
+                                <p className="text-xs text-foreground-muted font-medium leading-relaxed max-w-md mx-auto flex items-center justify-center gap-2">
                                     <LockIcon className="w-3.5 h-3.5" />
                                     {t("orders.step1Sub")}
                                 </p>
@@ -843,7 +849,7 @@ export default function CustomerOrderPage() {
                                     <div className="space-y-2 animate-fade-in text-start">
                                         <label
                                             htmlFor="lockPasskeyInMain"
-                                            className="text-xs font-bold text-zinc-400 block"
+                                            className="text-xs font-bold text-foreground-muted block"
                                         >
                                             {t("orders.inputPasskeyLabel")}
                                         </label>
@@ -859,7 +865,7 @@ export default function CustomerOrderPage() {
                                                 setEnteredPasskey(val);
                                             }}
                                             placeholder={t("orders.inputPasskeyPlaceholder")}
-                                            className="w-full text-center text-3xl font-black tracking-[0.5em] bg-surface-container border border-white/10 rounded-xl py-3 text-white focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-zinc-600 placeholder:text-xl placeholder:tracking-normal"
+                                            className="w-full text-center text-3xl font-black tracking-[0.5em] bg-surface-container border border-border rounded-xl py-3 text-foreground focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-zinc-600 placeholder:text-xl placeholder:tracking-normal"
                                             disabled={scanLoading}
                                             autoComplete="off"
                                         />
@@ -890,7 +896,7 @@ export default function CustomerOrderPage() {
                                         <span className="relative flex items-center justify-center gap-2 font-extrabold tracking-wide">
                                             {scanLoading ? (
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <div className="animate-spin h-4 w-4 border-2 border-white/50 border-t-white rounded-full" />
+                                                    <div className="animate-spin h-4 w-4 border-2 border-border-light0 border-t-white rounded-full" />
                                                     <span>{t("common.loading")}</span>
                                                 </div>
                                             ) : (
@@ -907,31 +913,39 @@ export default function CustomerOrderPage() {
                     </>
                 ) : (
                     <>
-                        <div className="w-full rounded-[20px] border border-green-500/20 bg-[#0d0f17] p-4 sm:p-5 shadow-lg relative overflow-hidden mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 blur-3xl pointer-events-none" />
-                            <div className="relative z-10 flex items-center gap-4 sm:gap-5">
-                                <div className="shrink-0 flex items-center justify-center">
+                        <div className="w-full rounded-[20px] border border-border bg-surface-darker p-2 sm:p-3 shadow-lg relative overflow-hidden mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl pointer-events-none" />
+                            <div className="relative z-10 flex items-center gap-2 sm:gap-3">
+                                <div className={`shrink-0 flex items-center justify-center transition-all p-2 ${theme === 'light' ? 'bg-[#0d0f17] rounded-2xl shadow-inner' : ''}`}>
                                     <LogoIcon className="w-12 h-12 sm:w-16 sm:h-16 text-primary drop-shadow-xl" />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <h1 className="text-base sm:text-lg font-black text-white">
+                                    <h1 className="text-base sm:text-lg font-black text-foreground">
                                         {t("orders.welcomeGuestPrefix")}{" "}
                                         <span className="text-primary">{activeSession!.client_name}</span>
                                     </h1>
-                                    <p className="text-[11px] sm:text-xs text-zinc-400 font-medium">{`${t("orders.assignedLocationPrefix")} (${activeSession!.room_name})`}</p>
+                                    <p className="text-[11px] sm:text-xs text-foreground-muted font-medium">{`${t("orders.assignedLocationPrefix")} (${activeSession!.room_name})`}</p>
                                 </div>
                             </div>
 
-                            <PrimaryButton
-                                onClick={handleLogOutSession}
-                                className="w-full sm:w-auto px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-400 font-bold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
-                            >
-                                <LogoutIcon />
-                                <span>{t("orders.endSession")}</span>
-                            </PrimaryButton>
+                            <div className="flex items-center gap-2 w-full md:w-auto mt-0 flex-row">
+                                <PrimaryButton
+                                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                                    className={`px-4 py-2 rounded-full border text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center shadow-sm cursor-pointer shrink-0 ${theme === "dark" ? "border-white/20 bg-white/5 hover:bg-white/10 text-foreground" : "border-black/20 bg-white/5 hover:bg-black/10 text-black"}`}
+                                >
+                                    {theme === "dark" ? t("orders.themeLight") : t("orders.themeDark")}
+                                </PrimaryButton>
+                                <PrimaryButton
+                                    onClick={handleLogOutSession}
+                                    className="w-full flex-1 md:w-auto px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-foreground text-red-400 font-bold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
+                                >
+                                    <LogoutIcon />
+                                    <span>{t("orders.endSession")}</span>
+                                </PrimaryButton>
+                            </div>
                         </div>
 
-                        <div className="w-[calc(100%+2rem)] -mx-4 px-4 flex flex-col items-center gap-3 lg:hidden mb-6 sticky top-(--ticker-offset-mobile,0px) z-50 bg-[#0f111a]/90 backdrop-blur-xl py-3 border-b border-white/5 shadow-2xl transition-all duration-300">
+                        <div className="w-[calc(100%+2rem)] -mx-4 px-4 flex flex-col items-center gap-3 lg:hidden mb-6 sticky top-(--ticker-offset-mobile,0px) z-50 bg-surface-alt/90 backdrop-blur-xl py-3 border-b border-border-light shadow-2xl transition-all duration-300">
                             <TabBar
                                 tabs={[
                                     { id: "items", label: t("orders.tabItems") },
@@ -978,7 +992,7 @@ export default function CustomerOrderPage() {
                                             placeholder={t("common.search")}
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full bg-[#131522] border border-white/10 rounded-2xl py-2.5 pr-10 pl-4 text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold"
+                                            className="w-full bg-surface border border-border rounded-2xl py-2.5 pr-10 pl-4 text-foreground placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold"
                                         />
                                     </div>
                                 </div>
@@ -988,12 +1002,12 @@ export default function CustomerOrderPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-in w-full">
                             {/* قائمة المشروبات والمأكولات */}
                             <div className={`lg:col-span-8 space-y-6 ${mainTab === "items" ? "block" : "hidden lg:block"}`}>
-                                <div className="hidden lg:flex flex-col gap-4 sticky top-(--ticker-offset-desktop,0px) z-40 bg-[#07080a]/95 backdrop-blur-xl pt-2 pb-4 mb-6 border-b border-white/5 shadow-2xl -mx-4 px-4 sm:mx-0 sm:px-0 sm:bg-transparent sm:backdrop-blur-none sm:border-none sm:shadow-none">
-                                    {/* <h2 className="text-lg font-black text-white flex items-center gap-2">
+                                <div className="hidden lg:flex flex-col gap-4 sticky top-(--ticker-offset-desktop,0px) z-40 bg-background/95 backdrop-blur-xl pt-2 pb-4 mb-6 border-b border-border-light shadow-2xl -mx-4 px-4 sm:mx-0 sm:px-0 sm:bg-transparent sm:backdrop-blur-none sm:border-none sm:shadow-none">
+                                    {/* <h2 className="text-lg font-black text-foreground flex items-center gap-2">
                                         <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
                                         {t("orders.cateringMenuTitle")}
                                     </h2> */}
-                                    <div className="bg-[#07080a]/95 backdrop-blur-xl sm:rounded-2xl sm:p-4 sm:border sm:border-white/5 sm:shadow-xl flex flex-col gap-4 w-full">
+                                    <div className="bg-background/95 backdrop-blur-xl sm:rounded-2xl sm:p-4 sm:border sm:border-border-light sm:shadow-xl flex flex-col gap-4 w-full">
                                         <TabBar
                                             tabs={[
                                                 {
@@ -1022,7 +1036,7 @@ export default function CustomerOrderPage() {
                                                 placeholder={t("common.search")}
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full bg-[#131522] border border-white/10 rounded-2xl py-2.5 pr-10 pl-4 text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold shadow-inner"
+                                                className="w-full bg-surface border border-border rounded-2xl py-2.5 pr-10 pl-4 text-foreground placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-sm font-bold shadow-inner"
                                             />
                                         </div>
                                     </div>
@@ -1081,14 +1095,14 @@ export default function CustomerOrderPage() {
 
                                         <div className="flex items-center gap-2 relative z-10">
                                             <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-                                            <h3 className="text-sm font-black text-white">{t("orders.pendingCart")}</h3>
+                                            <h3 className="text-sm font-black text-foreground">{t("orders.pendingCart")}</h3>
                                         </div>
 
                                         <div className="space-y-3 relative z-10 max-h-60 overflow-y-auto pr-1">
                                             {cartItems.map((cartItem, idx) => (
-                                                <div key={`${cartItem.item.id}-${idx}`} className="flex justify-between items-center bg-[#131522] border border-white/5 p-3 rounded-2xl">
+                                                <div key={`${cartItem.item.id}-${idx}`} className="flex justify-between items-center bg-surface border border-border-light p-3 rounded-2xl">
                                                     <div className="flex flex-col gap-0.5">
-                                                        <span className="text-sm font-bold text-white">{cartItem.item.name}</span>
+                                                        <span className="text-sm font-bold text-foreground">{cartItem.item.name}</span>
                                                         <span className="text-xs font-medium text-amber-500 flex items-center gap-1 justify-start">
                                                             <span dir="ltr" className="inline-block font-sans">
                                                                 {isRtl ? `${Number(cartItem.item.price)} x ${cartItem.quantity}` : `${cartItem.quantity} x ${Number(cartItem.item.price)}`}
@@ -1096,7 +1110,7 @@ export default function CustomerOrderPage() {
                                                             <span>{`= ${(Number(cartItem.item.price) * cartItem.quantity).toLocaleString("en-US")}`} {t(`common.${settings.currency_name}`)}</span>
                                                         </span>
                                                         {cartItem.notes && (
-                                                            <span className="text-[10px] text-zinc-400 mt-1">{t("orders.notePrefix")}{cartItem.notes}</span>
+                                                            <span className="text-[10px] text-foreground-muted mt-1">{t("orders.notePrefix")}{cartItem.notes}</span>
                                                         )}
                                                     </div>
                                                     <button
@@ -1162,7 +1176,7 @@ export default function CustomerOrderPage() {
                         {/* Close button */}
                         <button
                             onClick={() => !reportLoading && setIsReportModalOpen(false)}
-                            className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors disabled:opacity-20 cursor-pointer"
+                            className="absolute top-4 inset-e-4 text-foreground-muted hover:text-foreground transition-colors disabled:opacity-20 cursor-pointer"
                             disabled={reportLoading}
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1171,12 +1185,12 @@ export default function CustomerOrderPage() {
                         </button>
 
                         {/* Title */}
-                        <div className="text-center pb-2 border-b border-white/5">
-                            <h2 className="text-base font-black text-white flex items-center justify-center gap-2">
+                        <div className="text-center pb-2 border-b border-border-light">
+                            <h2 className="text-base font-black text-foreground flex items-center justify-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                                 {t("orders.reportModalTitle") || (isRtl ? "إرسال بلاغ أو شكوى" : "Send Report / Complaint")}
                             </h2>
-                            <p className="text-[10px] text-zinc-400 mt-1">
+                            <p className="text-[10px] text-foreground-muted mt-1">
                                 {t("orders.reportModalSub")
                                     ? t("orders.reportModalSub").replace("{room}", activeSession?.room_name || "")
                                     : (isRtl
@@ -1189,7 +1203,7 @@ export default function CustomerOrderPage() {
 
                         {/* Content */}
                         <div className="space-y-3">
-                            <label className="text-xs font-bold text-zinc-400 block">
+                            <label className="text-xs font-bold text-foreground-muted block">
                                 {t("orders.reportMessageLabel") || (isRtl ? "مضمون البلاغ أو الشكوى:" : "Report / Complaint message:")}
                             </label>
                             <textarea
@@ -1198,7 +1212,7 @@ export default function CustomerOrderPage() {
                                 placeholder={t("orders.reportPlaceholder") || (isRtl ? "اكتب تفاصيل بلاغك هنا (مثال: نحتاج مساعدة، أو هناك مشكلة في الخدمة)..." : "Write details of your complaint here...")}
                                 rows={4}
                                 disabled={reportLoading}
-                                className="w-full bg-[#0d0f17] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all resize-none h-32"
+                                className="w-full bg-surface-darker border border-border rounded-2xl px-4 py-3 text-sm text-foreground placeholder-zinc-500 focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all resize-none h-32"
                             />
 
                             {reportError && (
@@ -1213,7 +1227,7 @@ export default function CustomerOrderPage() {
                                     type="button"
                                     onClick={() => setIsReportModalOpen(false)}
                                     disabled={reportLoading}
-                                    className="px-5 py-2.5 rounded-full border border-white/10 bg-transparent text-zinc-300 hover:text-white text-xs font-black transition-all cursor-pointer disabled:opacity-40"
+                                    className="px-5 py-2.5 rounded-full border border-border bg-transparent text-zinc-300 hover:text-foreground text-xs font-black transition-all cursor-pointer disabled:opacity-40"
                                 >
                                     {t("orders.btnCancel") || (isRtl ? "إلغاء" : "Cancel")}
                                 </button>
