@@ -105,9 +105,17 @@ export default function CustomerOrderPage() {
     const [reportMessageText, setReportMessageText] = useState("");
     const [reportLoading, setReportLoading] = useState(false);
     const [reportError, setReportError] = useState("");
-    const [theme, setTheme] = useState<"dark" | "light">("dark");
+    const [theme, setTheme] = useState<"dark" | "light">("light");
 
     useEffect(() => {
+        const savedTheme = localStorage.getItem("orderTheme");
+        if (savedTheme === "dark" || savedTheme === "light") {
+            (() => setTheme(savedTheme))();
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("orderTheme", theme);
         if (theme === "light") {
             document.documentElement.classList.add("light-theme");
         } else {
@@ -865,7 +873,7 @@ export default function CustomerOrderPage() {
                                                 setEnteredPasskey(val);
                                             }}
                                             placeholder={t("orders.inputPasskeyPlaceholder")}
-                                            className="w-full text-center text-3xl font-black tracking-[0.5em] bg-surface-container border border-border rounded-xl py-3 text-foreground focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-zinc-600 placeholder:text-xl placeholder:tracking-normal"
+                                            className="w-full text-center text-3xl font-black tracking-[0.5em] bg-surface border border-border rounded-xl py-3 text-foreground focus:outline-hidden focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-foreground-muted placeholder:text-xl placeholder:tracking-normal"
                                             disabled={scanLoading}
                                             autoComplete="off"
                                         />
@@ -916,7 +924,7 @@ export default function CustomerOrderPage() {
                         <div className="w-full rounded-[20px] border border-border bg-surface-darker p-2 sm:p-3 shadow-lg relative overflow-hidden mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl pointer-events-none" />
                             <div className="relative z-10 flex items-center gap-2 sm:gap-3">
-                                <div className={`shrink-0 flex items-center justify-center transition-all p-2 ${theme === 'light' ? 'bg-[#0d0f17] rounded-2xl shadow-inner' : ''}`}>
+                                <div className="shrink-0 flex items-center justify-center transition-all p-2">
                                     <LogoIcon className="w-12 h-12 sm:w-16 sm:h-16 text-primary drop-shadow-xl" />
                                 </div>
                                 <div className="flex flex-col gap-1">
@@ -937,7 +945,7 @@ export default function CustomerOrderPage() {
                                 </PrimaryButton>
                                 <PrimaryButton
                                     onClick={handleLogOutSession}
-                                    className="w-full flex-1 md:w-auto px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-foreground text-red-400 font-bold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
+                                    className="w-full flex-1 md:w-auto px-4 py-2 rounded-full border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-400 font-bold text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
                                 >
                                     <LogoutIcon />
                                     <span>{t("orders.endSession")}</span>

@@ -41,7 +41,7 @@ export default function TabBar({ tabs, activeTab, onChange }: TabBarProps) {
 	};
 
 	return (
-		<div className="flex flex-nowrap gap-2 p-1 bg-background/60 border border-white/10 rounded-full w-fit max-w-full overflow-x-auto backdrop-blur-xl shadow-inner [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
+		<div className="flex flex-nowrap gap-2 p-1 bg-background/60 border border-border rounded-full w-fit max-w-full overflow-x-auto backdrop-blur-xl shadow-inner [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
 			{tabs.map((tab) => (
 				<button
 					key={tab.id}
@@ -50,7 +50,7 @@ export default function TabBar({ tabs, activeTab, onChange }: TabBarProps) {
 					className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all duration-300 cursor-pointer whitespace-nowrap shrink-0 ${
 						activeTab === tab.id
 							? "bg-primary text-background shadow-lg shadow-primary/20 "
-							: "text-zinc-400 hover:text-white hover:bg-white/5"
+							: "text-foreground-muted hover:text-foreground hover:bg-foreground/10"
 					}`}
 				>
 					{tab.icon && <span className="shrink-0">{tab.icon}</span>}

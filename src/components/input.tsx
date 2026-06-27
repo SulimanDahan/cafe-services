@@ -15,13 +15,13 @@ export const InputField = React.forwardRef<
     InputFieldProps
 >(({ label, isSelect, options, className: customClassName, ...props }, ref) => {
     const baseClassName =
-        "w-full bg-background border border-white/10 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all duration-200" +
+        "w-full bg-background border border-border text-foreground rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all duration-200" +
         (props.type === "date" || props.type === "time" ? " [&::-webkit-calendar-picker-indicator]:invert-[0.8]" : "");
 
     return (
         <div className="space-y-1.5 w-full">
             {label && (
-                <label className="text-xs font-bold text-zinc-400 block">
+                <label className="text-xs font-bold text-foreground-muted block">
                     {label}
                 </label>
             )}
@@ -36,7 +36,7 @@ export const InputField = React.forwardRef<
                             <option
                                 key={opt.id}
                                 value={opt.id}
-                                className="bg-[#0d0f17] text-white font-bold p-2"
+                                className="bg-surface-darker text-foreground font-bold p-2"
                             >
                                 {opt.name}
                             </option>
